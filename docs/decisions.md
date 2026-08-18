@@ -73,3 +73,20 @@ Data Warsaw is positioned as a bespoke high-level data consultancy and storytell
 ### Consequence
 - Consistent, memorable brand presence.
 - Strict design discipline required during any UI extension or refactoring.
+
+---
+
+## ADR 005: Website Source Repository Named website
+
+- **Date:** 2026-08-18
+- **Status:** Accepted
+
+### Decision
+The website source repository is named website.
+
+### Reason
+The GitHub account itself is now datawarsaw, so datawarsaw/website clearly distinguishes the website repository from the account/profile namespace.
+
+### Consequence
+- Website source lives at github.com/datawarsaw/website.
+- datawarsaw/datawarsaw becomes available for the special GitHub profile README repository later.
