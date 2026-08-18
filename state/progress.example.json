@@ -1,0 +1,11 @@
+{
+  "task_id": "DW-000",
+  "status": "in_progress",
+  "current_step": "inspect",
+  "completed_steps": [],
+  "attempt": 1,
+  "files_changed": [],
+  "evidence": [],
+  "last_failure": null,
+  "next_action": "Continue from the current step."
+}
