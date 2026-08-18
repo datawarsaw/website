@@ -20,10 +20,14 @@ Thumbs.db
 # Environment & Secrets
 .env
 .env.local
+.env.*
 .env.*.local
 *.pem
 *.key
 *.cert
+*.crt
+*.pfx
+*.p12
 
 # Temporary Files & Logs
 *.log

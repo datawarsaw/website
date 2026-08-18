@@ -109,3 +109,23 @@ When completing tasks, return a concise structured summary containing:
 - **IMPLEMENTATION APPROACH:** Key technical decisions and changes made.
 - **TESTS PERFORMED:** Concrete validation steps and viewports tested.
 - **REMAINING LIMITATIONS:** Any known caveats or follow-up items (or "None").
+
+---
+
+## Durable Project Memory
+
+After completing work that creates durable project knowledge, update the relevant documentation file only when necessary.
+
+Use:
+
+- architectural decision -> docs/decisions.md
+- confirmed failure or root cause -> docs/failures-and-lessons.md
+- architecture change -> docs/architecture.md
+- responsive/design rule -> docs/responsive-guidelines.md or docs/design-system.md
+- data-source change -> docs/data-sources.md
+- completed or planned milestone -> docs/roadmap.md
+
+- Do not update documentation for trivial edits.
+- Do not save conversation transcripts, temporary debugging chatter, speculative guesses, credentials, passwords, API keys, tokens.
+- Keep documentation concise.
+- The repository should act as durable project memory for future agents and sessions.
