@@ -9,10 +9,12 @@ This document describes the software architecture, rendering pipelines, runtime 
 Data Warsaw is architected as a high-performance, single-page vanilla web application with zero runtime framework dependencies (no React, Vue, or build-step bundler). 
 
 The application is structured into four core layers:
-1. **Semantic DOM Layer (`index.html`):** Structured accessible markup with aria roles, metadata, and progressive enhancement anchors.
-2. **Design System & Layout Engine (`styles.css`):** CSS custom properties, grid/flex layouts, CSS 3D stage perspectives, and media-query breakpoints.
-3. **Motion & Interaction Orchestrator (`script.js` + GSAP):** Timeline sequencing, scroll triggers, active state toggling, and user interaction management.
-4. **Rendering Engines (`script.js` Canvas 2D / SVG):** Projective 3D analytical hero graph renderer and responsive time-series weather chart renderer.
+1. **Semantic DOM Layer (`site/index.html`):** Structured accessible markup with aria roles, metadata, and progressive enhancement anchors.
+2. **Design System & Layout Engine (`site/styles.css`):** CSS custom properties, grid/flex layouts, CSS 3D stage perspectives, and media-query breakpoints.
+3. **Motion & Interaction Orchestrator (`site/script.js` + GSAP):** Timeline sequencing, scroll triggers, active state toggling, and user interaction management.
+4. **Rendering Engines (`site/script.js` Canvas 2D / SVG):** Projective 3D analytical hero graph renderer and responsive time-series weather chart renderer.
+
+These public website files live only under `site/`. That directory is the deployment source for the server's `/public_html/`; harness, docs, and other repository files stay outside it.
 
 ---
 

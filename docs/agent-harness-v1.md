@@ -92,3 +92,32 @@ The next milestone is not another synthetic role benchmark. Run V1 on several re
 - resume behavior after interruption.
 
 Only add architecture where these traces show a real need.
+
+## Deployment Boundary
+
+Public website files live only under `site/`:
+
+```text
+site/
+├── index.html
+├── styles.css
+├── script.js
+└── assets/
+```
+
+`site/` is the future deployment source. Everything inside `site/` may be copied to the server's `/public_html/`. Nothing outside `site/` should be deployed publicly, including:
+
+- `AGENTS.md`
+- `agents/`
+- `skills/`
+- `state/`
+- `docs/`
+- `evals/`
+- future deployment scripts
+
+Serve the website from `site/`, not the repository root:
+
+```powershell
+cd C:\AI\datawarsaw\site
+python -m http.server 8081
+```

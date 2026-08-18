@@ -11,9 +11,10 @@ Use the repository checklists as the source of truth:
 - `evals/visual-regression-checklist.md`
 
 ## Start
-Serve the project from the repository root with a local static server. Prefer:
+Serve the public website from `site/` with a local static server. Prefer:
 
-```bash
+```powershell
+cd C:\AI\datawarsaw\site
 python -m http.server 8081
 ```
 
