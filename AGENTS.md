@@ -114,6 +114,10 @@ When completing tasks, return a concise structured summary containing:
 
 ## Durable Project Memory
 
+## 7. Rams UI Review Workflow
+
+After editing UI files, run a Rams `quick_review` on them and fix what it flags. Before committing, run `review_files` for a score. Apply this workflow to UI-facing files such as HTML, CSS, and frontend JavaScript where appropriate. Rams credentials and MCP configuration remain outside this repository.
+
 After completing work that creates durable project knowledge, update the relevant documentation file only when necessary.
 
 Use:
