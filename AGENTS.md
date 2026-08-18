@@ -87,6 +87,37 @@ Always validate responsive behavior across:
 - **Inspect Diffs:** Check recent diffs and git status when troubleshooting or iterating.
 - **Scope Isolation:** Never modify unrelated sections or rewrite shared styles without necessity.
 
+### Mandatory Repository Preflight
+
+Before any agent edits files, it must establish the real repository state instead of assuming the local checkout is current.
+
+1. Inspect the current branch and working tree.
+2. Fetch remote refs from `origin`.
+3. Confirm the intended branch exists locally or on `origin`.
+4. Switch to the intended branch; if it exists only remotely, create a local tracking branch from that remote branch.
+5. Verify the local branch is tracking the expected remote branch and inspect recent commits.
+6. Verify the working tree is clean, or explicitly preserve and report any pre-existing dirty state before proceeding.
+7. Never create a same-named branch from stale local `main` when `origin/<branch>` already exists.
+8. Never modify `main` unless the task explicitly requires it and the user has approved that scope.
+
+Recommended baseline sequence when remote access is available:
+
+```bash
+git status --short --branch
+git fetch origin
+git branch -a
+git log --oneline --decorate --all -15
+```
+
+Then switch to the intended existing branch and verify:
+
+```bash
+git status --short --branch
+git log --oneline --decorate -10
+```
+
+If the remote cannot be reached, stop and report that repository freshness could not be verified rather than silently assuming local state is authoritative.
+
 ---
 
 ## 5. Testing & Verification Checklist
