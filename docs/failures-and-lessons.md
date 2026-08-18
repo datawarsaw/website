@@ -48,3 +48,15 @@ Initializing HTML5 Canvas backing buffers using raw `window.devicePixelRatio` on
 ### Concrete Fix & Rule
 - Cap DPR calculations globally to a maximum of 2: `Math.min(window.devicePixelRatio || 1, 2)`.
 - Pause render loops via `IntersectionObserver` and the Page Visibility API whenever the element or tab is not actively viewed.
+
+---
+
+## 5. Empty GitHub Activity Grid Reads as Zero Work
+
+### Symptom & Root Cause
+An honest-but-empty 8-16 week matrix of lvl-0 cells, shown when the public GitHub API is unavailable, visually claims no commits rather than data unavailable.
+
+### Concrete Fix & Rule
+- If repository activity cannot be fetched, do not render day cells.
+- Keep the public repository links and known static facts.
+- State Live GitHub activity unavailable and hide the recent-commit ledger so no invented SHAs or empty activity remain on screen.

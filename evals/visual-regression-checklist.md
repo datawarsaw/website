@@ -35,7 +35,17 @@ Use this checklist to ensure that the Data Warsaw aesthetic identity, motion fid
 
 ---
 
-## 4. Live Data Pulse (Weather)
+## 4. Work in Practice (GitHub Activity Showcase)
 
-- [ ] **Live Data Indicator:** Status dot displays live beacon state (`.is-ready`) when Open-Meteo API succeeds.
+- [ ] **Discrete Intensity Styling:** Activity matrix uses dark graphite cell borders with acid-lime intensity (never generic GitHub green).
+- [ ] **Inspector Fidelity:** Hovering or selecting any day cell dynamically reflects the correct commit count and message.
+- [ ] **Honest Fallback State:** If offline or rate-limited, displays clean empty cells (level 0) and static project facts rather than fake intensity.
+
+---
+
+## 5. Live Data Pulse (Decision Timeline)
+
+- [ ] **Live Data Indicator:** Status dot displays live beacon state (`.is-ready`) when Open-Meteo API succeeds, and fallback state (`.is-fallback`) when offline.
+- [ ] **Composite Suitability Plot:** Glowing lime curve and area cleanly communicate the 0–100% outdoor suitability index across the 24-hour horizon.
+- [ ] **Best Window Bounding Highlight:** Optimal 3-hour window is framed by an animated bounding highlight.
 - [ ] **Graceful Fallback:** Status dot displays fallback indicator (`.is-fallback`) without breaking layout or throwing uncaught errors when offline or throttled.

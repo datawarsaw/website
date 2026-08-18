@@ -22,11 +22,10 @@ The application is structured into four core layers:
 | :--- | :--- | :--- | :--- |
 | **Hero** | `#top` (`.hero`) | HTML5 Canvas 2D + GSAP | Renders the projective 3-layer analytical scatter plot, trajectory curve, and decision node with damped pointer parallax. |
 | **About** | `#about` (`.about`) | Semantic HTML + CSS | Communicates background, analytical philosophy, and business positioning. |
-| **Services / Expertise** | `#expertise` (`.services`) | CSS Grid + ScrollTrigger | Displays four core analytical competencies with hover and reveal states. |
-| **Experience Map** | `.experience` | SVG Radar + Interactive DOM | Interactive orbit map connecting business questions with analytical solutions across disciplines. |
+| **Experience Map** | `#experience` (`.experience`) | SVG Radar + Interactive DOM | Interactive multidimensional map connecting business questions with analytical solutions across 8 core axes. |
 | **Approach & Process** | `#approach` (`.approach`) | CSS Timeline + State Manager | Four-step narrative flow (01 Understand, 02 Explore, 03 Explain, 04 Decide) with interactive question toggling. |
-| **Warsaw Data Pulse** | `#pulse` (`.pulse`) | HTML5 Canvas 2D / SVG + Open-Meteo API | Real-time weather dashboard fetching 24h temperature and precipitation forecast for Warsaw with interactive scrub cursor. |
-| **Work & Case Studies** | `.work` | Interactive Tabs + SVG Plots | Interactive case study selector with synchronized statistical mini-plots. |
+| **Work in Practice** | `#practice` (`.practice`) | SVG Matrix + GitHub REST API | Public working artifact showcase with unauthenticated commit matrix, real-time repository metadata, and commit ledger. |
+| **Warsaw Data Pulse** | `#pulse` (`.pulse`) | SVG Timeline + Open-Meteo API | 24-hour analytical Decision Timeline plotting continuous temperature, precipitation, wind, AQI, and derived hourly outdoor suitability. |
 | **Contact** | `#contact` (`.contact`) | Accessible Form + Status Indicator | Direct reach-out channel with project availability status. |
 
 ---
@@ -46,11 +45,18 @@ The hero graph visualizes the journey from data complexity to clear decision mak
   - Layer-dependent point alphas, scale, and connection line weights.
   - Decision node rendering with floor occlusion shadow, lime radiance glow, outer telemetry orbits, and specular core bead.
 
-### 3.2 Warsaw Data Pulse (Time-Series Engine)
-The weather pulse module visualizes atmospheric conditions:
-- **Data Model:** 24-hour continuous temperature (°C) and precipitation (mm) forecast arrays.
-- **Dynamic X-Axis Ticks:** Analyzes canvas client width and calculates adaptive tick density (fewer ticks on narrow mobile viewports, full density on desktop) to prevent label overlap.
-- **Scrubbing & Interaction:** `pointermove` tracker calculates nearest data index, positions SVG vertical guide line, and updates floating metric tooltip in real time.
+### 3.2 Work in Practice Matrix Engine
+Visualizes repository commit activity:
+- **Data Model:** Direct public commit history on `datawarsaw/website` grouped by calendar date.
+- **Geometry:** 7-row by 16-week grid rendered via dynamic SVG with discrete intensity levels (0, 1, 2, 3+ commits/day) in dark graphite and acid-lime.
+- **Interactivity:** Pointer hover, click, and keyboard focus update the live Inspector panel with date, commit count, and commit message.
+
+### 3.3 Warsaw Data Pulse (Decision Timeline Engine)
+Visualizes atmospheric conditions and derived suitability:
+- **Data Model:** 24-hour continuous temperature (°C), precipitation probability (%), wind speed (km/h), and European AQI series.
+- **Derived Suitability Formula:** Deterministic outdoor score: `clamp(1 - (max(0, rain-35)/65 + max(0, aqi-60)/60 + max(0, wind-30)/40), 0, 1)`.
+- **Best Window Highlight:** Evaluates all 3-consecutive-hour windows (06:00–19:00 daytime) and bounds the optimal window with an animated acid-lime frame.
+- **Interaction:** Scrub tracker calculates active hour index, updates live metric pills, and positions the floating precision tooltip.
 
 ---
 
@@ -63,6 +69,15 @@ The weather pulse module visualizes atmospheric conditions:
   2. Data parser extracts hourly arrays and derives relative timestamps.
   3. If network fails, API returns non-200, or payload is malformed, the engine seamlessly activates a built-in deterministic baseline fallback dataset.
   4. Status indicator reflects live state (`.is-ready`) or fallback state (`.is-fallback`).
+
+### GitHub REST API (Public & Unauthenticated)
+- **Endpoints:**
+  - `https://api.github.com/repos/datawarsaw/website`
+  - `https://api.github.com/repos/datawarsaw/website/commits?per_page=100`
+- **Lifecycle & Cache:**
+  1. Session-cached in `sessionStorage` (10 min TTL) to avoid unauthenticated IP rate limiting (60 req/hr).
+  2. Extracts branch, language, push timestamp, and commit date arrays.
+  3. If rate-limited or offline, gracefully reveals technical facts and static fallback state with zero layout shift or crash.
 
 ---
 

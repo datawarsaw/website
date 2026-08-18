@@ -15,9 +15,12 @@ The website demonstrates analytical rigor and bespoke data visualization princip
 - **Animation & Motion:** [GSAP (GreenSock Animation Platform)](https://greensock.com/) & [ScrollTrigger](https://greensock.com/scrolltrigger/) for smooth timeline sequencing and scroll-linked state orchestration.
 - **Interactive Visualizations:**
   - **Hero Graph:** Custom projective Canvas 2D renderer with 3-layer depth planes, damped pointer-driven parallax, and animated decision node.
-  - **Warsaw Data Pulse:** Custom SVG/Canvas 2D time-series visualization with dynamic tick reduction and Open-Meteo live API integration.
   - **Experience Map:** Interactive CSS/SVG multi-axis orbit radar exploring key analytical disciplines.
-- **External APIs:** [Open-Meteo API](https://open-meteo.com/) for live Warsaw forecast and atmospheric conditions (with robust local fallback).
+  - **Work in Practice:** Custom SVG commit activity matrix and public repository showcase backed by unauthenticated GitHub REST API.
+  - **Warsaw Data Pulse (Decision Timeline):** Composite 24-hour analytical Decision Timeline plotting forecast metrics, derived outdoor suitability, and optimal window.
+- **External APIs:**
+  - [Open-Meteo API](https://open-meteo.com/) for live Warsaw forecast and atmospheric air quality (with deterministic local fallback).
+  - [GitHub REST API](https://api.github.com/) for public repository activity and commit history (with session caching).
 
 ---
 

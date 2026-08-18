@@ -54,7 +54,15 @@ Every layout change or new component must be validated across the following four
 - **Step Connectivity:** Mobile step markers must remain anchored directly to their corresponding descriptive blocks.
 - **Timeline Rhythm:** Desktop horizontal timeline layout rules and wide column margins must not leak into mobile single-column layouts.
 
-### 4.4 Warsaw Conditions / Weather Pulse
+### 4.4 Work in Practice (Commit Activity Matrix)
+- **Responsive Week Aggregation:** The activity matrix dynamically scales the rendered week count to the viewport: 8 weeks on mobile (<=480px), 12 weeks on tablet (<=900px), and 16 weeks on desktop, automatically rebuilding on debounced window resize.
+- **Horizontal Containment:** Compact column counts fit naturally within the mobile container, guaranteeing zero horizontal page overflow (`scrollWidth === innerWidth`).
+- **Inspector Reflow:** The 3-column desktop inspector (`Selected Day`, `Activity`, `Commit Message`) reflows into a clean single-column or 2-column card on mobile viewports.
+- **Touch Targets:** Activity cells have minimum touch clearance and keyboard focus rings for accessible navigation.
+
+### 4.5 Warsaw Data Pulse (Decision Timeline)
 - **Adaptive Axis Tick Density:** The X-axis time scale dynamically computes tick density based on available screen width (e.g. 3–4 ticks on compact mobile vs 7–8 ticks on desktop) to prevent overlapping hour labels.
+- **Composed Raw Signal Strip:** An hourly 24-column micro-signal track renders directly under the suitability graph in the same SVG coordinate system, scaling fluidly across viewports.
 - **Touch Ergonomics:** The interactive scrub area must respond fluidly to horizontal touch drags without capturing or jamming vertical page scrolling.
-- **Metrics Hierarchy:** Current condition badges, temperature readouts, and status indicators must stack cleanly above the chart on narrow viewports.
+- **Metrics Hierarchy:** Multi-metric summary pills (Suitability, Temp, Rain, Wind, AQI) stack into a clean wrap-grid above the timeline.
+- **Pipeline Stack:** The 3-stage analytical pipeline (Raw Data → Combined Signal → Best Window/Decision) stacks vertically on viewports $le 640	ext{px}$.

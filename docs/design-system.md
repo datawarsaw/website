@@ -48,7 +48,9 @@ The typographic system pairs high-contrast editorial serifs with crisp, precisio
 
 Acid-lime (`#c8ff3d`) is used with strict economy:
 - **Decision Node & Focal Point:** Signifies the convergence of complex signals into clear decisions.
-- **Active Navigation & Metrics:** Highlights active tabs, current pulse status dot, and key analytical takeaways.
+- **Active Navigation & Metrics:** Highlights active nav states, pulse decision highlights, commit activity intensity, and key takeaways.
+- **Commit Activity Intensity:** Levels 1, 2, 3+ in the Work in Practice activity matrix use discrete acid-lime opacity and full signal intensity over dark graphite cell frames.
+- **Decision Timeline Suitability Area:** Glowing lime gradient fill and line demarcating the composite 0–100% outdoor suitability index.
 - **Call-to-Action Elements:** Primary button background (`.button-primary`) and identity marks.
 - **Restraint Rule:** Never apply lime to large background blocks or broad text bodies; it exists as a high-precision focal signal.
 

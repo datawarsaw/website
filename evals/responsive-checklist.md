@@ -40,7 +40,14 @@ Use this checklist during QA and code reviews to verify layout integrity, touch 
 - [ ] Step numbers remain visually bound to their corresponding content headings on mobile.
 - [ ] No desktop horizontal timeline connectors or wide column margins leaking into mobile layouts.
 
-### Warsaw Data Pulse (Weather Chart)
-- [ ] Dynamic X-axis tick reduction correctly renders 3–4 clean time labels on mobile and 6–8 on desktop.
-- [ ] Zero time-axis label overlap or border truncation.
-- [ ] Interactive touch drag on the chart operates smoothly without interrupting vertical page scrolling.
+### Work in Practice (Commit Activity Matrix)
+- [ ] Activity matrix fits smoothly within container across all mobile viewports without causing horizontal page overflow.
+- [ ] Touch interaction / tap on day cells opens the day inspector without zooming or erratic viewport shifts.
+- [ ] 4-item technical metadata strip wraps cleanly into single-column or 2-column cards on mobile.
+- [ ] Recent public commits ledger wraps long commit messages cleanly without text overflow or clipped timestamps.
+
+### Warsaw Data Pulse (Decision Timeline)
+- [ ] 24-hour composite timeline scales responsively; dynamic X-axis tick reduction renders 3–4 clean time labels on mobile and 5–6 on desktop.
+- [ ] Zero time-axis label overlap, clipping, or border truncation.
+- [ ] 3-stage pipeline cards stack cleanly into single-column cards on screens $le 640	ext{px}$.
+- [ ] Interactive touch scrub on the chart operates smoothly without capturing vertical page scroll.

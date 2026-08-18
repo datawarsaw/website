@@ -8,10 +8,10 @@ This roadmap tracks the development lifecycle of Data Warsaw, categorizing compl
 
 - **Core Website Architecture:** Fully responsive, single-page data storytelling portfolio with custom vanilla JS/CSS architecture.
 - **Hero Visualization:** Projective Canvas 2D hero graph with 3-layer analytical depth, elevated decision node, and damped pointer parallax.
-- **Experience Orbit / Radar:** Interactive domain explorer connecting business challenges with analytical capabilities.
+- **Experience Map:** Interactive multidimensional map connecting business challenges with analytical capabilities across 8 axes.
 - **Methodology & Process Flow:** Structured narrative walkthrough of the analytical engagement cycle (Understand → Explore → Explain → Decide).
-- **Live Warsaw Data Pulse:** Open-Meteo weather API integration with interactive scrub timeline and dynamic mobile tick adaptation.
-- **Case Studies & Case Viewer:** Interactive statistical mini-plots and commercial impact summaries.
+- **Work in Practice Showcase:** Public GitHub integration with custom commit activity matrix, real-time metadata, and recent commit ledger (replacing fabricated case studies).
+- **Warsaw Data Pulse Decision Timeline:** 24-hour composite analytical timeline simultaneously visualizing conditions, derived outdoor suitability, and optimal 3-hour window.
 - **Project Documentation & Agent Memory:** Comprehensive project documentation suite (`docs/`, `evals/`, `AGENTS.md`).
 
 ---

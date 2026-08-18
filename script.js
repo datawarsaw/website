@@ -271,133 +271,420 @@
     });
   }
 
-  const workData = {
-    sales: {
-      index: '01 / Performance', title: 'Sales Performance',
-      question: 'Where is growth coming from — and what is holding it back?',
-      analysis: 'Revenue drivers, mix and variance', outcome: 'A clearer commercial priority',
-      metricLabel: 'Signal', metric: '+18%', plot: 'plot-bars'
-    },
-    customer: {
-      index: '02 / Behaviour', title: 'Customer Analytics',
-      question: 'Which customer groups create value — and where is retention at risk?',
-      analysis: 'Segments, cohorts and customer value', outcome: 'A focused retention opportunity',
-      metricLabel: 'Retained', metric: '84%', plot: 'plot-scatter'
-    },
-    digital: {
-      index: '03 / Conversion', title: 'Digital Performance',
-      question: 'Which journeys and channels turn attention into commercial outcomes?',
-      analysis: 'Journey, channel and conversion signals', outcome: 'A sharper growth experiment',
-      metricLabel: 'Index', metric: '1.32', plot: 'plot-line'
-    }
-  };
-  const workTabs = [...document.querySelectorAll('[data-work-tab]')];
-  const workPanel = document.querySelector('.work-panel');
-  if (workTabs.length && workPanel) {
-    const workFields = {
-      index: workPanel.querySelector('[data-work-index]'), title: workPanel.querySelector('[data-work-title]'),
-      question: workPanel.querySelector('[data-work-question]'), analysis: workPanel.querySelector('[data-work-analysis]'),
-      outcome: workPanel.querySelector('[data-work-outcome]'), metricLabel: workPanel.querySelector('[data-work-metric-label]'),
-      metric: workPanel.querySelector('[data-work-metric]'), plot: workPanel.querySelector('[data-work-plot]')
-    };
-    let workTimer = 0;
-    let workTimeline = null;
-    const activateWork = (tab, moveFocus = false) => {
-      const data = workData[tab.dataset.workTab];
-      if (!data || tab.getAttribute('aria-selected') === 'true') return;
-      workTabs.forEach(item => {
-        const active = item === tab;
-        item.setAttribute('aria-selected', String(active));
-        item.tabIndex = active ? 0 : -1;
-      });
-      workPanel.setAttribute('aria-labelledby', tab.id);
-      if (moveFocus) tab.focus();
-      window.clearTimeout(workTimer);
-      const updateWork = () => {
-        workFields.index.textContent = data.index;
-        workFields.title.textContent = data.title;
-        workFields.question.textContent = data.question;
-        workFields.analysis.textContent = data.analysis;
-        workFields.outcome.textContent = data.outcome;
-        workFields.metricLabel.textContent = data.metricLabel;
-        workFields.metric.textContent = data.metric;
-        workFields.plot.className = `work-plot ${data.plot}`;
-        workPanel.classList.remove('is-updating');
-      };
+  const practiceModule = document.querySelector('[data-practice-module]');
+  if (practiceModule) {
+    const REPO_URL = 'https://api.github.com/repos/datawarsaw/website';
+    const COMMITS_URL = 'https://api.github.com/repos/datawarsaw/website/commits?per_page=100';
+    const CACHE_KEY_REPO = 'dw_github_repo_v1';
+    const CACHE_KEY_COMMITS = 'dw_github_commits_v1';
+    const CACHE_TTL_MS = 10 * 60 * 1000;
 
-      if (motionAllowed()) {
-        const outgoing = workPanel.querySelectorAll('.work-copy > *, .work-metric > *, .work-plot');
-        workTimeline?.kill();
-        workTimeline = window.gsap.timeline({ defaults: { ease: 'power2.out' } });
-        workTimeline
-          .to(outgoing, { autoAlpha: 0, y: -6, duration: .14, stagger: .018, overwrite: true })
-          .add(updateWork)
-          .fromTo(outgoing,
-            { autoAlpha: 0, y: 9 },
-            { autoAlpha: 1, y: 0, duration: .4, stagger: .04, clearProps: 'transform,opacity,visibility' }
-          )
-          .fromTo(workFields.plot.querySelectorAll('i'),
-            { scaleY: .45, transformOrigin: 'bottom' },
-            { scaleY: 1, duration: .42, stagger: .045, clearProps: 'transform' },
-            '<.05'
-          );
-      } else {
-        if (!motionReduced()) workPanel.classList.add('is-updating');
-        workTimer = window.setTimeout(updateWork, motionReduced() ? 0 : 150);
+    const statusEl = practiceModule.querySelector('[data-practice-status]');
+    const statusTextEl = practiceModule.querySelector('[data-practice-status-text]');
+    const langEl = practiceModule.querySelector('[data-practice-lang]');
+    const branchEl = practiceModule.querySelector('[data-practice-branch]');
+    const pushedEl = practiceModule.querySelector('[data-practice-pushed]');
+    const matrixContainer = practiceModule.querySelector('[data-practice-matrix]');
+    const practiceLedger = practiceModule.querySelector('[data-practice-ledger]');
+    const ledgerList = practiceModule.querySelector('[data-practice-ledger-list]');
+    const fallbackNote = practiceModule.querySelector('[data-practice-fallback]');
+    const inspectorDate = practiceModule.querySelector('[data-inspector-date]');
+    const inspectorCount = practiceModule.querySelector('[data-inspector-count]');
+    const inspectorMsg = practiceModule.querySelector('[data-inspector-msg]');
+
+    let currentCommitsData = null;
+    let currentRepoData = null;
+    let currentRenderedWeeks = 0;
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+
+    const createSvg = (name, attrs = {}) => {
+      const el = document.createElementNS(svgNS, name);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    };
+
+    const getTargetWeeks = () => {
+      const w = window.innerWidth;
+      if (w <= 480) return 8;
+      if (w <= 900) return 12;
+      return 16;
+    };
+
+    const getWarsawDateParts = (date = new Date()) => {
+      const parts = Object.fromEntries(
+        new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Europe/Warsaw',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).formatToParts(date).filter(p => p.type !== 'literal').map(p => [p.type, p.value])
+      );
+      return parts;
+    };
+
+    const formatWarsawDateIso = date => {
+      const p = getWarsawDateParts(date);
+      return `${p.year}-${p.month}-${p.day}`;
+    };
+
+    const formatWarsawHumanDate = (date, includeYear = true) => {
+      return new Intl.DateTimeFormat('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: includeYear ? 'numeric' : undefined,
+        timeZone: 'Europe/Warsaw'
+      }).format(date);
+    };
+
+    const getCached = key => {
+      try {
+        const item = sessionStorage.getItem(key);
+        if (!item) return null;
+        const parsed = JSON.parse(item);
+        if (Date.now() - parsed.ts < CACHE_TTL_MS) return parsed.data;
+      } catch (e) {}
+      return null;
+    };
+
+    const setCached = (key, data) => {
+      try {
+        sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), data }));
+      } catch (e) {}
+    };
+
+    const fetchWithTimeout = async (url, timeoutMs = 7000) => {
+      const controller = new AbortController();
+      const id = window.setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, { signal: controller.signal, headers: { Accept: 'application/vnd.github.v3+json' } });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        return data;
+      } finally {
+        window.clearTimeout(id);
       }
     };
-    workTabs.forEach((tab, index) => {
-      tab.addEventListener('click', () => activateWork(tab));
-      tab.addEventListener('keydown', event => {
-        let nextIndex = null;
-        if (event.key === 'ArrowRight') nextIndex = (index + 1) % workTabs.length;
-        if (event.key === 'ArrowLeft') nextIndex = (index - 1 + workTabs.length) % workTabs.length;
-        if (event.key === 'Home') nextIndex = 0;
-        if (event.key === 'End') nextIndex = workTabs.length - 1;
-        if (nextIndex !== null) {
-          event.preventDefault();
-          activateWork(workTabs[nextIndex], true);
+
+    const renderInspector = cell => {
+      if (!cell) {
+        inspectorDate.textContent = 'Hover or focus a day cell';
+        inspectorCount.textContent = '—';
+        inspectorMsg.textContent = 'Select a cell in the activity matrix to inspect commit details.';
+        return;
+      }
+      const count = parseInt(cell.dataset.count, 10) || 0;
+      const dateStr = cell.dataset.dateHuman || cell.dataset.date;
+      const msg = cell.dataset.msg || 'No public commits on datawarsaw/website on this day.';
+
+      inspectorDate.textContent = dateStr;
+      inspectorCount.textContent = count === 1 ? '1 commit' : `${count} commits`;
+      inspectorMsg.textContent = msg;
+    };
+
+    const buildMatrix = (commits, repo) => {
+      if (!Array.isArray(commits) || commits.length === 0) {
+        matrixContainer.innerHTML = `
+          <div class="matrix-fallback-state">
+            <p>Live repository telemetry is currently unavailable from the GitHub API.</p>
+            <span>Source code, commit logs and architecture decisions remain public on <a href="https://github.com/datawarsaw/website" target="_blank" rel="noopener noreferrer">github.com/datawarsaw/website ↗</a></span>
+          </div>
+        `;
+        if (practiceLedger) practiceLedger.hidden = true;
+        renderInspector(null);
+        return;
+      }
+
+      currentCommitsData = commits;
+      currentRepoData = repo;
+
+      const numWeeks = getTargetWeeks();
+      currentRenderedWeeks = numWeeks;
+
+      const dailyMap = new Map();
+      const recentList = [];
+
+      commits.forEach(item => {
+        const dateStr = item.commit?.author?.date || item.commit?.committer?.date;
+        if (!dateStr) return;
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return;
+        const iso = formatWarsawDateIso(d);
+        const firstLine = (item.commit?.message || '').split('\n')[0].trim();
+
+        if (!dailyMap.has(iso)) {
+          dailyMap.set(iso, { count: 0, latestMsg: firstLine, date: d, url: item.html_url });
+        }
+        const entry = dailyMap.get(iso);
+        entry.count += 1;
+
+        if (recentList.length < 5) {
+          recentList.push({
+            sha: (item.sha || '').slice(0, 7),
+            msg: firstLine || 'Commit update',
+            date: d,
+            url: item.html_url || 'https://github.com/datawarsaw/website/commits'
+          });
         }
       });
-    });
-  }
 
+      const nowParts = getWarsawDateParts(new Date());
+      const tY = Number(nowParts.year);
+      const tM = Number(nowParts.month);
+      const tD = Number(nowParts.day);
+      const todayUtc = new Date(Date.UTC(tY, tM - 1, tD));
+      const dayIndex = (todayUtc.getUTCDay() + 6) % 7;
+
+      const totalDays = numWeeks * 7;
+      const startDate = new Date(Date.UTC(tY, tM - 1, tD - (totalDays - 1 - (6 - dayIndex))));
+
+      const cellSize = 13;
+      const cellGap = 3.5;
+      const leftPad = 28;
+      const topPad = 20;
+      const svgWidth = leftPad + numWeeks * (cellSize + cellGap);
+      const svgHeight = topPad + 7 * (cellSize + cellGap) + 8;
+
+      const svg = createSvg('svg', {
+        class: 'matrix-svg',
+        viewBox: `0 0 ${svgWidth} ${svgHeight}`,
+        role: 'grid',
+        'aria-label': `Commit activity grid for the last ${numWeeks} weeks`
+      });
+
+      const dayLabels = [{ text: 'Mon', row: 0 }, { text: 'Wed', row: 2 }, { text: 'Fri', row: 4 }];
+      dayLabels.forEach(({ text, row }) => {
+        const y = topPad + row * (cellSize + cellGap) + cellSize * 0.82;
+        const textEl = createSvg('text', {
+          x: leftPad - 6,
+          y: y,
+          class: 'matrix-day-label'
+        });
+        textEl.textContent = text;
+        svg.appendChild(textEl);
+      });
+
+      let lastMonth = -1;
+      let activeCell = null;
+
+      for (let w = 0; w < numWeeks; w++) {
+        for (let r = 0; r < 7; r++) {
+          const current = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate() + w * 7 + r));
+          const iso = formatWarsawDateIso(current);
+          const entry = dailyMap.get(iso);
+          const count = entry ? entry.count : 0;
+          const msg = entry ? entry.latestMsg : '';
+          const isFuture = current.getTime() > todayUtc.getTime();
+
+          let lvl = 0;
+          if (count === 1) lvl = 1;
+          else if (count === 2) lvl = 2;
+          else if (count >= 3) lvl = 3;
+
+          if (r === 0) {
+            const m = current.getUTCMonth();
+            if (m !== lastMonth && w < numWeeks - 1) {
+              lastMonth = m;
+              const monthName = new Intl.DateTimeFormat('en-GB', { month: 'short', timeZone: 'Europe/Warsaw' }).format(current);
+              const mText = createSvg('text', {
+                x: leftPad + w * (cellSize + cellGap),
+                y: topPad - 7,
+                class: 'matrix-month-label'
+              });
+              mText.textContent = monthName;
+              svg.appendChild(mText);
+            }
+          }
+
+          if (isFuture) continue;
+
+          const x = leftPad + w * (cellSize + cellGap);
+          const y = topPad + r * (cellSize + cellGap);
+          const humanDate = formatWarsawHumanDate(current);
+
+          const cell = createSvg('rect', {
+            x,
+            y,
+            width: cellSize,
+            height: cellSize,
+            class: `matrix-cell lvl-${lvl}`,
+            tabindex: '0',
+            role: 'gridcell',
+            'data-date': iso,
+            'data-date-human': humanDate,
+            'data-count': String(count),
+            'data-msg': msg,
+            'aria-label': `${humanDate}: ${count} commit${count === 1 ? '' : 's'}${msg ? ' - ' + msg : ''}`
+          });
+
+          cell.addEventListener('pointerenter', () => {
+            if (activeCell) activeCell.classList.remove('is-active');
+            cell.classList.add('is-active');
+            activeCell = cell;
+            renderInspector(cell);
+          });
+          cell.addEventListener('focus', () => {
+            if (activeCell) activeCell.classList.remove('is-active');
+            cell.classList.add('is-active');
+            activeCell = cell;
+            renderInspector(cell);
+          });
+
+          svg.appendChild(cell);
+        }
+      }
+
+      matrixContainer.replaceChildren(svg);
+
+      if (recentList.length > 0) {
+        if (practiceLedger) practiceLedger.hidden = false;
+        ledgerList.replaceChildren(...recentList.map(item => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.className = 'ledger-item';
+          a.href = item.url;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+
+          const shaSpan = document.createElement('span');
+          shaSpan.className = 'ledger-sha';
+          shaSpan.textContent = item.sha;
+
+          const msgSpan = document.createElement('span');
+          msgSpan.className = 'ledger-msg';
+          msgSpan.textContent = item.msg;
+
+          const dateSpan = document.createElement('span');
+          dateSpan.className = 'ledger-date';
+          dateSpan.textContent = formatWarsawHumanDate(item.date);
+
+          a.append(shaSpan, msgSpan, dateSpan);
+          li.appendChild(a);
+          return li;
+        }));
+      } else {
+        if (practiceLedger) practiceLedger.hidden = false;
+        ledgerList.innerHTML = '<li class="ledger-empty">Public repository with active development on GitHub.</li>';
+      }
+    };
+
+    const loadPracticeData = async () => {
+      let repoData = getCached(CACHE_KEY_REPO);
+      let commitsData = getCached(CACHE_KEY_COMMITS);
+
+      if (!repoData || !commitsData) {
+        try {
+          const [repoRes, commitsRes] = await Promise.allSettled([
+            fetchWithTimeout(REPO_URL),
+            fetchWithTimeout(COMMITS_URL)
+          ]);
+
+          if (repoRes.status === 'fulfilled' && repoRes.value) {
+            repoData = repoRes.value;
+            setCached(CACHE_KEY_REPO, repoData);
+          }
+          if (commitsRes.status === 'fulfilled' && Array.isArray(commitsRes.value)) {
+            commitsData = commitsRes.value;
+            setCached(CACHE_KEY_COMMITS, commitsData);
+          }
+        } catch (e) {}
+      }
+
+      if (repoData && commitsData) {
+        statusEl.classList.remove('is-fallback');
+        statusEl.classList.add('is-ready');
+        statusTextEl.textContent = 'Live GitHub activity · datawarsaw/website';
+        fallbackNote.hidden = true;
+        if (practiceLedger) practiceLedger.hidden = false;
+
+        if (langEl && repoData.language) langEl.textContent = repoData.language;
+        if (branchEl && repoData.default_branch) branchEl.textContent = repoData.default_branch;
+        if (pushedEl && repoData.pushed_at) {
+          const pDate = new Date(repoData.pushed_at);
+          pushedEl.textContent = !isNaN(pDate.getTime()) ? formatWarsawHumanDate(pDate) : 'Active';
+        }
+
+        buildMatrix(commitsData, repoData);
+      } else {
+        statusEl.classList.remove('is-ready');
+        statusEl.classList.add('is-fallback');
+        statusTextEl.textContent = 'Live GitHub activity unavailable';
+        fallbackNote.hidden = false;
+        if (practiceLedger) practiceLedger.hidden = true;
+
+        if (langEl) langEl.textContent = 'JavaScript';
+        if (branchEl) branchEl.textContent = 'main';
+        if (pushedEl) pushedEl.textContent = 'Public on GitHub';
+
+        buildMatrix([], null);
+        renderInspector(null);
+      }
+    };
+
+    let practiceResizeTimer = null;
+    window.addEventListener('resize', () => {
+      if (!currentCommitsData) return;
+      if (practiceResizeTimer) window.clearTimeout(practiceResizeTimer);
+      practiceResizeTimer = window.setTimeout(() => {
+        if (getTargetWeeks() !== currentRenderedWeeks) {
+          buildMatrix(currentCommitsData, currentRepoData);
+        }
+      }, 150);
+    }, { passive: true });
+
+    if ('IntersectionObserver' in window) {
+      const practiceObserver = new IntersectionObserver(entries => {
+        if (entries.some(e => e.isIntersecting)) {
+          practiceObserver.disconnect();
+          loadPracticeData();
+        }
+      }, { rootMargin: '300px 0px' });
+      practiceObserver.observe(practiceModule);
+    } else {
+      loadPracticeData();
+    }
+  }
   const pulse = document.querySelector('[data-pulse]');
   if (pulse) {
-    const METRICS = {
-      temperature: { label: 'Temperature', unit: '°C', decimals: 1 },
-      rain: { label: 'Rain chance', unit: '%', decimals: 0, floor: 0, ceiling: 100 },
-      wind: { label: 'Wind at 10 m', unit: 'km/h', decimals: 0, floor: 0 },
-      aqi: { label: 'European AQI', unit: 'AQI', decimals: 0, floor: 0, ceilingMin: 60 }
-    };
     const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=52.2297&longitude=21.0122&hourly=temperature_2m,precipitation_probability,wind_speed_10m&timezone=Europe%2FWarsaw&forecast_hours=24';
     const AIR_URL = 'https://air-quality-api.open-meteo.com/v1/air-quality?latitude=52.2297&longitude=21.0122&hourly=european_aqi&timezone=Europe%2FWarsaw&forecast_hours=24';
     const svgNS = 'http://www.w3.org/2000/svg';
+
     const status = pulse.querySelector('[data-pulse-status]');
-    const tabs = [...pulse.querySelectorAll('[data-pulse-metric]')];
+    const statusText = pulse.querySelector('[data-pulse-status-text]');
     const chart = pulse.querySelector('[data-pulse-chart]');
     const svg = pulse.querySelector('[data-pulse-svg]');
     const grid = pulse.querySelector('[data-pulse-grid]');
+    const windowHighlight = pulse.querySelector('[data-pulse-window-highlight]');
     const area = pulse.querySelector('[data-pulse-area]');
     const line = pulse.querySelector('[data-pulse-line]');
+    const tempLine = pulse.querySelector('[data-pulse-temp-line]');
     const pointsGroup = pulse.querySelector('[data-pulse-points]');
+    const signalStrip = pulse.querySelector('[data-pulse-signal-strip]');
     const axis = pulse.querySelector('[data-pulse-axis]');
     const cursor = pulse.querySelector('[data-pulse-cursor]');
     const hitArea = pulse.querySelector('[data-pulse-hit]');
     const tooltip = pulse.querySelector('[data-pulse-tooltip]');
+    const tooltipTime = pulse.querySelector('[data-tooltip-time]');
+    const tooltipSuitability = pulse.querySelector('[data-tooltip-suitability]');
+    const tooltipDetail = pulse.querySelector('[data-tooltip-detail]');
     const announcement = pulse.querySelector('[data-pulse-announcement]');
-    const metricLabel = pulse.querySelector('[data-pulse-metric-label]');
-    const liveValue = pulse.querySelector('[data-pulse-live-value]');
     const liveTime = pulse.querySelector('[data-pulse-live-time]');
-    const chartTitle = pulse.querySelector('#pulse-chart-title');
-    const chartDesc = pulse.querySelector('#pulse-chart-desc');
+
+    const selectedSuitability = pulse.querySelector('[data-pulse-selected-suitability]');
+    const selectedTemp = pulse.querySelector('[data-pulse-selected-temp]');
+    const selectedRain = pulse.querySelector('[data-pulse-selected-rain]');
+    const selectedWind = pulse.querySelector('[data-pulse-selected-wind]');
+    const selectedAqi = pulse.querySelector('[data-pulse-selected-aqi]');
+
     const dataOutput = pulse.querySelector('[data-pulse-data]');
     const signalOutput = pulse.querySelector('[data-pulse-signal]');
     const decisionOutput = pulse.querySelector('[data-pulse-decision]');
     const decisionDetail = pulse.querySelector('[data-pulse-decision-detail]');
     const updatedOutput = pulse.querySelector('[data-pulse-updated]');
+
     let pulseData = null;
-    let activeMetric = 'temperature';
+    let decisionData = null;
     let activeIndex = 0;
     let entranceTimeline = null;
     let pulseLoaded = false;
@@ -529,6 +816,13 @@
       }
     };
 
+    const computeHourlySuitability = (rain, aqi, wind) => {
+      const rainPenalty = Math.max(0, rain - 35) / 65;
+      const aqiPenalty = Math.max(0, aqi - 60) / 60;
+      const windPenalty = Math.max(0, wind - 30) / 40;
+      return Math.max(0, Math.min(1, 1 - (rainPenalty + aqiPenalty + windPenalty)));
+    };
+
     const computeDecision = data => {
       const candidates = Array.from({ length: 22 }, (_, index) => {
         const rain = Math.max(...data.rain.slice(index, index + 3));
@@ -550,97 +844,190 @@
         .sort((a, b) => a.penalty - b.penalty || a.rain - b.rain || a.aqi - b.aqi || a.wind - b.wind || a.index - b.index);
       const best = windows[0];
       const startHour = data.times[best.index].getUTCHours();
-      const range = `${String(startHour).padStart(2, '0')}:00–${String((startHour + 3) % 24).padStart(2, '0')}:00`;
+      const endHour = (startHour + 3) % 24;
+      const range = `${String(startHour).padStart(2, '0')}:00–${String(endHour).padStart(2, '0')}:00`;
       const clear = best.penalty === 0;
       const barrier = Object.entries(best.excess).sort((a, b) => b[1] - a[1])[0][0];
       const barrierCopy = {
-        rain: 'Rain is the limiting signal, so keep an indoor fallback.',
-        aqi: 'Air quality is the limiting signal; consider a shorter, easier plan.',
-        wind: 'Wind is the limiting signal, so favour a sheltered route.'
+        rain: 'Rain is the limiting factor; maintain an indoor alternative.',
+        aqi: 'Air quality is the limiting factor; prefer a shorter window.',
+        wind: 'Wind is the limiting factor; select a sheltered route.'
       };
       return {
         index: best.index,
+        startIndex: best.index,
+        endIndex: best.index + 2,
+        range,
         data: `Rain ≤${Math.round(best.rain)}% · AQI ≤${Math.round(best.aqi)} · Wind ≤${Math.round(best.wind)} km/h`,
-        signal: clear ? 'Clear window' : `${barrier === 'aqi' ? 'Air quality' : barrier} friction`,
+        signal: clear ? 'Clear 3-Hour Signal' : `${barrier === 'aqi' ? 'Air Quality' : barrier.charAt(0).toUpperCase() + barrier.slice(1)} Friction`,
         decision: clear ? `Head outside ${range}.` : `Use ${range}; keep a backup.`,
-        detail: clear ? `The lowest-friction three-hour window that clears every stated threshold. Around ${best.temperature.toFixed(0)}°C.` : `${barrierCopy[barrier]} Around ${best.temperature.toFixed(0)}°C.`
+        detail: clear ? `Lowest-friction three-hour window clearing all stated thresholds. Mean temperature ${best.temperature.toFixed(0)}°C.` : `${barrierCopy[barrier]} Mean temperature ${best.temperature.toFixed(0)}°C.`
       };
-    };
-
-    const metricDomain = values => {
-      const config = METRICS[activeMetric];
-      const minValue = Math.min(...values);
-      const maxValue = Math.max(...values);
-      const span = Math.max(1, maxValue - minValue);
-      const min = config.floor ?? Math.floor(minValue - span * .14);
-      const max = config.ceiling ?? Math.max(config.ceilingMin ?? -Infinity, Math.ceil(maxValue + span * .14));
-      return { min, max: max === min ? min + 1 : max };
-    };
-
-    const formatValue = (value, metric = activeMetric) => {
-      const config = METRICS[metric];
-      return `${value.toFixed(config.decimals)} ${config.unit}`;
     };
 
     const renderActivePoint = (index, announce = false) => {
       if (!pulseData) return;
       activeIndex = Math.max(0, Math.min(23, index));
-      const value = pulseData[activeMetric][activeIndex];
+      const time = pulseData.times[activeIndex];
+      const temp = pulseData.temperature[activeIndex];
+      const rain = pulseData.rain[activeIndex];
+      const wind = pulseData.wind[activeIndex];
+      const aqi = pulseData.aqi[activeIndex];
+      const suitability = computeHourlySuitability(rain, aqi, wind);
+      const suitabilityPct = Math.round(suitability * 100);
+
       const point = pointsGroup.querySelector(`[data-pulse-index="${activeIndex}"]`);
       pulse.querySelectorAll('.pulse-points circle').forEach(item => item.classList.toggle('is-active', item === point));
+
       const x = 32 + activeIndex * (906 / 23);
-      const y = point ? Number(point.getAttribute('cy')) : 24;
+      const y = 195 - suitability * 160;
       cursor.setAttribute('x1', x);
       cursor.setAttribute('x2', x);
+      cursor.setAttribute('y1', 18);
+      cursor.setAttribute('y2', 280);
       cursor.classList.add('is-active');
-      const timeText = dataTime(pulseData.times[activeIndex], true);
-      liveValue.textContent = formatValue(value);
+
+      pulse.querySelectorAll('.pulse-signal-col').forEach(col => {
+        col.classList.toggle('is-active', col.getAttribute('data-col-index') === String(activeIndex));
+      });
+
+      const timeText = dataTime(time, true);
       liveTime.textContent = `${timeText} · Warsaw local time`;
-      tooltip.querySelector('span').textContent = timeText;
-      tooltip.querySelector('strong').textContent = formatValue(value);
-      const tooltipLeft = svg.offsetLeft + x / 960 * svg.clientWidth;
-      const tooltipTop = svg.offsetTop + y / 320 * svg.clientHeight;
-      tooltip.style.left = `${Math.max(58, Math.min(chart.clientWidth - 58, tooltipLeft))}px`;
-      tooltip.style.top = `${Math.max(58, tooltipTop)}px`;
+
+      selectedSuitability.textContent = `${suitabilityPct}%`;
+      selectedTemp.textContent = `${temp.toFixed(1)}°C`;
+      selectedRain.textContent = `${Math.round(rain)}%`;
+      selectedWind.textContent = `${Math.round(wind)} km/h`;
+      selectedAqi.textContent = `${Math.round(aqi)} AQI`;
+
+      tooltipTime.textContent = timeText;
+      tooltipSuitability.textContent = `Suitability: ${suitabilityPct}%`;
+      tooltipDetail.textContent = `${temp.toFixed(0)}°C · Rain ${Math.round(rain)}% · Wind ${Math.round(wind)} km/h · AQI ${Math.round(aqi)}`;
+
+      const tooltipLeft = svg.offsetLeft + (x / 960) * svg.clientWidth;
+      const tooltipTop = svg.offsetTop + (y / 340) * svg.clientHeight;
+      tooltip.style.left = `${Math.max(68, Math.min(chart.clientWidth - 68, tooltipLeft))}px`;
+      tooltip.style.top = `${Math.max(50, tooltipTop)}px`;
       tooltip.classList.add('is-active');
-      if (announce) announcement.textContent = `${METRICS[activeMetric].label}, ${timeText}, ${formatValue(value)}`;
+
+      if (announce) {
+        announcement.textContent = `${timeText}: Suitability ${suitabilityPct}%, Temperature ${temp.toFixed(1)}°C, Rain chance ${Math.round(rain)}%, Wind ${Math.round(wind)} km/h, European AQI ${Math.round(aqi)}`;
+      }
     };
 
-    const renderChart = (metric, animate = false) => {
+    const renderTimeline = (animate = false) => {
       if (!pulseData) return;
-      activeMetric = metric;
-      const values = pulseData[metric];
-      const config = METRICS[metric];
-      const { min, max } = metricDomain(values);
+      const times = pulseData.times;
+      const suitabilities = times.map((_, i) => computeHourlySuitability(pulseData.rain[i], pulseData.aqi[i], pulseData.wind[i]));
+      const temps = pulseData.temperature;
+
+      const minTemp = Math.min(...temps);
+      const maxTemp = Math.max(...temps);
+      const tempSpan = Math.max(1, maxTemp - minTemp);
+
       const xFor = index => 32 + index * (906 / 23);
-      const yFor = value => 24 + (1 - (value - min) / (max - min)) * 254;
+      const yForSuit = s => 195 - s * 160;
+      const yForTemp = t => 180 - ((t - minTemp) / tempSpan) * 130;
+
       const availableWidth = Math.min(window.innerWidth, chart.clientWidth || window.innerWidth);
-      const tickCount = availableWidth < 360 ? 3 : availableWidth < 640 ? 4 : 5;
+      const tickCount = availableWidth < 400 ? 3 : availableWidth < 700 ? 4 : 6;
       const tickIndexes = [...new Set(Array.from({ length: tickCount }, (_, index) => Math.round(index * 23 / (tickCount - 1))))];
-      const coordinates = values.map((value, index) => [xFor(index), yFor(value)]);
-      const path = coordinates.map(([x, y], index) => `${index ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
-      line.setAttribute('d', path);
-      area.setAttribute('d', `${path} L938,278 L32,278 Z`);
+
+      const suitCoords = suitabilities.map((s, i) => [xFor(i), yForSuit(s)]);
+      const suitPath = suitCoords.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
+      line.setAttribute('d', suitPath);
+      area.setAttribute('d', `${suitPath} L938,195 L32,195 Z`);
+
+      const tempCoords = temps.map((t, i) => [xFor(i), yForTemp(t)]);
+      const tempPath = tempCoords.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
+      tempLine.setAttribute('d', tempPath);
+
+      if (decisionData) {
+        const startX = xFor(decisionData.startIndex);
+        const endX = xFor(decisionData.endIndex);
+        const boxLeft = Math.max(20, startX - 16);
+        const boxWidth = (endX - startX) + 32;
+        windowHighlight.setAttribute('x', boxLeft);
+        windowHighlight.setAttribute('y', 20);
+        windowHighlight.setAttribute('width', boxWidth);
+        windowHighlight.setAttribute('height', 175);
+        windowHighlight.setAttribute('rx', 4);
+      }
+
       grid.replaceChildren();
-      [24,87.5,151,214.5,278].forEach(y => grid.append(createSvgElement('line', { x1: 32, x2: 938, y1: y, y2: y })));
-      tickIndexes.forEach(index => grid.append(createSvgElement('line', { x1: xFor(index), x2: xFor(index), y1: 24, y2: 278 })));
-      pointsGroup.replaceChildren(...coordinates.map(([x, y], index) => createSvgElement('circle', { cx: x, cy: y, r: 4, 'data-pulse-index': index })));
+      [35, 75, 115, 155, 195].forEach(y => {
+        grid.append(createSvgElement('line', { x1: 32, x2: 938, y1: y, y2: y }));
+      });
+      tickIndexes.forEach(index => {
+        grid.append(createSvgElement('line', { x1: xFor(index), x2: xFor(index), y1: 20, y2: 195 }));
+      });
+      grid.append(createSvgElement('line', { x1: 32, x2: 938, y1: 206, y2: 206, stroke: 'rgba(247,246,241,.14)' }));
+
+      pointsGroup.replaceChildren(...suitCoords.map(([x, y], index) => createSvgElement('circle', {
+        cx: x,
+        cy: y,
+        r: 4,
+        'data-pulse-index': index
+      })));
+
+      if (signalStrip) {
+        signalStrip.replaceChildren();
+        const rainLabel = createSvgElement('text', { x: 26, y: 225, class: 'signal-row-label' });
+        rainLabel.textContent = 'Rain';
+        const windLabel = createSvgElement('text', { x: 26, y: 245, class: 'signal-row-label' });
+        windLabel.textContent = 'Wind';
+        const aqiLabel = createSvgElement('text', { x: 26, y: 265, class: 'signal-row-label' });
+        aqiLabel.textContent = 'AQI';
+        signalStrip.append(rainLabel, windLabel, aqiLabel);
+
+        for (let i = 0; i < 24; i++) {
+          const cx = xFor(i);
+          const col = createSvgElement('rect', {
+            class: `pulse-signal-col${i === activeIndex ? ' is-active' : ''}`,
+            x: cx - 17,
+            y: 212,
+            width: 34,
+            height: 60,
+            rx: 2,
+            'data-col-index': String(i)
+          });
+          signalStrip.append(col);
+
+          const rainVal = pulseData.rain[i];
+          const rainW = Math.max(2, (Math.min(100, Math.max(0, rainVal)) / 100) * 28);
+          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 216, width: 28, height: 10, rx: 1.5, class: 'signal-track-bg' }));
+          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 216, width: rainW.toFixed(1), height: 10, rx: 1.5, class: rainVal > 35 ? 'signal-bar-val is-friction' : 'signal-bar-val is-nominal' }));
+
+          const windVal = pulseData.wind[i];
+          const windW = Math.max(2, (Math.min(50, Math.max(0, windVal)) / 50) * 28);
+          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 236, width: 28, height: 10, rx: 1.5, class: 'signal-track-bg' }));
+          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 236, width: windW.toFixed(1), height: 10, rx: 1.5, class: windVal > 30 ? 'signal-bar-val is-friction' : 'signal-bar-val is-nominal' }));
+
+          const aqiVal = pulseData.aqi[i];
+          const aqiW = Math.max(2, (Math.min(100, Math.max(0, aqiVal)) / 100) * 28);
+          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 256, width: 28, height: 10, rx: 1.5, class: 'signal-track-bg' }));
+          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 256, width: aqiW.toFixed(1), height: 10, rx: 1.5, class: aqiVal > 60 ? 'signal-bar-val is-friction' : 'signal-bar-val is-nominal' }));
+        }
+      }
+
       axis.replaceChildren(...tickIndexes.map(index => {
-        const text = createSvgElement('text', { x: xFor(index), y: 307, 'text-anchor': index === 0 ? 'start' : index === 23 ? 'end' : 'middle' });
+        const text = createSvgElement('text', {
+          x: xFor(index),
+          y: 296,
+          'text-anchor': index === 0 ? 'start' : index === 23 ? 'end' : 'middle'
+        });
         text.textContent = dataTime(pulseData.times[index]);
         return text;
       }));
-      metricLabel.textContent = config.label;
-      chart.setAttribute('aria-labelledby', `pulse-tab-${metric}`);
-      chartTitle.textContent = `${config.label} in Warsaw over the next 24 hours`;
-      chartDesc.textContent = `Interactive hourly ${config.label.toLowerCase()} line chart. Use the arrow keys to explore each hour.`;
+
       renderActivePoint(activeIndex);
+
       if (animate && motionAllowed()) {
         const length = line.getTotalLength();
-        window.gsap.killTweensOf([line, area, ...pointsGroup.children]);
-        window.gsap.fromTo(line, { strokeDasharray: length, strokeDashoffset: length }, { strokeDashoffset: 0, duration: .52, ease: 'power2.out', clearProps: 'strokeDasharray,strokeDashoffset' });
-        window.gsap.fromTo(pointsGroup.children, { autoAlpha: 0, scale: .5, transformOrigin: 'center' }, { autoAlpha: 1, scale: 1, duration: .3, stagger: .012, ease: 'power2.out', clearProps: 'transform,opacity,visibility' });
-        window.gsap.fromTo(area, { autoAlpha: 0 }, { autoAlpha: 1, duration: .42, clearProps: 'opacity' });
+        window.gsap.killTweensOf([line, area, tempLine, ...pointsGroup.children]);
+        window.gsap.fromTo(line, { strokeDasharray: length, strokeDashoffset: length }, { strokeDashoffset: 0, duration: .65, ease: 'power2.out', clearProps: 'strokeDasharray,strokeDashoffset' });
+        window.gsap.fromTo(area, { autoAlpha: 0 }, { autoAlpha: 1, duration: .5, clearProps: 'opacity' });
+        window.gsap.fromTo(pointsGroup.children, { autoAlpha: 0, scale: .4, transformOrigin: 'center' }, { autoAlpha: 1, scale: 1, duration: .3, stagger: .012, ease: 'power2.out', clearProps: 'transform,opacity,visibility' });
       }
     };
 
@@ -648,21 +1035,29 @@
       if (!motionAllowed()) return;
       const gridLines = [...grid.querySelectorAll('line')];
       const points = [...pointsGroup.children];
+      const signalItems = signalStrip ? [...signalStrip.children] : [];
       const stages = [...pulse.querySelectorAll('[data-pulse-stage]')];
       const length = line.getTotalLength();
+
       window.gsap.set(gridLines, { scaleX: 0, transformOrigin: 'left center' });
       window.gsap.set(points, { autoAlpha: 0, scale: 0, transformOrigin: 'center' });
+      if (signalItems.length) window.gsap.set(signalItems, { autoAlpha: 0, y: 4 });
       window.gsap.set(line, { strokeDasharray: length, strokeDashoffset: length });
       window.gsap.set(area, { autoAlpha: 0 });
+      window.gsap.set(windowHighlight, { autoAlpha: 0, scaleY: 0, transformOrigin: 'center bottom' });
       window.gsap.set(stages, { autoAlpha: 0, y: 12 });
+
       entranceTimeline = window.gsap.timeline({ paused: true, defaults: { ease: 'power3.out' }, onStart: () => pulse.classList.add('is-animated') });
       entranceTimeline
-        .to(gridLines, { scaleX: 1, duration: .5, stagger: .025, clearProps: 'transform' }, 0)
-        .to(points, { autoAlpha: 1, scale: 1, duration: .32, stagger: .018, clearProps: 'transform,opacity,visibility' }, .2)
-        .to(line, { strokeDashoffset: 0, duration: .95, ease: 'power2.inOut', clearProps: 'strokeDasharray,strokeDashoffset' }, .28)
-        .to(area, { autoAlpha: 1, duration: .45, clearProps: 'opacity' }, .72)
-        .to(stages, { autoAlpha: 1, y: 0, duration: .48, stagger: .12, clearProps: 'transform,opacity,visibility' }, .76)
-        .fromTo(pulse.querySelector('.pulse-decision'), { boxShadow: 'inset 0 0 0 0 rgba(11,21,20,0)' }, { boxShadow: 'inset 0 0 0 6px rgba(11,21,20,.13)', duration: .36, yoyo: true, repeat: 1, clearProps: 'boxShadow' }, 1.15);
+        .to(gridLines, { scaleX: 1, duration: .45, stagger: .02, clearProps: 'transform' }, 0)
+        .to(points, { autoAlpha: 1, scale: 1, duration: .3, stagger: .015, clearProps: 'transform,opacity,visibility' }, .15)
+        .to(signalItems, { autoAlpha: 1, y: 0, duration: .35, stagger: .006, clearProps: 'transform,opacity,visibility' }, .18)
+        .to(line, { strokeDashoffset: 0, duration: .85, ease: 'power2.inOut', clearProps: 'strokeDasharray,strokeDashoffset' }, .2)
+        .to(area, { autoAlpha: 1, duration: .45, clearProps: 'opacity' }, .55)
+        .to(windowHighlight, { autoAlpha: 1, scaleY: 1, duration: .55, ease: 'back.out(1.4)', clearProps: 'transform,opacity' }, .65)
+        .to(stages, { autoAlpha: 1, y: 0, duration: .45, stagger: .1, clearProps: 'transform,opacity,visibility' }, .7)
+        .fromTo(pulse.querySelector('.pulse-decision'), { boxShadow: 'inset 0 0 0 0 rgba(11,21,20,0)' }, { boxShadow: 'inset 0 0 0 6px rgba(11,21,20,.13)', duration: .36, yoyo: true, repeat: 1, clearProps: 'boxShadow' }, 1.1);
+
       window.ScrollTrigger.create({
         id: 'datawarsaw-pulse-narrative',
         trigger: pulse,
@@ -673,41 +1068,15 @@
       window.ScrollTrigger.refresh();
     };
 
-    const setActiveMetric = (tab, moveFocus = false) => {
-      const metric = tab.dataset.pulseMetric;
-      if (!METRICS[metric] || metric === activeMetric) return;
-      tabs.forEach(item => {
-        const selected = item === tab;
-        item.setAttribute('aria-selected', String(selected));
-        item.tabIndex = selected ? 0 : -1;
-      });
-      if (moveFocus) tab.focus();
-      activeIndex = 0;
-      renderChart(metric, pulse.classList.contains('is-animated'));
-    };
-
-    tabs.forEach((tab, index) => {
-      tab.addEventListener('click', () => setActiveMetric(tab));
-      tab.addEventListener('keydown', event => {
-        let nextIndex = null;
-        if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
-        if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
-        if (event.key === 'Home') nextIndex = 0;
-        if (event.key === 'End') nextIndex = tabs.length - 1;
-        if (nextIndex !== null) {
-          event.preventDefault();
-          setActiveMetric(tabs[nextIndex], true);
-        }
-      });
-    });
-
     const pointFromPointer = event => {
       const rect = svg.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width * 960;
-      return Math.round(Math.max(0, Math.min(23, (x - 32) / 906 * 23)));
+      const x = ((event.clientX - rect.left) / rect.width) * 960;
+      return Math.round(Math.max(0, Math.min(23, ((x - 32) / 906) * 23)));
     };
+
     hitArea.addEventListener('pointermove', event => renderActivePoint(pointFromPointer(event)));
     hitArea.addEventListener('pointerdown', event => renderActivePoint(pointFromPointer(event), true));
+
     chart.addEventListener('keydown', event => {
       let nextIndex = null;
       if (event.key === 'ArrowRight') nextIndex = activeIndex + 1;
@@ -719,6 +1088,7 @@
         renderActivePoint(nextIndex, true);
       }
     });
+
     chart.addEventListener('blur', () => {
       tooltip.classList.remove('is-active');
       cursor.classList.remove('is-active');
@@ -729,34 +1099,40 @@
       pulseLoaded = true;
       try {
         pulseData = await fetchPulseData();
-        const decision = computeDecision(pulseData);
-        dataOutput.textContent = decision.data;
-        signalOutput.textContent = decision.signal;
-        decisionOutput.textContent = decision.decision;
-        decisionDetail.textContent = decision.detail;
+        decisionData = computeDecision(pulseData);
+
+        dataOutput.textContent = decisionData.data;
+        signalOutput.textContent = decisionData.signal;
+        decisionOutput.textContent = decisionData.decision;
+        decisionDetail.textContent = decisionData.detail;
         updatedOutput.textContent = pulseData.degraded.length === 4
           ? 'Illustrative fallback · not live conditions'
           : `Updated ${warsawTime(new Date(), true)} · Warsaw local time`;
+
         status.classList.toggle('is-fallback', pulseData.degraded.length > 0);
         status.classList.toggle('is-ready', pulseData.degraded.length === 0);
-        status.lastChild.textContent = pulseData.degraded.length
-          ? ` Fallback used for ${pulseData.degraded.join(', ')}`
-          : ' Live forecast · next 24 hours';
-        activeIndex = decision.index;
-        renderChart(activeMetric);
+        statusText.textContent = pulseData.degraded.length
+          ? `Fallback used for ${pulseData.degraded.join(', ')}`
+          : 'Live forecast · next 24 hours';
+
+        activeIndex = decisionData.index;
+        renderTimeline();
         animatePulseEntrance();
       } catch (error) {
         pulseData = assemblePulseData(null, null);
-        const decision = computeDecision(pulseData);
-        dataOutput.textContent = decision.data;
-        signalOutput.textContent = decision.signal;
-        decisionOutput.textContent = decision.decision;
-        decisionDetail.textContent = decision.detail;
+        decisionData = computeDecision(pulseData);
+
+        dataOutput.textContent = decisionData.data;
+        signalOutput.textContent = decisionData.signal;
+        decisionOutput.textContent = decisionData.decision;
+        decisionDetail.textContent = decisionData.detail;
+
         status.classList.add('is-fallback');
-        status.lastChild.textContent = ' Fallback dataset · live source unavailable';
+        statusText.textContent = 'Fallback dataset · live source unavailable';
         updatedOutput.textContent = 'Illustrative fallback · not live conditions';
-        activeIndex = decision.index;
-        renderChart(activeMetric);
+
+        activeIndex = decisionData.index;
+        renderTimeline();
         animatePulseEntrance();
       }
     };
@@ -772,18 +1148,20 @@
     } else {
       loadPulse();
     }
+
     const handlePulseMotionPreference = () => {
       if (!reduceMotionQuery.matches || !pulseData) return;
       window.ScrollTrigger?.getById('datawarsaw-pulse-narrative')?.kill();
       entranceTimeline?.kill();
       window.gsap?.set([
-        ...grid.querySelectorAll('line'), ...pointsGroup.children, line, area,
+        ...grid.querySelectorAll('line'), ...pointsGroup.children, line, area, tempLine, windowHighlight,
         ...pulse.querySelectorAll('[data-pulse-stage]')
       ], { autoAlpha: 1, scale: 1, y: 0, clearProps: 'transform,opacity,visibility,strokeDasharray,strokeDashoffset' });
     };
+
     reduceMotionQuery.addEventListener('change', handlePulseMotionPreference);
     window.addEventListener('resize', () => {
-      if (pulseData) renderChart(activeMetric);
+      if (pulseData) renderTimeline();
     }, { passive: true });
     window.addEventListener('pagehide', () => {
       entranceTimeline?.kill();
@@ -791,7 +1169,6 @@
       reduceMotionQuery.removeEventListener('change', handlePulseMotionPreference);
     }, { once: true });
   }
-
   const canvas = document.querySelector('[data-signal-canvas]');
   if (!canvas) {
     window.__heroGraphAnimation = null;
