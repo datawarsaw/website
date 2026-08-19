@@ -313,189 +313,55 @@
 
     <section class="harness section-dark" id="harness" aria-labelledby="harness-title">
       <div class="container">
-        <div class="section-index reveal"><span>06</span> AI Workstation · Observability &amp; Benchmarks</div>
+        <div class="section-index reveal"><span>06</span> AI Workstation · Live Observability</div>
         <div class="harness-heading reveal">
           <div>
-            <p class="kicker">Antigravity Multi-Agent Orchestration &amp; Model Evaluation</p>
-            <h2 id="harness-title">Observable agent runs.<br><em>Empirical benchmarks.</em></h2>
+            <p class="kicker">Antigravity Multi-Agent Orchestration</p>
+            <h2 id="harness-title">Observable agent runs.<br><em>Live mission control.</em></h2>
           </div>
-          <p>Visualizing task execution traces across Coordinator, parallel Scout discovery swarms, JOIN synthesis, Worker implementation, and evaluating empirical model performance across development workflows, roles, and harness specializations.</p>
+          <p>See how tasks move through Coordinator, parallel Scout discovery swarms, JOIN synthesis, Worker implementation, and deterministic verification in real time on our dedicated live console.</p>
         </div>
 
-        <div class="harness-module reveal" data-agent-viewer>
-          <div class="harness-topbar">
-            <div class="harness-selector-wrap">
-              <span class="harness-label">Select Run Trace</span>
-              <div class="harness-tabs" role="tablist" aria-label="Agent Run Traces" data-run-tabs>
-                <!-- Populated dynamically by script.js -->
-              </div>
-            </div>
-            <div class="harness-badge-group">
-              <span class="harness-demo-badge" title="This execution trace is an illustrative sample grounded in the Antigravity V1 specification">SAMPLE TRACE</span>
-              <div class="harness-status-pill" data-run-status-pill>
+        <div class="harness-teaser-card reveal" data-harness-teaser>
+          <div class="harness-teaser-topbar">
+            <div class="harness-teaser-badge-group">
+              <span class="teaser-tag">ANTIGRAVITY HARNESS V1.1</span>
+              <div class="teaser-status-pill" data-teaser-status-pill>
                 <span class="status-dot"></span>
-                <span data-run-status-text>COMPLETE</span>
+                <span data-teaser-status-text>LIVE MISSION CONTROL</span>
               </div>
             </div>
+            <span class="teaser-branch">branch: <code>agent-harness-v1</code></span>
           </div>
 
-          <div class="harness-meta-strip" data-run-meta>
-            <div class="meta-item"><span>Task</span><strong data-meta-task>&mdash;</strong></div>
-            <div class="meta-item"><span>Pattern</span><strong data-meta-pattern>&mdash;</strong></div>
-            <div class="meta-item"><span>Duration</span><strong data-meta-duration>&mdash;</strong></div>
-            <div class="meta-item"><span>Harness</span><strong data-meta-harness>&mdash;</strong></div>
-          </div>
-
-          <div class="harness-layout">
-            <div class="harness-graph-stage">
-              <div class="graph-stage-header">
-                <h3>Execution Trace Graph</h3>
-                <span class="graph-hint">Select a node to inspect telemetry</span>
-              </div>
-              <div class="harness-flow" data-harness-flow role="region" aria-label="Agent Execution Flow Diagram" tabindex="0">
-                <!-- Dynamically rendered flow nodes & connectors -->
-              </div>
-            </div>
-
-            <div class="harness-inspector" data-harness-inspector aria-live="polite">
-              <div class="inspector-header">
-                <div class="inspector-role-badge">
-                  <span class="role-type" data-inspector-role>COORDINATOR</span>
-                  <span class="model-badge" data-inspector-model>Antigravity Orchestrator</span>
-                </div>
-                <div class="inspector-timing">
-                  <span class="inspector-duration" data-inspector-duration>&mdash;</span>
-                  <span class="inspector-status-pill" data-inspector-status>&mdash;</span>
-                </div>
-              </div>
-
-              <h4 class="inspector-title" data-inspector-title>Select a node</h4>
-              <p class="inspector-summary" data-inspector-summary>Click or focus any execution step to inspect inputs, outputs, models, durations, and touched artifacts.</p>
-
-              <div class="inspector-block">
-                <span class="block-label">Input / Objective</span>
-                <pre class="inspector-pre" data-inspector-input>&mdash;</pre>
-              </div>
-
-              <div class="inspector-block">
-                <span class="block-label">Output / Findings</span>
-                <pre class="inspector-pre" data-inspector-output>&mdash;</pre>
-              </div>
-
-              <div class="inspector-block" data-inspector-artifacts-block>
-                <span class="block-label" data-inspector-artifacts-label>Artifacts / Files</span>
-                <ul class="inspector-artifacts-list" data-inspector-artifacts>
-                  <li class="artifact-empty">&mdash;</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div class="harness-footer-note">
-            <p><strong>Observability note:</strong> Execution trace nodes represent real harness contract boundaries defined in <a href="https://github.com/datawarsaw/website/blob/agent-harness-v1/docs/agent-harness-v1.md" target="_blank" rel="noopener noreferrer">docs/agent-harness-v1.md &nearr;</a>. Sample traces illustrate orchestrator routing behavior.</p>
-          </div>
-        </div>
-
-        <div class="benchmark-section-divider reveal" aria-hidden="true">
-          <span class="divider-line"></span>
-          <span class="divider-badge">AI WORKSTATION · BENCHMARK MATRIX</span>
-          <span class="divider-line"></span>
-        </div>
-
-        <div class="benchmark-module reveal" data-model-benchmark>
-          <div class="benchmark-topbar">
-            <div class="benchmark-selector-wrap">
-              <span class="benchmark-label">Select Dataset</span>
-              <div class="benchmark-tabs" role="tablist" aria-label="Benchmark Datasets" data-benchmark-tabs>
-                <!-- Populated dynamically by script.js -->
-              </div>
-            </div>
-            <div class="benchmark-badge-group">
-              <span class="benchmark-truth-badge" data-benchmark-truth-badge title="All benchmark data is backed by real repository runs and harness routing contracts">REPO GROUNDED</span>
-              <div class="benchmark-status-pill" data-benchmark-status-pill>
-                <span class="status-dot"></span>
-                <span data-benchmark-status-text>3/5 VALIDATED</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="benchmark-meta-strip" data-benchmark-meta>
-            <div class="meta-item"><span>Dataset</span><strong data-bmeta-title>&mdash;</strong></div>
-            <div class="meta-item"><span>Scope &amp; Runs</span><strong data-bmeta-runs>&mdash;</strong></div>
-            <div class="meta-item"><span>Validation Rate</span><strong data-bmeta-validation>&mdash;</strong></div>
-            <div class="meta-item"><span>Baseline Ref</span><strong data-bmeta-baseline>&mdash;</strong></div>
-          </div>
-
-          <div class="benchmark-layout">
-            <div class="benchmark-matrix-stage">
-              <div class="matrix-stage-header">
-                <div>
-                  <h3 data-matrix-heading>Model Evaluation Matrix</h3>
-                  <p class="matrix-subheading" data-matrix-subtitle>Select a model row or role header to highlight. Click any cell to inspect evidence.</p>
-                </div>
-                <div class="matrix-actions">
-                  <span class="matrix-hint">Click cell for details</span>
-                </div>
-              </div>
-
-              <div class="benchmark-matrix-wrap" tabindex="0" role="region" aria-label="Model benchmark comparison matrix table. Use arrow keys or Tab to navigate cells." data-benchmark-table-wrap>
-                <table class="benchmark-table" data-benchmark-table>
-                  <!-- Dynamically rendered header & rows -->
-                </table>
-              </div>
-
-              <div class="benchmark-legend" aria-label="Benchmark status legend">
-                <span class="legend-title">Legend:</span>
-                <div class="legend-items">
-                  <div class="legend-tag"><span class="tag-dot is-validated"></span> Validated / Primary</div>
-                  <div class="legend-tag"><span class="tag-dot is-delegated"></span> Delegated / Secondary</div>
-                  <div class="legend-tag"><span class="tag-dot is-blocked"></span> Blocked / Provider Fail</div>
-                  <div class="legend-tag"><span class="tag-dot is-unverified"></span> Unverified / Code Only</div>
-                  <div class="legend-tag"><span class="tag-dot is-planned"></span> Backlog / Planned</div>
-                </div>
+          <div class="harness-teaser-body">
+            <div class="harness-teaser-content">
+              <h3>Real-Time Multi-Agent Telemetry</h3>
+              <p>Experience the internal lifecycle of our autonomous workstation. Track live step transitions, model specializations, parallel exploration trees, and execution event streams as code is actively designed, inspected, and verified.</p>
+              
+              <div class="harness-teaser-flow-preview" aria-hidden="true">
+                <span class="flow-pill">Coordinator</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-pill-group">
+                  <span class="flow-pill is-scout">Scout A</span>
+                  <span class="flow-pill is-scout">Scout B</span>
+                </span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-pill">JOIN</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-pill is-worker">Worker</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-pill is-verify">Verify</span>
               </div>
             </div>
 
-            <div class="benchmark-inspector" data-benchmark-inspector aria-live="polite">
-              <div class="inspector-header">
-                <div class="inspector-role-badge">
-                  <span class="role-type" data-binspector-tier>CLOUD ENGINE</span>
-                  <span class="model-badge" data-binspector-provider>OpenAI</span>
-                </div>
-                <div class="inspector-timing">
-                  <span class="inspector-status-pill" data-binspector-status>COMPLETE</span>
-                </div>
-              </div>
-
-              <h4 class="inspector-title" data-binspector-title>Select a model or cell</h4>
-              <p class="inspector-summary" data-binspector-notes>Click any model row, column header, or matrix cell to inspect verification evidence, strengths, failure points, and commit artifacts.</p>
-
-              <div class="inspector-block">
-                <span class="block-label">Observed Strengths</span>
-                <p class="inspector-text" data-binspector-strengths>&mdash;</p>
-              </div>
-
-              <div class="inspector-block">
-                <span class="block-label">Identified Bottlenecks / Blockers</span>
-                <p class="inspector-text" data-binspector-bottlenecks>&mdash;</p>
-              </div>
-
-              <div class="inspector-block">
-                <span class="block-label">Diff &amp; Execution Evidence</span>
-                <pre class="inspector-pre" data-binspector-diff>&mdash;</pre>
-              </div>
-
-              <div class="inspector-block" data-binspector-artifacts-block>
-                <span class="block-label">Evidence Artifacts / Citations</span>
-                <ul class="inspector-artifacts-list" data-binspector-artifacts>
-                  <li class="artifact-empty">&mdash;</li>
-                </ul>
-              </div>
+            <div class="harness-teaser-action">
+              <a class="harness-live-cta" href="/observability/">
+                <span>Open Live View</span>
+                <span class="cta-arrow" aria-hidden="true">→</span>
+              </a>
+              <span class="teaser-note">Updated live via file-driven runtime telemetry</span>
             </div>
-          </div>
-
-          <div class="benchmark-footer-note">
-            <p><strong>Integrity &amp; methodology note:</strong> Benchmark records preserve ground truth from isolated test worktrees (<a href="https://github.com/datawarsaw/website/blob/agent-harness-v1/benchmark-comparison.html" target="_blank" rel="noopener noreferrer">benchmark-comparison.html &nearr;</a>) and harness operational policies (<a href="https://github.com/datawarsaw/website/blob/agent-harness-v1/AGENTS.md" target="_blank" rel="noopener noreferrer">AGENTS.md &nearr;</a>). Quality scores remain unassigned until common manual grading; blocked runs and provider failures are recorded explicitly rather than omitted.</p>
           </div>
         </div>
       </div>

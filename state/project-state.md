@@ -45,8 +45,10 @@ Main completed recent improvements:
 - GitHub contribution layout is responsive and container-driven.
 - Analytical Expertise radar has differentiated integer 1–10 scores.
 - Weather recommendation Polish character encoding issue fixed (clean UTF-8).
-- Agent Run Viewer V1 implemented in Section 06 (`#harness`) visualizing observable multi-agent orchestration flows, run trace switching, and structured execution telemetry.
- - Model Benchmark Dashboard V1 implemented in Section 06 (`#harness`) visualizing empirical model comparisons across isolated test runs (Frontend Workstation Benchmark V1) and Antigravity harness role routing contracts, with strict missing/blocked data truthfulness and zero fabricated scores.
+- Model Benchmark Dashboard removed from public website (retained internally under `evals/`, `docs/`, `state/`, and `benchmark-comparison.html`).
+- Dedicated live Agent Observability subpage created at `/observability/` (`site/observability/index.html`) featuring live mission control, flow graph, active agent activity, and chronological event stream.
+- Live V1.1 file-driven observability architecture established: runtime updates `state/current-run.json` and sanitizes public export to `site/data/current-run.json`.
+- Homepage Section 06 (`#harness`) streamlined to an editorial compact teaser linking directly to `/observability/`.
 
 ## Current Strategic Direction
 
@@ -60,7 +62,7 @@ Data Analytics remains the core foundation. AI is positioned as an extension of 
 Active themes & experiments:
 - Local AI models
 - Antigravity agent harness
-- Model benchmarking
+- Live agent observability & telemetry
 - Power BI + AI
 - SQL / Databricks assistance
 - Local Qwen experiments

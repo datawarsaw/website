@@ -64,8 +64,8 @@ Lightweight, prioritized backlog for DataWarsaw development and AI Workstation i
 - [x] Differentiate Analytical Expertise radar scores to integer 1–10 scale
 - [x] Public GitHub activity component aggregation & responsive container layout
 - [x] Antigravity V1 agent harness specification and native subagent configuration
-- [x] Agent Run Viewer V1 (observable multi-agent execution traces, sample runs schema & responsive graph stage)
- - [x] Model Benchmark Dashboard V1 (empirical model evaluation matrix, dataset switcher, repository evidence grounding, zero fabricated scores)
+- [x] Model Benchmark Dashboard V1 (empirical model evaluation matrix; archived internally and removed from public site)
+- [x] Live Agent Observability V1.1 (dedicated `/observability/` mission control page, file-driven live telemetry bridge, homepage teaser)
 
 ---
 
