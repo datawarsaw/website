@@ -45,6 +45,7 @@ Main completed recent improvements:
 - GitHub contribution layout is responsive and container-driven.
 - Analytical Expertise radar has differentiated integer 1–10 scores.
 - Weather recommendation Polish character encoding issue fixed (clean UTF-8).
+- Agent Run Viewer V1 implemented in Section 06 (`#harness`) visualizing observable multi-agent orchestration flows, run trace switching, and structured execution telemetry.
 
 ## Current Strategic Direction
 

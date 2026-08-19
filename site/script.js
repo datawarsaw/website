@@ -1283,6 +1283,500 @@
     }, { once: true });
   }
 
+/* 06 AI Workstation - Agent Run Viewer */
+  const agentViewer = document.querySelector('[data-agent-viewer]');
+  if (agentViewer) {
+    const runTabsContainer = agentViewer.querySelector('[data-run-tabs]');
+    const runStatusPill = agentViewer.querySelector('[data-run-status-pill]');
+    const runStatusText = agentViewer.querySelector('[data-run-status-text]');
+    const metaTask = agentViewer.querySelector('[data-meta-task]');
+    const metaPattern = agentViewer.querySelector('[data-meta-pattern]');
+    const metaDuration = agentViewer.querySelector('[data-meta-duration]');
+    const metaHarness = agentViewer.querySelector('[data-meta-harness]');
+    const flowContainer = agentViewer.querySelector('[data-harness-flow]');
+
+    const inspectorRole = agentViewer.querySelector('[data-inspector-role]');
+    const inspectorModel = agentViewer.querySelector('[data-inspector-model]');
+    const inspectorDuration = agentViewer.querySelector('[data-inspector-duration]');
+    const inspectorStatus = agentViewer.querySelector('[data-inspector-status]');
+    const inspectorTitle = agentViewer.querySelector('[data-inspector-title]');
+    const inspectorSummary = agentViewer.querySelector('[data-inspector-summary]');
+    const inspectorInput = agentViewer.querySelector('[data-inspector-input]');
+    const inspectorOutput = agentViewer.querySelector('[data-inspector-output]');
+    const inspectorArtifactsBlock = agentViewer.querySelector('[data-inspector-artifacts-block]');
+    const inspectorArtifactsLabel = agentViewer.querySelector('[data-inspector-artifacts-label]');
+    const inspectorArtifacts = agentViewer.querySelector('[data-inspector-artifacts]');
+
+    let runsData = null;
+    let currentRunIndex = 0;
+    let selectedNodeElement = null;
+    let allInteractiveNodes = [];
+
+    const fallbackRuns = [
+      {
+        id: "RUN-20260819-01",
+        taskId: "DW-042",
+        title: "Build Agent Run Viewer Component",
+        type: "diagnostic",
+        typeName: "Diagnostic (2 Scouts → JOIN → Worker)",
+        isSample: true,
+        status: "COMPLETE",
+        statusLabel: "Verified & Merged",
+        harness: "Antigravity V1.1",
+        startedAt: "2026-08-19T14:32:00Z",
+        totalDuration: "3m 42s",
+        branch: "agent-harness-v1",
+        summary: "Observability component visualizing Antigravity multi-agent orchestration flows from task dispatch through parallel discovery, join synthesis, scoped worker implementation, and deterministic verification.",
+        steps: [
+          {
+            id: "step-1",
+            type: "coordinator",
+            role: "Coordinator",
+            model: "Antigravity Orchestrator",
+            name: "Task Deconstruction & Dispatch",
+            duration: "18s",
+            status: "COMPLETE",
+            summary: "Evaluated task complexity (Diagnostic), framed orthogonal discovery questions, and dispatched concurrent read-only Scouts.",
+            input: "User goal: Agent Run Viewer for DataWarsaw website.\nConstraints: Vanilla HTML/CSS/JS, no heavy libraries, explicit DEMO badge, responsive 375px–1440px.",
+            output: "Spawning Scout A (Runtime/Data) and Scout B (UX/Info Design) with bounded context contracts.",
+            artifacts: ["agents/coordinator.md", "state/project-state.md"]
+          },
+          {
+            id: "step-2",
+            type: "parallel",
+            name: "Parallel Discovery Swarm",
+            agents: [
+              {
+                id: "scout-a",
+                role: "Scout A",
+                name: "Runtime & Telemetry Investigation",
+                model: "gemini-3.7-flash-high",
+                duration: "45s",
+                status: "COMPLETE",
+                summary: "Audited repository state and runtime artifacts. Determined persistent telemetry is not yet checked in; recommended minimal JSON schema with explicit DEMO label.",
+                input: "Inspect state/, agents/, .agents/, docs/, evals/ for truthful runtime data.",
+                output: "Proposed minimal extensible JSON schema. Mandated DEMO RUN flag to avoid fabricating historical telemetry.",
+                artifacts: ["state/task.example.json", "state/progress.example.json", "docs/agent-harness-v1.md"]
+              },
+              {
+                id: "scout-b",
+                role: "Scout B",
+                name: "Information Architecture & UX Design",
+                model: "gemini-3.7-flash-high",
+                duration: "41s",
+                status: "COMPLETE",
+                summary: "Designed visual hierarchy matching Warsaw Analytica dark graphite/acid-lime aesthetic. Recommended Section 06 placement with responsive horizontal-to-vertical branch flow.",
+                input: "Inspect site/ structure, visual tokens, responsive rules, and layout constraints.",
+                output: "Proposed execution trace hierarchy: Header → Coordinator → Parallel Branches → JOIN → Worker → Verification → Inspector.",
+                artifacts: ["site/index.html", "site/styles.css", "docs/design-system.md"]
+              }
+            ]
+          },
+          {
+            id: "step-3",
+            type: "join",
+            role: "Coordinator JOIN",
+            model: "Antigravity Orchestrator",
+            name: "Synthesis & Implementation Contract",
+            duration: "22s",
+            status: "COMPLETE",
+            summary: "Joined Scout findings, confirmed zero contradictions, and formulated single consolidated implementation brief for Worker.",
+            input: "Scout A schema recommendation + Scout B UX layout specifications.",
+            output: "Consolidated implementation brief with file scope: site/data/agent-runs.json, site/index.html, site/styles.css, site/script.js.",
+            artifacts: ["docs/agent-harness-v1.md (Join Policy)"]
+          },
+          {
+            id: "step-4",
+            type: "worker",
+            role: "Worker",
+            model: "claude-sonnet-4-6",
+            name: "Component Implementation & Rendering",
+            duration: "1m 48s",
+            status: "COMPLETE",
+            summary: "Constructed Agent Run Viewer component, dynamic run switcher, interactive node inspector, responsive SVG branch connectors, and keyboard controls.",
+            input: "Joined implementation brief from Coordinator.",
+            output: "Implemented component with zero external visualization frameworks; pure semantic HTML5, CSS Grid/Flexbox, and vanilla JavaScript.",
+            filesChanged: [
+              "site/data/agent-runs.json",
+              "site/index.html",
+              "site/styles.css",
+              "site/script.js"
+            ]
+          },
+          {
+            id: "step-5",
+            type: "verification",
+            role: "Verification",
+            model: "Deterministic Test Suite",
+            name: "QA & Responsive Evaluation",
+            duration: "28s",
+            status: "PASS",
+            summary: "Verified zero horizontal overflow across 375px, 390px, 430px, 768px, 1024px, 1440px; verified zero console errors, keyboard focus, and reduced-motion states.",
+            input: "Test suite: test-datawarsaw-web & visual regression checklist.",
+            output: "All 4 viewports passed (scrollWidth === innerWidth). Reduced-motion transitions validated. Contrast ratios compliant.",
+            checks: [
+              "Viewport 375x667: PASS (scrollWidth === 375)",
+              "Viewport 390x844: PASS (scrollWidth === 390)",
+              "Viewport 430x932: PASS (scrollWidth === 430)",
+              "Viewport 1440x900: PASS (Desktop baseline)",
+              "Console errors: 0",
+              "prefers-reduced-motion: Verified"
+            ]
+          }
+        ]
+      },
+      {
+        id: "RUN-20260818-02",
+        taskId: "DW-039",
+        title: "Simplify Warsaw Weather Chart",
+        type: "simple",
+        typeName: "Simple (Coordinator → Worker Direct)",
+        isSample: true,
+        status: "COMPLETE",
+        statusLabel: "Verified & Merged",
+        harness: "Antigravity V1.0",
+        startedAt: "2026-08-18T18:15:00Z",
+        totalDuration: "1m 34s",
+        branch: "agent-harness-v1",
+        summary: "Streamlined 24-hour temperature chart by removing visual clutter while preserving comprehensive Open-Meteo multi-factor recommendation engine.",
+        steps: [
+          {
+            id: "step-s1",
+            type: "coordinator",
+            role: "Coordinator",
+            model: "Antigravity Orchestrator",
+            name: "Direct Task Routing",
+            duration: "12s",
+            status: "COMPLETE",
+            summary: "Classified task as Simple Refinement. Affected files and goal known; skipped Scout swarm to minimize overhead.",
+            input: "User goal: Simplify weather chart to temperature-only visualization while retaining multi-signal decision logic.",
+            output: "Direct delegation to Worker with strict scope isolation.",
+            artifacts: ["state/project-state.md"]
+          },
+          {
+            id: "step-s2",
+            type: "worker",
+            role: "Worker",
+            model: "gemini-3.7-flash-high",
+            name: "Chart Refactoring",
+            duration: "58s",
+            status: "COMPLETE",
+            summary: "Refactored SVG rendering to clean single-axis temperature curve with smooth area fill and dynamic mobile tick density.",
+            input: "Direct task contract from Coordinator.",
+            output: "Cleaned up SVG layout, responsive dynamic ticks (3-4 mobile, 6 desktop).",
+            filesChanged: [
+              "site/script.js",
+              "site/styles.css"
+            ]
+          },
+          {
+            id: "step-s3",
+            type: "verification",
+            role: "Verification",
+            model: "Deterministic Test Suite",
+            name: "Chart & Data Validation",
+            duration: "24s",
+            status: "PASS",
+            summary: "Tested API fallback, keyboard navigation across timeline hours, and zero layout shift on mobile viewports.",
+            input: "Test suite: test-datawarsaw-web & Open-Meteo mock responses.",
+            output: "All checks passed cleanly.",
+            checks: [
+              "Mobile tick density: PASS (4 ticks at 375px)",
+              "Keyboard left/right scrub: PASS",
+              "Fallback data simulation: PASS"
+            ]
+          }
+        ]
+      },
+      {
+        id: "RUN-20260818-03",
+        taskId: "DW-041",
+        title: "Fix Polish Diacritics UTF-8 Encoding",
+        type: "bounded-retry",
+        typeName: "Diagnostic with Bounded Retry (Budget: 2)",
+        isSample: true,
+        status: "COMPLETE",
+        statusLabel: "Resolved on Attempt 1",
+        harness: "Antigravity V1.1",
+        startedAt: "2026-08-18T21:40:00Z",
+        totalDuration: "2m 15s",
+        branch: "agent-harness-v1",
+        summary: "Resolved corrupted UTF-8 string encoding in Warsaw weather outdoor recommendation strings across Polish diacritical characters.",
+        steps: [
+          {
+            id: "step-r1",
+            type: "coordinator",
+            role: "Coordinator",
+            model: "Antigravity Orchestrator",
+            name: "Diagnosis Dispatch",
+            duration: "14s",
+            status: "COMPLETE",
+            summary: "Identified garbled characters in dynamic weather output; dispatched Scout to isolate string literals and file encoding.",
+            input: "Issue: Polish diacritics rendered as mojibake in recommendation banner.",
+            output: "Scout contract: Inspect string declarations in site/script.js and verify BOM/UTF-8 encoding.",
+            artifacts: ["site/script.js"]
+          },
+          {
+            id: "step-r2",
+            type: "worker",
+            role: "Worker",
+            model: "gemini-3.7-flash-high",
+            name: "Encoding Correction & String Normalization",
+            duration: "48s",
+            status: "COMPLETE",
+            summary: "Replaced corrupted character sequences with clean UTF-8 literals and validated file save encoding.",
+            input: "Scout findings and string correction list.",
+            output: "Clean UTF-8 Polish recommendation strings.",
+            filesChanged: [
+              "site/script.js"
+            ]
+          },
+          {
+            id: "step-r3",
+            type: "verification",
+            role: "Verification",
+            model: "Deterministic Test Suite",
+            name: "Character Set & Display QA",
+            duration: "22s",
+            status: "PASS",
+            summary: "Simulated all 12 weather conditions and verified proper glyph rendering in browser DOM.",
+            input: "Test script: string regex & DOM rendering checks.",
+            output: "Zero mojibake detected across all conditions.",
+            checks: [
+              "Character validation: 100% valid UTF-8",
+              "Screen reader announcement: PASS"
+            ]
+          }
+        ]
+      }
+    ];
+
+    const updateInspector = nodeData => {
+      if (!nodeData) return;
+      if (inspectorRole) inspectorRole.textContent = nodeData.role || 'AGENT';
+      if (inspectorModel) inspectorModel.textContent = nodeData.model || 'Standard';
+      if (inspectorDuration) inspectorDuration.textContent = nodeData.duration || '—';
+      if (inspectorStatus) {
+        inspectorStatus.textContent = nodeData.status || 'COMPLETE';
+        inspectorStatus.className = 'inspector-status-pill ' + (nodeData.status === 'PASS' || nodeData.status === 'COMPLETE' ? 'is-pass' : '');
+      }
+      if (inspectorTitle) inspectorTitle.textContent = nodeData.name || 'Step Details';
+      if (inspectorSummary) inspectorSummary.textContent = nodeData.summary || '';
+      if (inspectorInput) inspectorInput.textContent = nodeData.input || '—';
+      if (inspectorOutput) inspectorOutput.textContent = nodeData.output || '—';
+
+      if (inspectorArtifacts && inspectorArtifactsBlock) {
+        inspectorArtifacts.innerHTML = '';
+        const items = nodeData.filesChanged || nodeData.artifacts || nodeData.checks || [];
+        if (inspectorArtifactsLabel) {
+          inspectorArtifactsLabel.textContent = nodeData.filesChanged
+            ? 'Files Changed / Mutated'
+            : nodeData.checks
+              ? 'Verification Checks'
+              : 'Artifacts & Context Contracts';
+        }
+        if (items.length === 0) {
+          const emptyLi = document.createElement('li');
+          emptyLi.className = 'artifact-empty';
+          emptyLi.textContent = 'None';
+          inspectorArtifacts.appendChild(emptyLi);
+        } else {
+          items.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            inspectorArtifacts.appendChild(li);
+          });
+        }
+      }
+
+      animateDataState(agentViewer.querySelectorAll('.harness-inspector > *'), { y: 4, stagger: 0.025, duration: 0.28 });
+    };
+
+    const createNodeButton = (step, customClass = '') => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'flow-node ' + customClass;
+      btn.setAttribute('data-node-id', step.id || '');
+      btn.setAttribute('aria-label', (step.role || 'Step') + ': ' + (step.name || ''));
+
+      const head = document.createElement('div');
+      head.className = 'node-head';
+      head.innerHTML = '<span class="node-role">' + (step.role || '') + '</span><span class="node-duration">' + (step.duration || '') + '</span>';
+
+      const title = document.createElement('h4');
+      title.className = 'node-title';
+      title.textContent = step.name || '';
+
+      const meta = document.createElement('div');
+      meta.className = 'node-meta';
+      meta.innerHTML = '<span class="node-model">' + (step.model || '') + '</span><span class="node-status ' + (step.status === 'PASS' || step.status === 'COMPLETE' ? 'is-complete' : '') + '">' + (step.status || '') + '</span>';
+
+      btn.appendChild(head);
+      btn.appendChild(title);
+      btn.appendChild(meta);
+
+      btn._stepData = step;
+      return btn;
+    };
+
+    const createConnector = () => {
+      const conn = document.createElement('div');
+      conn.className = 'flow-connector';
+      conn.setAttribute('aria-hidden', 'true');
+      return conn;
+    };
+
+    const renderRun = run => {
+      if (!run) return;
+
+      if (metaTask) metaTask.textContent = run.taskId || '—';
+      if (metaPattern) metaPattern.textContent = run.typeName || run.type || '—';
+      if (metaDuration) metaDuration.textContent = run.totalDuration || '—';
+      if (metaHarness) metaHarness.textContent = run.harness || 'Antigravity V1';
+      if (runStatusText) runStatusText.textContent = run.status || 'COMPLETE';
+
+      flowContainer.innerHTML = '';
+      allInteractiveNodes = [];
+
+      run.steps.forEach((step, stepIndex) => {
+        if (step.type === 'parallel') {
+          if (stepIndex > 0) {
+            flowContainer.appendChild(createConnector());
+          }
+
+          const parallelStage = document.createElement('div');
+          parallelStage.className = 'flow-parallel-stage';
+
+          const topSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          topSvg.setAttribute('class', 'branch-connector-svg');
+          topSvg.setAttribute('viewBox', '0 0 560 28');
+          topSvg.setAttribute('aria-hidden', 'true');
+          topSvg.innerHTML = '<path d="M280,0 C280,14 135,14 135,24 M280,0 C280,14 425,14 425,24" /><polygon points="131,23 139,23 135,28" fill="rgba(247,246,241,.35)" /><polygon points="421,23 429,23 425,28" fill="rgba(247,246,241,.35)" />';
+          parallelStage.appendChild(topSvg);
+
+          const parallelRow = document.createElement('div');
+          parallelRow.className = 'flow-parallel-row';
+
+          step.agents.forEach(agent => {
+            const agentBtn = createNodeButton(agent, 'is-scout');
+            parallelRow.appendChild(agentBtn);
+            allInteractiveNodes.push(agentBtn);
+          });
+          parallelStage.appendChild(parallelRow);
+
+          const bottomSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          bottomSvg.setAttribute('class', 'branch-connector-svg');
+          bottomSvg.setAttribute('viewBox', '0 0 560 28');
+          bottomSvg.setAttribute('aria-hidden', 'true');
+          bottomSvg.innerHTML = '<path d="M135,0 C135,14 280,14 280,24 M425,0 C425,14 280,14 280,24" /><polygon points="276,23 284,23 280,28" fill="rgba(247,246,241,.35)" />';
+          parallelStage.appendChild(bottomSvg);
+
+          flowContainer.appendChild(parallelStage);
+        } else {
+          if (stepIndex > 0) {
+            flowContainer.appendChild(createConnector());
+          }
+
+          let customClass = '';
+          if (step.type === 'coordinator') customClass = 'is-coordinator';
+          else if (step.type === 'join') customClass = 'is-join';
+          else if (step.type === 'worker') customClass = 'is-worker';
+          else if (step.type === 'verification') customClass = 'is-verification';
+
+          const nodeBtn = createNodeButton(step, customClass);
+          flowContainer.appendChild(nodeBtn);
+          allInteractiveNodes.push(nodeBtn);
+        }
+      });
+
+      const selectNode = (btn, preview = false) => {
+        if (!btn) return;
+        if (!preview) {
+          selectedNodeElement = btn;
+          allInteractiveNodes.forEach(b => {
+            const isSel = b === btn;
+            b.classList.toggle('is-selected', isSel);
+            b.setAttribute('aria-pressed', String(isSel));
+          });
+        }
+        updateInspector(btn._stepData);
+      };
+
+      allInteractiveNodes.forEach((btn, index) => {
+        btn.addEventListener('pointerenter', () => updateInspector(btn._stepData));
+        btn.addEventListener('pointerleave', () => {
+          if (selectedNodeElement) updateInspector(selectedNodeElement._stepData);
+        });
+        btn.addEventListener('focus', () => updateInspector(btn._stepData));
+        btn.addEventListener('blur', () => {
+          if (selectedNodeElement) updateInspector(selectedNodeElement._stepData);
+        });
+        btn.addEventListener('click', () => selectNode(btn, false));
+        btn.addEventListener('keydown', e => {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            const next = allInteractiveNodes[(index + 1) % allInteractiveNodes.length];
+            next.focus();
+            selectNode(next, false);
+          } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const prev = allInteractiveNodes[(index - 1 + allInteractiveNodes.length) % allInteractiveNodes.length];
+            prev.focus();
+            selectNode(prev, false);
+          }
+        });
+      });
+
+      if (allInteractiveNodes.length > 0) {
+        selectNode(allInteractiveNodes[0], false);
+      }
+    };
+
+    const setupTabs = runs => {
+      runTabsContainer.innerHTML = '';
+      runs.forEach((run, idx) => {
+        const tab = document.createElement('button');
+        tab.type = 'button';
+        tab.role = 'tab';
+        tab.className = 'harness-tab' + (idx === currentRunIndex ? ' is-active' : '');
+        tab.setAttribute('aria-selected', String(idx === currentRunIndex));
+        tab.textContent = 'Trace #' + (idx + 1) + ' · ' + (run.taskId || 'Run') + ' (' + (run.type === 'diagnostic' ? 'Diagnostic' : run.type === 'simple' ? 'Simple' : 'Bounded Retry') + ')';
+        tab.addEventListener('click', () => {
+          if (currentRunIndex === idx) return;
+          currentRunIndex = idx;
+          runTabsContainer.querySelectorAll('.harness-tab').forEach((t, i) => {
+            const active = i === currentRunIndex;
+            t.classList.toggle('is-active', active);
+            t.setAttribute('aria-selected', String(active));
+          });
+          renderRun(runs[currentRunIndex]);
+          animateDataState(agentViewer.querySelectorAll('.harness-graph-stage, .harness-inspector'), { y: 6, duration: 0.35 });
+        });
+        runTabsContainer.appendChild(tab);
+      });
+    };
+
+    const initViewer = () => {
+      fetch('data/agent-runs.json')
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch agent-runs.json: ' + res.status);
+          return res.json();
+        })
+        .then(data => {
+          runsData = data.runs && data.runs.length ? data.runs : fallbackRuns;
+          setupTabs(runsData);
+          renderRun(runsData[currentRunIndex]);
+        })
+        .catch(() => {
+          runsData = fallbackRuns;
+          setupTabs(runsData);
+          renderRun(runsData[currentRunIndex]);
+        });
+    };
+
+    initViewer();
+  }
+
   const canvas = document.querySelector('[data-signal-canvas]');
   if (!canvas) {
     window.__heroGraphAnimation = null;

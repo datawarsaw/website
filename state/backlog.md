@@ -16,7 +16,6 @@ Lightweight, prioritized backlog for DataWarsaw development and AI Workstation i
 
 - [ ] Return focus toward Data Analytics + AI Analytics content
 - [ ] Select the first substantial analytics-focused project
-- [ ] Agent Run Viewer
 - [ ] Model Benchmark Dashboard
 - [ ] Blog / Lab Journal
 
@@ -66,6 +65,7 @@ Lightweight, prioritized backlog for DataWarsaw development and AI Workstation i
 - [x] Differentiate Analytical Expertise radar scores to integer 1–10 scale
 - [x] Public GitHub activity component aggregation & responsive container layout
 - [x] Antigravity V1 agent harness specification and native subagent configuration
+- [x] Agent Run Viewer V1 (observable multi-agent execution traces, sample runs schema & responsive graph stage)
 
 ---
 

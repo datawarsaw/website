@@ -30,7 +30,7 @@
   <header class="site-header" data-header>
     <a class="brand" href="#top" aria-label="Warsaw Analytica, home"><span class="brand-name">Warsaw Analytica</span><span class="brand-by">by Michał Domaradzki</span></a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span class="sr-only">Toggle navigation</span><span></span><span></span></button>
-    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav><a href="#about">About</a><a href="#practice">Practice</a><a href="#approach">Approach</a><a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a></nav>
+    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav><a href="#about">About</a><a href="#practice">Practice</a><a href="#pulse">Pulse</a><a href="#harness">Workstation</a><a href="#approach">Approach</a><a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a></nav>
   </header>
 
   <main id="main">
@@ -306,7 +306,94 @@
             <p><span>Planning rule</span> Window start between 06:00 and 19:00 (concluding by 22:00), selecting three consecutive hours with rain ≤35%, European AQI ≤60 and wind ≤30 km/h. Temperature is context, not a gate.</p>
             <p>This is a transparent portfolio heuristic, not a scientific model.</p>
           </div>
-          <div class="pulse-meta"><span data-pulse-updated>Awaiting source data</span><span>Weather: <a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · Air quality: <a href="https://ads.atmosphere.copernicus.eu/datasets/cams-europe-air-quality-forecasts" target="_blank" rel="noopener noreferrer">CAMS ENSEMBLE</a> via Open-Meteo</span></div>
+         <div class="pulse-meta"><span data-pulse-updated>Awaiting source data</span><span>Weather: <a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · Air quality: <a href="https://ads.atmosphere.copernicus.eu/datasets/cams-europe-air-quality-forecasts" target="_blank" rel="noopener noreferrer">CAMS ENSEMBLE</a> via Open-Meteo</span></div>
+       </div>
+     </div>
+   </section>
+
+    <section class="harness section-dark" id="harness" aria-labelledby="harness-title">
+      <div class="container">
+        <div class="section-index reveal"><span>06</span> AI Workstation · Observability</div>
+        <div class="harness-heading reveal">
+          <div>
+            <p class="kicker">Antigravity Multi-Agent Orchestration</p>
+            <h2 id="harness-title">Observable agent runs.<br><em>Deterministic flow.</em></h2>
+          </div>
+          <p>Visualizing task execution traces across Coordinator, parallel Scout discovery swarms, JOIN synthesis, Worker implementation, and automated verification.</p>
+        </div>
+
+        <div class="harness-module reveal" data-agent-viewer>
+          <div class="harness-topbar">
+            <div class="harness-selector-wrap">
+              <span class="harness-label">Select Run Trace</span>
+              <div class="harness-tabs" role="tablist" aria-label="Agent Run Traces" data-run-tabs>
+                <!-- Populated dynamically by script.js -->
+              </div>
+            </div>
+            <div class="harness-badge-group">
+              <span class="harness-demo-badge" title="This execution trace is an illustrative sample grounded in the Antigravity V1 specification">SAMPLE TRACE</span>
+              <div class="harness-status-pill" data-run-status-pill>
+                <span class="status-dot"></span>
+                <span data-run-status-text>COMPLETE</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="harness-meta-strip" data-run-meta>
+            <div class="meta-item"><span>Task</span><strong data-meta-task>&mdash;</strong></div>
+            <div class="meta-item"><span>Pattern</span><strong data-meta-pattern>&mdash;</strong></div>
+            <div class="meta-item"><span>Duration</span><strong data-meta-duration>&mdash;</strong></div>
+            <div class="meta-item"><span>Harness</span><strong data-meta-harness>&mdash;</strong></div>
+          </div>
+
+          <div class="harness-layout">
+            <div class="harness-graph-stage">
+              <div class="graph-stage-header">
+                <h3>Execution Trace Graph</h3>
+                <span class="graph-hint">Select a node to inspect telemetry</span>
+              </div>
+              <div class="harness-flow" data-harness-flow role="region" aria-label="Agent Execution Flow Diagram" tabindex="0">
+                <!-- Dynamically rendered flow nodes & connectors -->
+              </div>
+            </div>
+
+            <div class="harness-inspector" data-harness-inspector aria-live="polite">
+              <div class="inspector-header">
+                <div class="inspector-role-badge">
+                  <span class="role-type" data-inspector-role>COORDINATOR</span>
+                  <span class="model-badge" data-inspector-model>Antigravity Orchestrator</span>
+                </div>
+                <div class="inspector-timing">
+                  <span class="inspector-duration" data-inspector-duration>&mdash;</span>
+                  <span class="inspector-status-pill" data-inspector-status>&mdash;</span>
+                </div>
+              </div>
+
+              <h4 class="inspector-title" data-inspector-title>Select a node</h4>
+              <p class="inspector-summary" data-inspector-summary>Click or focus any execution step to inspect inputs, outputs, models, durations, and touched artifacts.</p>
+
+              <div class="inspector-block">
+                <span class="block-label">Input / Objective</span>
+                <pre class="inspector-pre" data-inspector-input>&mdash;</pre>
+              </div>
+
+              <div class="inspector-block">
+                <span class="block-label">Output / Findings</span>
+                <pre class="inspector-pre" data-inspector-output>&mdash;</pre>
+              </div>
+
+              <div class="inspector-block" data-inspector-artifacts-block>
+                <span class="block-label" data-inspector-artifacts-label>Artifacts / Files</span>
+                <ul class="inspector-artifacts-list" data-inspector-artifacts>
+                  <li class="artifact-empty">&mdash;</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="harness-footer-note">
+            <p><strong>Observability note:</strong> Execution trace nodes represent real harness contract boundaries defined in <a href="https://github.com/datawarsaw/website/blob/agent-harness-v1/docs/agent-harness-v1.md" target="_blank" rel="noopener noreferrer">docs/agent-harness-v1.md &nearr;</a>. Sample traces illustrate orchestrator routing behavior.</p>
+          </div>
         </div>
       </div>
     </section>
