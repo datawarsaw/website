@@ -146,7 +146,7 @@
 
   const animateDataState = (targets, options = {}) => {
     if (!motionAllowed()) return;
-    const elements = [...targets].filter(Boolean);
+    const elements = (targets instanceof Element ? [targets] : Array.isArray(targets) ? targets : targets ? Array.from(targets) : []).filter(Boolean);
     if (!elements.length) return;
     window.gsap.killTweensOf(elements);
     window.gsap.fromTo(elements,
@@ -1775,6 +1775,590 @@
     };
 
     initViewer();
+  }
+
+/* 06.2 AI Workstation - Model Benchmark Dashboard */
+  const benchmarkModule = document.querySelector('[data-model-benchmark]');
+  if (benchmarkModule) {
+    const benchmarkTabsContainer = benchmarkModule.querySelector('[data-benchmark-tabs]');
+    const statusPill = benchmarkModule.querySelector('[data-benchmark-status-pill]');
+    const statusText = benchmarkModule.querySelector('[data-benchmark-status-text]');
+    const truthBadge = benchmarkModule.querySelector('[data-benchmark-truth-badge]');
+    const metaTitle = benchmarkModule.querySelector('[data-bmeta-title]');
+    const metaRuns = benchmarkModule.querySelector('[data-bmeta-runs]');
+    const metaValidation = benchmarkModule.querySelector('[data-bmeta-validation]');
+    const metaBaseline = benchmarkModule.querySelector('[data-bmeta-baseline]');
+    const matrixHeading = benchmarkModule.querySelector('[data-matrix-heading]');
+    const matrixSubtitle = benchmarkModule.querySelector('[data-matrix-subtitle]');
+    const tableWrap = benchmarkModule.querySelector('[data-benchmark-table-wrap]');
+    const table = benchmarkModule.querySelector('[data-benchmark-table]');
+
+    const binspectorTier = benchmarkModule.querySelector('[data-binspector-tier]');
+    const binspectorProvider = benchmarkModule.querySelector('[data-binspector-provider]');
+    const binspectorStatus = benchmarkModule.querySelector('[data-binspector-status]');
+    const binspectorTitle = benchmarkModule.querySelector('[data-binspector-title]');
+    const binspectorNotes = benchmarkModule.querySelector('[data-binspector-notes]');
+    const binspectorStrengths = benchmarkModule.querySelector('[data-binspector-strengths]');
+    const binspectorBottlenecks = benchmarkModule.querySelector('[data-binspector-bottlenecks]');
+    const binspectorDiff = benchmarkModule.querySelector('[data-binspector-diff]');
+    const binspectorArtifactsBlock = benchmarkModule.querySelector('[data-binspector-artifacts-block]');
+    const binspectorArtifacts = benchmarkModule.querySelector('[data-binspector-artifacts]');
+
+    let benchmarksData = null;
+    let currentDatasetIndex = 0;
+    let selectedModelId = null;
+    let activeHighlightedCol = null;
+
+    const fallbackBenchmarks = [
+      {
+        id: 'frontend-benchmark-v1',
+        title: 'Frontend Workstation Benchmark V1',
+        subtitle: '5 isolated comparative model runs from baseline 129b33f',
+        status: 'PARTIAL',
+        statusLabel: '3/5 Validated · 2/5 Blocked',
+        isSample: false,
+        date: '2026-08-18',
+        baseline: '129b33f5b9845797c690c52a9e03609e812cc67d',
+        targetRuns: 5,
+        completedRuns: 3,
+        blockedRuns: 2,
+        metrics: [
+          { id: 's1_matrix', name: 'Workstation Matrix', short: 'Matrix', description: 'Scenario 1: Metric-ranked horizontal performance bars, real-time sorting & comparative matrix' },
+          { id: 's2_nav', name: 'Mobile Nav Drawer', short: 'Nav Drawer', description: 'Scenario 2: Focus-trapped 2-line hamburger drawer, ESC dismissal & scroll locking' },
+          { id: 's3_explorer', name: 'Model Explorer', short: 'Explorer', description: 'Scenario 3: Workload recommendation decision engine & trade-off analyzer' },
+          { id: 's4_a11y', name: 'A11y & Performance', short: 'A11y / Perf', description: 'Scenario 4: Keyboard nav, ARIA live alerts, 0 CLS & reduced-motion support' },
+          { id: 's5_lab', name: 'AI Lab Sandbox', short: 'Lab Sandbox', description: 'Scenario 5: Interactive client-side telemetry simulation & hybrid routing' },
+          { id: 'validation', name: 'Viewport QA', short: 'Viewport QA', description: 'Cross-viewport verification (375, 390, 430, 1440), 0 console errors, 0 overflow' }
+        ],
+        models: [
+          {
+            id: 'gpt-5-6-luna',
+            name: 'GPT-5.6 Luna',
+            provider: 'OpenAI',
+            tier: 'Cloud',
+            tierLabel: 'Cloud Engine',
+            status: 'COMPLETE',
+            statusLabel: 'Verified & Passed',
+            badgeClass: 'is-complete',
+            overallScore: 'Validated',
+            diff: 'Node & diff checks clean',
+            scores: {
+              s1_matrix: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s2_nav: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s3_explorer: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s4_a11y: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s5_lab: { value: 'PASS', state: 'validated', label: 'Validated' },
+              validation: { value: '4/4', state: 'validated', label: 'Pass (4/4)' }
+            },
+            strengths: 'Disciplined scope, robust responsive styling across mobile viewports, high layout containment.',
+            bottlenecks: 'Cloud dependency; manual quality scoring pending common visual review.',
+            notes: 'Verified across all required viewports (375, 390, 430, 1440) with zero console errors and zero horizontal overflow.',
+            artifacts: [
+              'benchmark-output/gpt-5.6-luna/gpt-5.6-luna-desktop.png',
+              'benchmark-output/gpt-5.6-luna/gpt-5.6-luna-390.png'
+            ]
+          },
+          {
+            id: 'gemini-flash',
+            name: 'Gemini 3.7 Flash',
+            provider: 'Google',
+            tier: 'Cloud',
+            tierLabel: 'Cloud Engine',
+            status: 'COMPLETE',
+            statusLabel: 'Verified & Passed',
+            badgeClass: 'is-complete',
+            overallScore: 'Validated',
+            diff: 'Clean multi-view implementation',
+            scores: {
+              s1_matrix: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s2_nav: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s3_explorer: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s4_a11y: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s5_lab: { value: 'PASS', state: 'validated', label: 'Validated' },
+              validation: { value: '4/4', state: 'validated', label: 'Pass (4/4)' }
+            },
+            strengths: 'Multi-polygon SVG radar, ranked performance bars, client telemetry visualizer, 0 CLS containment.',
+            bottlenecks: 'Complex multi-polygon DOM geometry; manual quality scoring pending common visual review.',
+            notes: 'All 5 scenarios completed with ranked bars, SVG radar, head-to-head matrix, and focus-trapped mobile drawer. Verified 375, 390, 430, 1440.',
+            artifacts: [
+              'benchmark-output/gemini-flash/desktop.png',
+              'benchmark-output/gemini-flash/mobile-390.png'
+            ]
+          },
+          {
+            id: 'grok-4-5',
+            name: 'Grok 4.5',
+            provider: 'xAI',
+            tier: 'Cloud',
+            tierLabel: 'Cloud Engine',
+            status: 'COMPLETE',
+            statusLabel: 'Verified & Passed',
+            badgeClass: 'is-complete',
+            overallScore: 'Validated',
+            diff: '+282 / −22 lines',
+            scores: {
+              s1_matrix: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s2_nav: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s3_explorer: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s4_a11y: { value: 'PASS', state: 'validated', label: 'Validated' },
+              s5_lab: { value: 'PASS', state: 'validated', label: 'Validated' },
+              validation: { value: '4/4', state: 'validated', label: 'Pass (4/4)' }
+            },
+            strengths: 'Modular benchmark widgets, explicit cloud vs local lab routing, clean state management.',
+            bottlenecks: 'Auxiliary widget script created; manual quality scoring pending common visual review.',
+            notes: 'All five scenarios completed. Verified all required viewports with no console errors or horizontal overflow.',
+            artifacts: [
+              'benchmark-output/grok-4.5/desktop.png',
+              'benchmark-output/grok-4.5/mobile-390.png'
+            ]
+          },
+          {
+            id: 'grok-4-6',
+            name: 'Grok 4.6',
+            provider: 'xAI',
+            tier: 'Cloud',
+            tierLabel: 'Cloud Engine',
+            status: 'BLOCKED',
+            statusLabel: 'Validation Incomplete',
+            badgeClass: 'is-blocked',
+            overallScore: 'Unverified',
+            diff: 'Code implemented, tests omitted',
+            scores: {
+              s1_matrix: { value: 'CODE', state: 'unverified', label: 'Code Only' },
+              s2_nav: { value: 'CODE', state: 'unverified', label: 'Code Only' },
+              s3_explorer: { value: 'CODE', state: 'unverified', label: 'Code Only' },
+              s4_a11y: { value: 'CODE', state: 'unverified', label: 'Code Only' },
+              s5_lab: { value: 'CODE', state: 'unverified', label: 'Code Only' },
+              validation: { value: 'BLOCKED', state: 'blocked', label: 'Incomplete' }
+            },
+            strengths: 'Scenarios 1–5 were implemented in code.',
+            bottlenecks: 'Required viewport checks, console checks, overflow checks, and screenshots were not completed before run cutoff.',
+            notes: 'Code changes were written to branch, but deterministic QA was not executed. Marked as blocked / unverified.',
+            artifacts: []
+          },
+          {
+            id: 'ternary-bonsai-27b',
+            name: 'Ternary-Bonsai-27B (Local)',
+            provider: 'Local Workstation',
+            tier: 'Local',
+            tierLabel: 'On-Device Air-Gapped',
+            status: 'BLOCKED',
+            statusLabel: 'Provider Load Failure',
+            badgeClass: 'is-blocked',
+            overallScore: 'Blocked',
+            diff: '0 artifacts produced',
+            scores: {
+              s1_matrix: { value: 'FAIL', state: 'blocked', label: 'Blocked' },
+              s2_nav: { value: 'FAIL', state: 'blocked', label: 'Blocked' },
+              s3_explorer: { value: 'FAIL', state: 'blocked', label: 'Blocked' },
+              s4_a11y: { value: 'FAIL', state: 'blocked', label: 'Blocked' },
+              s5_lab: { value: 'FAIL', state: 'blocked', label: 'Blocked' },
+              validation: { value: 'FAIL', state: 'blocked', label: 'Provider Fail' }
+            },
+            strengths: 'Architected for zero-egress on-device inference.',
+            bottlenecks: "Local provider returned: 'Failed to load model.' Execution halted immediately.",
+            notes: 'Recorded as an environment/provider runtime failure, not a quality score. Ground truth for local model limits.',
+            artifacts: []
+          }
+        ]
+      },
+      {
+        id: 'harness-role-matrix',
+        title: 'AI Workstation Harness Role Matrix',
+        subtitle: 'Operational routing contracts & observed model roles in Antigravity V1.1',
+        status: 'OPERATIONAL',
+        statusLabel: 'Operational Policy Grounded',
+        isSample: false,
+        date: '2026-08-19',
+        baseline: 'agent-harness-v1',
+        targetRuns: 6,
+        completedRuns: 5,
+        blockedRuns: 1,
+        metrics: [
+          { id: 'role_orch', name: 'Orchestration & Planning', short: 'Orchestrator', description: 'Goal decomposition, task routing, scout join synthesis, final decision authority' },
+          { id: 'role_scout', name: 'Discovery Swarm', short: 'Scout Swarm', description: 'Parallel read-only repository inspection, AST analysis & context extraction' },
+          { id: 'role_worker', name: 'Routine Execution', short: 'Routine Worker', description: 'Direct code implementation, HTML/CSS/JS refactoring & edit-test-fix loops' },
+          { id: 'role_deep', name: 'Deep Code Reasoning', short: 'Deep Reasoning', description: 'High-complexity architecture, cross-system invariants & subtle edge-case design' },
+          { id: 'role_review', name: 'Adversarial Review', short: 'Adversarial Rev', description: 'Second opinion, adversarial critique, edge-case audit & test failure diagnosis' },
+          { id: 'role_local', name: 'Air-Gapped Local', short: 'Local Airgap', description: '100% on-device private inference without cloud network access (VRAM bound)' }
+        ],
+        models: [
+          {
+            id: 'gpt-5-6-sol',
+            name: 'GPT-5.6 Sol',
+            provider: 'OpenAI',
+            tier: 'Cloud',
+            tierLabel: 'Cloud Engine',
+            status: 'OPERATIONAL',
+            statusLabel: 'Primary Orchestrator',
+            badgeClass: 'is-complete',
+            overallScore: 'Orchestrator',
+            diff: 'Primary coordinator contract',
+            scores: {
+              role_orch: { value: 'PRIMARY', state: 'validated', label: 'Primary (Sol)' },
+              role_scout: { value: 'DELEGATE', state: 'delegated', label: 'Delegated' },
+              role_worker: { value: 'ESCALATE', state: 'delegated', label: 'Escalate Only' },
+              role_deep: { value: 'CO-PRIM', state: 'validated', label: 'Co-Primary' },
+              role_review: { value: 'SUPERV', state: 'delegated', label: 'Supervisor' },
+              role_local: { value: '—', state: 'unsupported', label: 'Unsupported' }
+            },
+            strengths: 'High-order task deconstruction, constraint enforcement, join synthesis across specialist findings.',
+            bottlenecks: 'Costly for bulk file reads; AGENTS.md mandates delegation to Gemini before touching files.',
+            notes: 'Designated primary orchestrator, integrator, and final decision authority across the AI workstation.',
+            artifacts: ['AGENTS.md', 'agents/coordinator.md']
+          },
+          {
+            id: 'gemini-3-7-flash',
+            name: 'Gemini 3.7 Flash High',
+            provider: 'Google',
+            tier: 'Cloud',
+            tierLabel: 'Cloud Engine',
+            status: 'OPERATIONAL',
+            statusLabel: 'Default Execution Worker',
+            badgeClass: 'is-complete',
+            overallScore: 'Execution Core',
+            diff: 'Native Antigravity subagent',
+            scores: {
+              role_orch: { value: 'DELEGATE', state: 'delegated', label: 'Delegated' },
+              role_scout: { value: 'PRIMARY', state: 'validated', label: 'Primary (Scout)' },
+              role_worker: { value: 'PRIMARY', state: 'validated', label: 'Primary (Worker)' },
+              role_deep: { value: 'SECOND', state: 'delegated', label: 'Secondary' },
+              role_review: { value: 'PEER', state: 'delegated', label: 'Peer Worker' },
+              role_local: { value: '—', state: 'unsupported', label: 'Unsupported' }
+            },
+            strengths: 'High throughput, 1M+ context window, rapid AST and file discovery, native Antigravity runtime integration.',
+            bottlenecks: 'Requires deterministic verification for subtle multi-file state invariants.',
+            notes: 'Default execution worker. Observed in 100% of real Antigravity subagent runs in the repository.',
+            artifacts: ['docs/agent-harness-v1.md', '.agents/agents/scout/agent.md']
+          },
+          {
+            id: 'claude-opus-4-6',
+            name: 'Claude Opus 4.6 Thinking',
+            provider: 'Anthropic',
+            tier: 'Cloud',
+            tierLabel: 'Cloud Engine',
+            status: 'OPERATIONAL',
+            statusLabel: 'Architecture Escalation',
+            badgeClass: 'is-complete',
+            overallScore: 'Escalation',
+            diff: 'Deep architecture contract',
+            scores: {
+              role_orch: { value: 'ADVISORY', state: 'delegated', label: 'Advisory' },
+              role_scout: { value: 'OPTIONAL', state: 'delegated', label: 'Deep Scout' },
+              role_worker: { value: 'ESCALATE', state: 'delegated', label: 'Escalate Only' },
+              role_deep: { value: 'PRIMARY', state: 'validated', label: 'Primary (Opus)' },
+              role_review: { value: 'HIGH', state: 'validated', label: 'High Reasoning' },
+              role_local: { value: '—', state: 'unsupported', label: 'Unsupported' }
+            },
+            strengths: 'Subtle long-horizon reasoning, deep algorithmic verification, complex architecture cross-coupling.',
+            bottlenecks: 'Higher latency; reserved strictly for genuine escalations after lower-cost workers fail.',
+            notes: 'Selective escalation specialist. Never used for routine file reads or ordinary implementation.',
+            artifacts: ['AGENTS.md (Escalation Ladder)']
+          },
+          {
+            id: 'grok-4-5-review',
+            name: 'Grok 4.5 / 4.6',
+            provider: 'xAI',
+            tier: 'Cloud',
+            tierLabel: 'Cloud Engine',
+            status: 'OPERATIONAL',
+            statusLabel: 'Adversarial Reviewer',
+            badgeClass: 'is-complete',
+            overallScore: 'Review & Debug',
+            diff: 'Debugging & second opinion',
+            scores: {
+              role_orch: { value: '—', state: 'unsupported', label: 'Unsupported' },
+              role_scout: { value: 'TARGETED', state: 'delegated', label: 'Targeted' },
+              role_worker: { value: 'DEBUG', state: 'delegated', label: 'Debug Only' },
+              role_deep: { value: 'SECOND', state: 'delegated', label: 'Secondary' },
+              role_review: { value: 'PRIMARY', state: 'validated', label: 'Primary (Review)' },
+              role_local: { value: '—', state: 'unsupported', label: 'Unsupported' }
+            },
+            strengths: 'Adversarial code critique, surfacing unhandled edge cases, diagnosing contradictory test failures.',
+            bottlenecks: 'Not configured for primary orchestration in V1 harness.',
+            notes: 'Invoked when test suites fail unexpectedly or when an independent second opinion adds value.',
+            artifacts: ['AGENTS.md (Grok 4.5 Policy)']
+          },
+          {
+            id: 'qwen-2-5-local',
+            name: 'Qwen 2.5 / Local 27B',
+            provider: 'Local Workstation',
+            tier: 'Local',
+            tierLabel: 'On-Device Air-Gapped',
+            status: 'PLANNED',
+            statusLabel: 'Active Backlog Item',
+            badgeClass: 'is-blocked',
+            overallScore: 'Backlog',
+            diff: 'Planned research stream',
+            scores: {
+              role_orch: { value: '—', state: 'unsupported', label: 'Unsupported' },
+              role_scout: { value: 'PLAN', state: 'planned', label: 'Planned' },
+              role_worker: { value: 'PLAN', state: 'planned', label: 'Planned' },
+              role_deep: { value: 'UNVERIF', state: 'unverified', label: 'Unverified' },
+              role_review: { value: 'UNVERIF', state: 'unverified', label: 'Unverified' },
+              role_local: { value: 'PRIMARY', state: 'validated', label: 'Primary (Local)' }
+            },
+            strengths: 'Zero cloud egress, 100% private code handling, air-gapped offline workstation operation.',
+            bottlenecks: 'Hardware VRAM bound; provider stability in active research.',
+            notes: 'Recorded in state/backlog.md for local worker experiments and on-device agent evaluation.',
+            artifacts: ['state/backlog.md', 'state/project-state.md']
+          }
+        ]
+      }
+    ];
+
+    const updateInspector = (model, specificMetric = null) => {
+      if (!model) return;
+      if (binspectorTier) binspectorTier.textContent = model.tierLabel || (model.tier === 'Local' ? 'LOCAL ON-DEVICE' : 'CLOUD ENGINE');
+      if (binspectorProvider) binspectorProvider.textContent = model.provider || 'AI Workstation';
+      if (binspectorStatus) {
+        binspectorStatus.textContent = model.statusLabel || model.status;
+        binspectorStatus.className = 'inspector-status-pill ' + (model.badgeClass || '');
+      }
+      if (binspectorTitle) {
+        binspectorTitle.textContent = model.name + (specificMetric ? ' · ' + specificMetric.name : '');
+      }
+      if (binspectorNotes) {
+        if (specificMetric && model.scores && model.scores[specificMetric.id]) {
+          const sc = model.scores[specificMetric.id];
+          binspectorNotes.textContent = specificMetric.name + ': ' + sc.label + ' (' + sc.value + '). ' + (model.notes || '');
+        } else {
+          binspectorNotes.textContent = model.notes || 'No detailed engineering notes available.';
+        }
+      }
+      if (binspectorStrengths) binspectorStrengths.textContent = model.strengths || 'Grounded in repository evaluation criteria.';
+      if (binspectorBottlenecks) binspectorBottlenecks.textContent = model.bottlenecks || 'None identified in recorded test run.';
+      if (binspectorDiff) binspectorDiff.textContent = model.diff || '—';
+
+      if (binspectorArtifactsBlock && binspectorArtifacts) {
+        binspectorArtifacts.innerHTML = '';
+        if (model.artifacts && model.artifacts.length) {
+          binspectorArtifactsBlock.hidden = false;
+          model.artifacts.forEach(art => {
+            const li = document.createElement('li');
+            li.textContent = art;
+            binspectorArtifacts.appendChild(li);
+          });
+        } else {
+          binspectorArtifactsBlock.hidden = true;
+        }
+      }
+    };
+
+    const renderDataset = (dataset) => {
+      if (!dataset) return;
+
+      if (statusText) statusText.textContent = dataset.statusLabel || dataset.status;
+      if (truthBadge) {
+        truthBadge.textContent = dataset.isSample ? 'SAMPLE DATASET' : 'REPO GROUNDED';
+        truthBadge.title = dataset.isSample
+          ? 'Illustrative dataset format for harness architecture evaluation'
+          : 'Backed by empirical test runs and repository operational contracts';
+      }
+      if (metaTitle) metaTitle.textContent = dataset.title;
+      if (metaRuns) metaRuns.textContent = dataset.completedRuns + ' / ' + dataset.targetRuns + ' Completed (' + dataset.blockedRuns + ' Blocked)';
+      if (metaValidation) metaValidation.textContent = dataset.statusLabel;
+      if (metaBaseline) metaBaseline.textContent = dataset.baseline;
+
+      if (matrixHeading) matrixHeading.textContent = dataset.title;
+      if (matrixSubtitle) matrixSubtitle.textContent = dataset.subtitle;
+
+      if (!table) return;
+      table.innerHTML = '';
+
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+
+      const thModel = document.createElement('th');
+      thModel.className = 'is-model-col';
+      thModel.scope = 'col';
+      thModel.textContent = 'Model / Engine';
+      headerRow.appendChild(thModel);
+
+      const thTier = document.createElement('th');
+      thTier.scope = 'col';
+      thTier.textContent = 'Tier';
+      headerRow.appendChild(thTier);
+
+      const thStatus = document.createElement('th');
+      thStatus.scope = 'col';
+      thStatus.textContent = 'Status';
+      headerRow.appendChild(thStatus);
+
+      dataset.metrics.forEach(metric => {
+        const th = document.createElement('th');
+        th.className = 'is-metric-col';
+        th.scope = 'col';
+        th.setAttribute('data-metric-id', metric.id);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('aria-label', 'Highlight column: ' + metric.name + ' (' + metric.description + ')');
+        btn.innerHTML = '<span class="col-short">' + metric.short + '</span><span class="col-full">' + metric.name + '</span>';
+        btn.addEventListener('click', () => {
+          const isCurrent = activeHighlightedCol === metric.id;
+          activeHighlightedCol = isCurrent ? null : metric.id;
+
+          table.querySelectorAll('th.is-metric-col').forEach(thEl => {
+            thEl.classList.toggle('is-highlighted', thEl.getAttribute('data-metric-id') === activeHighlightedCol);
+          });
+          table.querySelectorAll('td[data-metric-id]').forEach(tdEl => {
+            tdEl.classList.toggle('is-col-highlighted', tdEl.getAttribute('data-metric-id') === activeHighlightedCol);
+          });
+
+          if (activeHighlightedCol) {
+            if (binspectorTitle) binspectorTitle.textContent = 'Metric Column · ' + metric.name;
+            if (binspectorNotes) binspectorNotes.textContent = metric.description;
+            if (binspectorTier) binspectorTier.textContent = 'EVALUATION METRIC';
+            if (binspectorProvider) binspectorProvider.textContent = 'Dimension #' + (dataset.metrics.indexOf(metric) + 1);
+            if (binspectorStatus) {
+              binspectorStatus.textContent = 'COLUMN FILTER';
+              binspectorStatus.className = 'inspector-status-pill';
+            }
+            if (binspectorStrengths) binspectorStrengths.textContent = 'Evaluated across all ' + dataset.models.length + ' models in this benchmark dataset.';
+            if (binspectorBottlenecks) binspectorBottlenecks.textContent = 'Click any individual model row or score cell to view specific implementation artifacts.';
+            if (binspectorDiff) binspectorDiff.textContent = 'Target Dimension: ' + metric.id;
+            if (binspectorArtifactsBlock) binspectorArtifactsBlock.hidden = true;
+          } else if (selectedModelId) {
+            const m = dataset.models.find(item => item.id === selectedModelId);
+            if (m) updateInspector(m);
+          }
+        });
+        th.appendChild(btn);
+        headerRow.appendChild(th);
+      });
+
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      dataset.models.forEach((model, modelIdx) => {
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-model-id', model.id);
+        tr.setAttribute('tabindex', '0');
+        tr.setAttribute('role', 'row');
+        tr.setAttribute('aria-label', model.name + ', ' + model.tierLabel + ', ' + model.statusLabel);
+
+        if (modelIdx === 0 && !selectedModelId) {
+          selectedModelId = model.id;
+        }
+        if (model.id === selectedModelId) {
+          tr.classList.add('is-selected');
+        }
+
+        const tdModel = document.createElement('td');
+        tdModel.className = 'is-model-cell';
+        tdModel.innerHTML = '<span class="model-cell-name">' + model.name + '</span><span class="model-cell-prov">' + model.provider + '</span>';
+        tr.appendChild(tdModel);
+
+        const tdTier = document.createElement('td');
+        tdTier.innerHTML = '<span class="tier-pill ' + (model.tier === 'Local' ? 'is-local' : '') + '">' + model.tier + '</span>';
+        tr.appendChild(tdTier);
+
+        const tdStatus = document.createElement('td');
+        tdStatus.innerHTML = '<span class="status-tag ' + (model.badgeClass || '') + '">' + model.status + '</span>';
+        tr.appendChild(tdStatus);
+
+        dataset.metrics.forEach(metric => {
+          const tdScore = document.createElement('td');
+          tdScore.className = 'is-score-cell';
+          tdScore.setAttribute('data-metric-id', metric.id);
+          if (activeHighlightedCol === metric.id) {
+            tdScore.classList.add('is-col-highlighted');
+          }
+
+          const score = (model.scores && model.scores[metric.id]) || { value: '—', state: 'unsupported', label: '—' };
+          tdScore.classList.add('cell-state-' + score.state);
+
+          const scoreBtn = document.createElement('button');
+          scoreBtn.type = 'button';
+          scoreBtn.className = 'score-cell-btn';
+          scoreBtn.setAttribute('aria-label', model.name + ' ' + metric.name + ': ' + score.label + ' (' + score.value + ')');
+          scoreBtn.innerHTML = '<span class="score-val">' + score.value + '</span><span class="score-label">' + score.label + '</span>';
+
+          scoreBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectedModelId = model.id;
+            tbody.querySelectorAll('tr').forEach(r => r.classList.toggle('is-selected', r.getAttribute('data-model-id') === model.id));
+            updateInspector(model, metric);
+            animateDataState(benchmarkModule.querySelector('.benchmark-inspector'), { y: 4, duration: 0.25 });
+          });
+
+          tdScore.appendChild(scoreBtn);
+          tr.appendChild(tdScore);
+        });
+
+        tr.addEventListener('click', () => {
+          selectedModelId = model.id;
+          tbody.querySelectorAll('tr').forEach(r => r.classList.toggle('is-selected', r.getAttribute('data-model-id') === model.id));
+          updateInspector(model);
+          animateDataState(benchmarkModule.querySelector('.benchmark-inspector'), { y: 4, duration: 0.25 });
+        });
+
+        tr.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            tr.click();
+          }
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+
+      const initialModel = dataset.models.find(m => m.id === selectedModelId) || dataset.models[0];
+      if (initialModel) {
+        updateInspector(initialModel);
+      }
+    };
+
+    const setupTabs = (benchmarks) => {
+      if (!benchmarkTabsContainer) return;
+      benchmarkTabsContainer.innerHTML = '';
+      benchmarks.forEach((bench, idx) => {
+        const tab = document.createElement('button');
+        tab.type = 'button';
+        tab.setAttribute('role', 'tab');
+        tab.className = 'benchmark-tab' + (idx === currentDatasetIndex ? ' is-active' : '');
+        tab.setAttribute('aria-selected', String(idx === currentDatasetIndex));
+        tab.textContent = bench.title + ' (' + bench.completedRuns + '/' + bench.targetRuns + ')';
+        tab.addEventListener('click', () => {
+          if (currentDatasetIndex === idx) return;
+          currentDatasetIndex = idx;
+          activeHighlightedCol = null;
+          selectedModelId = null;
+          benchmarkTabsContainer.querySelectorAll('.benchmark-tab').forEach((t, i) => {
+            const active = i === currentDatasetIndex;
+            t.classList.toggle('is-active', active);
+            t.setAttribute('aria-selected', String(active));
+          });
+          renderDataset(benchmarks[currentDatasetIndex]);
+          animateDataState(benchmarkModule.querySelectorAll('.benchmark-matrix-stage, .benchmark-inspector'), { y: 6, duration: 0.35 });
+        });
+        benchmarkTabsContainer.appendChild(tab);
+      });
+    };
+
+    const initBenchmarkDashboard = () => {
+      fetch('data/model-benchmarks.json')
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch model-benchmarks.json: ' + res.status);
+          return res.json();
+        })
+        .then(data => {
+          benchmarksData = data.benchmarks && data.benchmarks.length ? data.benchmarks : fallbackBenchmarks;
+          setupTabs(benchmarksData);
+          renderDataset(benchmarksData[currentDatasetIndex]);
+        })
+        .catch(() => {
+          benchmarksData = fallbackBenchmarks;
+          setupTabs(benchmarksData);
+          renderDataset(benchmarksData[currentDatasetIndex]);
+        });
+    };
+
+    initBenchmarkDashboard();
   }
 
   const canvas = document.querySelector('[data-signal-canvas]');

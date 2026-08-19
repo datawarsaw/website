@@ -46,6 +46,7 @@ Main completed recent improvements:
 - Analytical Expertise radar has differentiated integer 1–10 scores.
 - Weather recommendation Polish character encoding issue fixed (clean UTF-8).
 - Agent Run Viewer V1 implemented in Section 06 (`#harness`) visualizing observable multi-agent orchestration flows, run trace switching, and structured execution telemetry.
+ - Model Benchmark Dashboard V1 implemented in Section 06 (`#harness`) visualizing empirical model comparisons across isolated test runs (Frontend Workstation Benchmark V1) and Antigravity harness role routing contracts, with strict missing/blocked data truthfulness and zero fabricated scores.
 
 ## Current Strategic Direction
 
