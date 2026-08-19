@@ -48,6 +48,9 @@ Main completed recent improvements:
 - Model Benchmark Dashboard removed from public website (retained internally under `evals/`, `docs/`, `state/`, and `benchmark-comparison.html`).
 - Dedicated live Agent Observability subpage created at `/observability/` (`site/observability/index.html`) featuring live mission control, flow graph, active agent activity, and chronological event stream.
 - Live V1.1 file-driven observability architecture established: runtime updates `state/current-run.json` and sanitizes public export to `site/data/current-run.json`.
+- Coordinator lifecycle telemetry interface added to `scripts/update_current_run.py`: fresh run initialization, step start/complete/fail/block events, automatic durations, run completion/failure/block state, and activity cleanup.
+- Provider-neutral Coordinator contract now requires lifecycle telemetry for meaningful repository work and requires observed runtime model attribution.
+- `/observability/` flow rendering now follows the actual published step list, so simple runs no longer fabricate Scout/JOIN nodes and complex runs can surface dynamic `scout-*` branches.
 - Homepage Section 06 (`#harness`) streamlined to an editorial compact teaser linking directly to `/observability/`.
 
 ## Current Strategic Direction
@@ -83,6 +86,10 @@ Current policy:
 - Chat/model memory may contain user preferences.
 - Repository state files contain project truth.
 - Agents should never trust stale chat history over current repository state.
+
+## Local Runtime Caveat
+
+The repository documents native Antigravity configuration under `.agents/`, but that directory is not currently present on the GitHub `agent-harness-v1` branch. Repository-level telemetry hooks are therefore ready, while actual automatic invocation still depends on the local Antigravity Coordinator configuration using the updated contract or equivalent lifecycle calls.
 
 ## Update Policy
 
