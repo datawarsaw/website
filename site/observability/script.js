@@ -215,22 +215,28 @@
   function renderDashboard(data) {
     currentRunData = data;
     const status = (data.status || 'IDLE').toUpperCase();
+    const now = Date.now();
+    const updatedTime = data.updatedAt ? new Date(data.updatedAt).getTime() : 0;
+    const isStale = (status === 'RUNNING' && updatedTime > 0 && (now - updatedTime) > 300000);
+    const displayStatus = isStale ? 'STALE' : status;
 
     // 1. Header status & task
     if (globalStatusPill) {
       globalStatusPill.className = 'obs-status-pill ' + (
-        status === 'RUNNING' ? 'is-running' : (
-          status === 'COMPLETE' ? 'is-complete' : (
-            status === 'BLOCKED' || status === 'FAILED' ? 'is-blocked' : 'is-idle'
+        isStale ? 'is-stale' : (
+          status === 'RUNNING' ? 'is-running' : (
+            status === 'COMPLETE' ? 'is-complete' : (
+              status === 'BLOCKED' || status === 'FAILED' ? 'is-blocked' : 'is-idle'
+            )
           )
         )
       );
     }
-    if (globalStatusText) globalStatusText.textContent = status;
+    if (globalStatusText) globalStatusText.textContent = isStale ? 'STALE (NO HEARTBEAT)' : displayStatus;
     if (runTaskEl) runTaskEl.textContent = data.task || 'No active task';
     if (runStatusBadge) {
-      runStatusBadge.textContent = status;
-      runStatusBadge.className = 'obs-meta-status-badge ' + getStatusClass(status);
+      runStatusBadge.textContent = isStale ? 'STALE' : status;
+      runStatusBadge.className = 'obs-meta-status-badge ' + (isStale ? 'status-stale' : getStatusClass(status));
     }
     if (runHarnessInfo) {
       const flowLabel = data.flow ? ' · ' + data.flow : '';

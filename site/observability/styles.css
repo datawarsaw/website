@@ -154,6 +154,16 @@ body.obs-body {
   background: #ff6e6e;
 }
 
+.obs-status-pill.is-stale {
+  border-color: rgba(255, 189, 102, 0.5);
+  background: rgba(255, 189, 102, 0.1);
+  color: #ffbd66;
+}
+.obs-status-pill.is-stale .obs-status-dot {
+  background: #ffbd66;
+  box-shadow: 0 0 10px #ffbd66;
+}
+
 .obs-status-pill.is-idle {
   color: var(--obs-muted);
 }

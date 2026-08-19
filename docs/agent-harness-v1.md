@@ -202,6 +202,43 @@ To verify that subagents are running in real, isolated contexts and using the ex
 - `skills/test-datawarsaw-web/` — Verifies the real site against project QA checklists and required viewports.
 - `skills/simplify/` — Reduces unnecessary complexity only after the implementation already works.
 
+## Live Observability & Telemetry Reliability
+
+The harness automatically publishes real-time orchestration telemetry to `state/current-run.json` and sanitizes a public copy to `site/data/current-run.json`, powering the live `/observability/` Mission Control page.
+
+### Telemetry Lifecycle CLI
+Telemetry updates are driven via `scripts/update_current_run.py`:
+```bash
+# Task Initialization (Routing Pattern: simple | diagnostic | complex)
+python scripts/update_current_run.py --run-start --task "Task description" --flow diagnostic
+
+# Step Transitions
+python scripts/update_current_run.py --step-start coordinator --step-role "Coordinator" --step-model "Antigravity Orchestrator" --step-activity "Deconstructing task"
+python scripts/update_current_run.py --step-complete coordinator --step-summary "Dispatched Scouts"
+python scripts/update_current_run.py --step-start scout-a --step-role "Scout A" --step-model "gemini-3.7-flash-high" --step-activity "Auditing runtime"
+python scripts/update_current_run.py --step-complete scout-a --step-summary "Audited runtime"
+python scripts/update_current_run.py --step-start join --step-role "JOIN" --step-summary "Synthesized brief"
+python scripts/update_current_run.py --step-complete join --step-summary "Joined findings"
+python scripts/update_current_run.py --step-start worker --step-role "Worker" --step-model "claude-sonnet-4-6" --step-activity "Implementing changes"
+python scripts/update_current_run.py --step-complete worker --step-summary "Implemented scoped edits"
+python scripts/update_current_run.py --step-start verification --step-role "Verification" --step-model "Deterministic QA"
+python scripts/update_current_run.py --step-complete verification --step-summary "All viewports and tests passed"
+
+# Run Completion / Failure / Standby
+python scripts/update_current_run.py --run-complete
+python scripts/update_current_run.py --run-blocked
+python scripts/update_current_run.py --run-fail
+python scripts/update_current_run.py --idle
+```
+
+### Reliability & Safety Guarantees
+- **Cross-Platform File Locking:** Protects read-modify-write transactions on `state/current-run.lock` using non-blocking exclusive locks (`msvcrt` on Windows, `fcntl` on POSIX). Parallel Scouts completing simultaneously will not corrupt or overwrite state.
+- **Atomic Writes & Contention Retry:** Writes to process-isolated temp files (`current-run.json.tmp.<pid>.<uuid>`), flushes and syncs to disk (`os.fsync`), and atomically replaces (`os.replace`) with exponential retry for Windows filesystem contention.
+- **Bounded Event History:** Caps event history at `MAX_EVENTS = 200` to prevent unbounded growth during long sessions.
+- **Malformed State Recovery:** Gracefully recovers to standby/initialization if internal state JSON is corrupted.
+- **Public Data Sanitization:** Automatically redacts absolute file paths (`C:\...`, `/Users/...`), API tokens (`sk-...`, `ghp_...`, `Bearer ...`), and internal fields before exporting to `site/data/current-run.json`.
+- **Client-Side Stale Detection:** If a run remains in `RUNNING` status without an updated heartbeat for >5 minutes, `/observability/` displays `STALE (NO HEARTBEAT)` in the UI without modifying repository ground truth.
+
 ## Deployment Boundary
 
 Public website files live only under `site/`:

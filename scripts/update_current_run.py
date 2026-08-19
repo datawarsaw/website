@@ -3,20 +3,82 @@ Manage DataWarsaw AI Workstation live run telemetry.
 
 Writes authoritative runtime state to state/current-run.json and a sanitized
 public copy to site/data/current-run.json for the /observability/ page.
+Includes cross-platform file locking, atomic writes with contention retry,
+bounded event history, and public sanitization hardening.
 """
 
 import argparse
 import json
+import os
 import re
+import sys
+import time
+import uuid
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-INTERNAL_STATE_FILE = REPO_ROOT / "state" / "current-run.json"
+STATE_DIR = REPO_ROOT / "state"
+INTERNAL_STATE_FILE = STATE_DIR / "current-run.json"
+LOCK_FILE = STATE_DIR / "current-run.lock"
 PUBLIC_DATA_FILE = REPO_ROOT / "site" / "data" / "current-run.json"
 DEFAULT_BRANCH = "agent-harness-v1"
 DEFAULT_HARNESS = "Antigravity V1.1"
 TERMINAL_STEP_STATUSES = {"COMPLETE", "PASS", "FAILED", "BLOCKED"}
+MAX_EVENTS = 200
+
+
+# -----------------------------------------------------------------------------
+# Cross-Platform Concurrency Locking
+# -----------------------------------------------------------------------------
+@contextmanager
+def acquire_lock(timeout_sec: float = 5.0, poll_sec: float = 0.05):
+    """
+    Acquire an exclusive lock on state/current-run.lock.
+    Guarantees atomic read-modify-write across concurrent subagent hooks.
+    """
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    start_time = time.time()
+    lock_fd = None
+
+    while True:
+        try:
+            if sys.platform == "win32":
+                import msvcrt
+                lock_fd = os.open(str(LOCK_FILE), os.O_RDWR | os.O_CREAT | os.O_TRUNC)
+                msvcrt.locking(lock_fd, msvcrt.LK_NBLCK, 1)
+            else:
+                import fcntl
+                lock_fd = os.open(str(LOCK_FILE), os.O_RDWR | os.O_CREAT, 0o666)
+                fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            break
+        except (IOError, OSError, PermissionError):
+            if lock_fd is not None:
+                try:
+                    os.close(lock_fd)
+                except Exception:
+                    pass
+                lock_fd = None
+            if time.time() - start_time >= timeout_sec:
+                # Timeout fallback: proceed with advisory warning
+                break
+            time.sleep(poll_sec)
+
+    try:
+        yield
+    finally:
+        if lock_fd is not None:
+            try:
+                if sys.platform == "win32":
+                    import msvcrt
+                    msvcrt.locking(lock_fd, msvcrt.LK_UNLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(lock_fd, fcntl.LOCK_UN)
+                os.close(lock_fd)
+            except Exception:
+                pass
 
 
 def get_current_iso() -> str:
@@ -58,21 +120,21 @@ def format_duration(started_at: str | None, ended_at: str | None = None) -> str 
 def sanitize_public_state(data: dict) -> dict:
     """Remove internal fields, absolute paths, and likely secrets."""
     clean = json.loads(json.dumps(data))
-    windows_abs_path = re.compile(r"^[A-Za-z]:[\\/]")
-    secret_patterns = [
-        re.compile(r"sk-[A-Za-z0-9_-]+"),
-        re.compile(r"gh[pousr]_[A-Za-z0-9_]+"),
-    ]
 
     def clean_val(value):
         if isinstance(value, str):
-            if windows_abs_path.match(value) or value.startswith("/"):
-                try:
-                    value = Path(value).name
-                except (OSError, ValueError):
-                    pass
-            for pattern in secret_patterns:
-                value = pattern.sub("***[REDACTED]", value)
+            # Redact absolute paths (Windows and Unix)
+            if ":/" in value or ":\\" in value:
+                value = re.sub(r"[A-Za-z]:[/\\][^\s\"\'<>]+", lambda m: Path(m.group(0)).name, value)
+            if "/Users/" in value or "/home/" in value:
+                value = re.sub(r"/(?:Users|home)/[^\s\"\'<>]+", lambda m: Path(m.group(0)).name, value)
+            # Redact API keys / tokens
+            if "sk-" in value:
+                value = re.sub(r"sk-[a-zA-Z0-9_\-]{8,}", "sk-***[REDACTED]", value)
+            if "Bearer " in value:
+                value = re.sub(r"Bearer\s+[a-zA-Z0-9_\-\.\+]{10,}", "Bearer ***[REDACTED]", value)
+            if "gh" in value:
+                value = re.sub(r"gh[pousr]_[A-Za-z0-9_]{10,}", "gh***[REDACTED]", value)
             return value
         if isinstance(value, dict):
             return {
@@ -119,19 +181,46 @@ def load_state() -> dict:
     return idle_state()
 
 
+def atomic_write_json(file_path: Path, data: dict) -> None:
+    """Write JSON data to a temporary file, flush/sync, then atomically rename."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = file_path.parent / f"{file_path.name}.tmp.{os.getpid()}.{uuid.uuid4().hex[:8]}"
+    content = json.dumps(data, indent=2, ensure_ascii=False)
+    try:
+        with open(temp_path, "w", encoding="utf-8") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+
+        for attempt in range(10):
+            try:
+                os.replace(temp_path, file_path)
+                break
+            except (PermissionError, OSError):
+                if attempt == 9:
+                    file_path.write_text(content, encoding="utf-8")
+                else:
+                    time.sleep(0.025)
+    finally:
+        if temp_path.exists():
+            try:
+                temp_path.unlink()
+            except Exception:
+                pass
+
+
 def save_state(data: dict) -> None:
     """Persist internal state and export a sanitized public copy."""
-    INTERNAL_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    PUBLIC_DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
     data["updatedAt"] = get_current_iso()
 
-    INTERNAL_STATE_FILE.write_text(
-        json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
-    PUBLIC_DATA_FILE.write_text(
-        json.dumps(sanitize_public_state(data), indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
+    # Bound event history
+    if "events" in data and isinstance(data["events"], list):
+        if len(data["events"]) > MAX_EVENTS:
+            data["events"] = data["events"][-MAX_EVENTS:]
+
+    atomic_write_json(INTERNAL_STATE_FILE, data)
+    public_data = sanitize_public_state(data)
+    atomic_write_json(PUBLIC_DATA_FILE, public_data)
     print(
         "[OK] Run state updated: "
         f"status={data.get('status')}, "
@@ -444,34 +533,35 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
 
-    if args.idle:
-        save_state(idle_state(args.branch, args.harness))
-        return
+    with acquire_lock():
+        if args.idle:
+            save_state(idle_state(args.branch, args.harness))
+            return
 
-    if args.run_start:
-        save_state(start_run(args))
-        return
+        if args.run_start:
+            save_state(start_run(args))
+            return
 
-    state = load_state()
+        state = load_state()
 
-    if args.step_start:
-        start_step(state, args)
-    elif args.step_complete:
-        finish_step(state, args, "PASS" if args.step_complete == "verification" else "COMPLETE")
-    elif args.step_fail:
-        finish_step(state, args, "FAILED")
-    elif args.step_blocked:
-        finish_step(state, args, "BLOCKED")
-    elif args.run_complete:
-        finish_run(state, args, "COMPLETE")
-    elif args.run_fail:
-        finish_run(state, args, "FAILED")
-    elif args.run_blocked:
-        finish_run(state, args, "BLOCKED")
-    else:
-        apply_legacy_updates(state, args)
+        if args.step_start:
+            start_step(state, args)
+        elif args.step_complete:
+            finish_step(state, args, "PASS" if args.step_complete == "verification" else "COMPLETE")
+        elif args.step_fail:
+            finish_step(state, args, "FAILED")
+        elif args.step_blocked:
+            finish_step(state, args, "BLOCKED")
+        elif args.run_complete:
+            finish_run(state, args, "COMPLETE")
+        elif args.run_fail:
+            finish_run(state, args, "FAILED")
+        elif args.run_blocked:
+            finish_run(state, args, "BLOCKED")
+        else:
+            apply_legacy_updates(state, args)
 
-    save_state(state)
+        save_state(state)
 
 
 if __name__ == "__main__":

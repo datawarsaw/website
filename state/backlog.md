@@ -67,6 +67,7 @@ Lightweight, prioritized backlog for DataWarsaw development and AI Workstation i
 - [x] Model Benchmark Dashboard V1 (empirical model evaluation matrix; archived internally and removed from public site)
 - [x] Live Agent Observability V1.1 (dedicated `/observability/` mission control page, file-driven live telemetry bridge, homepage teaser)
 - [x] Coordinator lifecycle telemetry interface (`run-start`, step lifecycle, verification/run completion) and actual-flow observability rendering
+ - [x] Observability reliability consolidation (cross-platform file locking, atomic `os.replace` writes with retry, 200-event bounding, hardened sanitization, client-side stale detection, and deterministic test suite)
 
 ---
 

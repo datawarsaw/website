@@ -52,6 +52,7 @@ Main completed recent improvements:
 - Provider-neutral Coordinator contract now requires lifecycle telemetry for meaningful repository work and requires observed runtime model attribution.
 - `/observability/` flow rendering now follows the actual published step list, so simple runs no longer fabricate Scout/JOIN nodes and complex runs can surface dynamic `scout-*` branches.
 - Homepage Section 06 (`#harness`) streamlined to an editorial compact teaser linking directly to `/observability/`.
+- Observability telemetry hardened with cross-platform file locking (`msvcrt`/`fcntl` on `state/current-run.lock`), atomic writes with filesystem contention retries, `MAX_EVENTS = 200` bounding, hardened path/secret sanitization, and client-side stale-run detection.
 
 ## Current Strategic Direction
 
