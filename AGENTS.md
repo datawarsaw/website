@@ -118,6 +118,15 @@ git log --oneline --decorate -10
 
 If the remote cannot be reached, stop and report that repository freshness could not be verified rather than silently assuming local state is authoritative.
 
+### Task Startup & Project Memory
+
+At the beginning of meaningful repository tasks, the Coordinator/agent must establish current context by reading:
+1. `AGENTS.md` (repository constitution & operational rules)
+2. `docs/agent-harness-v1.md` (harness architecture & orchestration rules)
+3. `state/project-state.md` (concise current checkpoint & active constraints)
+
+Consult `state/backlog.md` when the task concerns priorities, roadmap, next work, planning, or project continuation. Do not force reading `backlog.md` for trivial CSS or text changes where it is irrelevant.
+
 ### Worker Debug / Retry Budget
 
 Workers must not enter open-ended debugging loops.
@@ -175,10 +184,12 @@ When completing tasks, return a concise structured summary containing:
 
 ## Durable Project Memory
 
-After completing work that creates durable project knowledge, update the relevant documentation file only when necessary.
+After completing work that creates durable project knowledge, update the relevant documentation or state file only when necessary.
 
 Use:
 
+- current project state / active constraints -> state/project-state.md
+- prioritized future work / backlog triage -> state/backlog.md
 - architectural decision -> docs/decisions.md
 - confirmed failure or root cause -> docs/failures-and-lessons.md
 - architecture change -> docs/architecture.md
@@ -186,7 +197,10 @@ Use:
 - data-source change -> docs/data-sources.md
 - completed or planned milestone -> docs/roadmap.md
 
+### State Update Rules
+- Update `state/project-state.md` only when meaningful project state changes (harness architecture, branch/deployment strategy, major component stability, runtime/model behavior, strategic direction). Do not update for routine commits, small CSS tweaks, or typo fixes.
+- Update `state/backlog.md` when a new idea is accepted, priorities shift, an item becomes active, is completed, or is dropped.
 - Do not update documentation for trivial edits.
 - Do not save conversation transcripts, temporary debugging chatter, speculative guesses, credentials, passwords, API keys, tokens.
 - Keep documentation concise.
-- The repository should act as durable project memory for future agents and sessions.
+- The repository and its state files act as durable project memory for future agents and sessions. Git history remains the historical record of changes.
