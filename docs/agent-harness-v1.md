@@ -231,6 +231,26 @@ python scripts/update_current_run.py --run-fail
 python scripts/update_current_run.py --idle
 ```
 
+### Python Telemetry SDK (`scripts/telemetry.py`)
+For programmatic integration in runner scripts and subagent workflows:
+```python
+from scripts.telemetry import Telemetry
+
+# Initialize task run
+Telemetry.start_run(task="My Task", flow="diagnostic")
+
+# Step lifecycle with context managers (auto start, duration, and completion)
+with Telemetry.step("coordinator", role="Coordinator", model="Antigravity Orchestrator", activity="Planning"):
+    pass
+
+# Parallel Scouts
+with Telemetry.step("scout-a", role="Scout A", model="gemini-3.7-flash-high", activity="Auditing"):
+    pass
+
+# Mark completion
+Telemetry.complete_run("All checks passed")
+```
+
 ### Reliability & Safety Guarantees
 - **Cross-Platform File Locking:** Protects read-modify-write transactions on `state/current-run.lock` using non-blocking exclusive locks (`msvcrt` on Windows, `fcntl` on POSIX). Parallel Scouts completing simultaneously will not corrupt or overwrite state.
 - **Atomic Writes & Contention Retry:** Writes to process-isolated temp files (`current-run.json.tmp.<pid>.<uuid>`), flushes and syncs to disk (`os.fsync`), and atomically replaces (`os.replace`) with exponential retry for Windows filesystem contention.

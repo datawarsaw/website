@@ -54,6 +54,7 @@ Main completed recent improvements:
 - Homepage Section 06 (`#harness`) streamlined to an editorial compact teaser linking directly to `/observability/`.
 - Observability telemetry hardened with cross-platform file locking (`msvcrt`/`fcntl` on `state/current-run.lock`), atomic writes with filesystem contention retries, `MAX_EVENTS = 200` bounding, hardened path/secret sanitization, and client-side stale-run detection.
 - Observability V1.3 remote live publishing implemented: dedicated `scripts/publish_current_run.py` with WinSCP/OpenSSH SFTP transport, `--doctor`, `--dry-run`, `--deploy-static` commands, remote atomic replacement, credential masking, and complete failure isolation in `scripts/update_current_run.py`.
+- Observability V1.2 automatic Coordinator telemetry SDK (`scripts/telemetry.py`) established with real-time progressive state updates, parallel Scout lifecycle tracking, step context managers, and non-blocking failure isolation.
 
 ## Current Strategic Direction
 
