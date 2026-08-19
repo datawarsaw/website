@@ -19,8 +19,7 @@
   const runHarnessInfo = document.querySelector('[data-run-harness-info]');
   const alertBox = document.querySelector('[data-obs-alert]');
   const flowContainer = document.querySelector('[data-flow-container]');
-  
-  const activityBody = document.querySelector('[data-activity-body]');
+
   const activityIndicator = document.querySelector('[data-activity-indicator]');
   const actRoleEl = document.querySelector('[data-act-role]');
   const actModelEl = document.querySelector('[data-act-model]');
@@ -95,7 +94,7 @@
   function openInspector(step) {
     if (!inspectorEl || !step) return;
     if (insRoleEl) insRoleEl.textContent = step.role || 'AGENT';
-    if (insTitleEl) insTitleEl.textContent = step.role + ' Telemetry Details';
+    if (insTitleEl) insTitleEl.textContent = (step.role || 'Step') + ' Telemetry Details';
     if (insModelEl) insModelEl.textContent = step.model || 'Standard Harness Model';
     if (insStatusEl) insStatusEl.textContent = step.status || 'PENDING';
     if (insDurationEl) insDurationEl.textContent = step.duration || (step.status === 'RUNNING' ? 'Running now...' : '—');
@@ -160,9 +159,9 @@
     return div;
   }
 
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>"']/g, function (m) {
+  function escapeHtml(value) {
+    if (value === null || value === undefined) return '';
+    return String(value).replace(/[&<>"']/g, function (m) {
       return {
         '&': '&amp;',
         '<': '&lt;',
@@ -170,6 +169,43 @@
         '"': '&quot;',
         "'": '&#039;'
       }[m];
+    });
+  }
+
+  function renderFlowSteps(steps) {
+    if (!flowContainer) return;
+
+    const groups = [];
+    let index = 0;
+
+    while (index < steps.length) {
+      const step = steps[index];
+      if ((step.id || '').startsWith('scout-')) {
+        const scouts = [];
+        while (index < steps.length && (steps[index].id || '').startsWith('scout-')) {
+          scouts.push(steps[index]);
+          index += 1;
+        }
+        groups.push({ type: 'scouts', steps: scouts });
+      } else {
+        groups.push({ type: 'single', steps: [step] });
+        index += 1;
+      }
+    }
+
+    groups.forEach((group, groupIndex) => {
+      if (group.type === 'scouts' && group.steps.length > 1) {
+        const parallelRow = document.createElement('div');
+        parallelRow.className = 'flow-parallel-row';
+        group.steps.forEach(step => parallelRow.appendChild(createNodeElement(step)));
+        flowContainer.appendChild(parallelRow);
+      } else {
+        flowContainer.appendChild(createNodeElement(group.steps[0]));
+      }
+
+      if (groupIndex < groups.length - 1) {
+        flowContainer.appendChild(createConnector());
+      }
     });
   }
 
@@ -197,16 +233,22 @@
       runStatusBadge.className = 'obs-meta-status-badge ' + getStatusClass(status);
     }
     if (runHarnessInfo) {
-      runHarnessInfo.textContent = (data.branch || 'agent-harness-v1') + ' · ' + (data.harness || 'Antigravity V1.1');
+      const flowLabel = data.flow ? ' · ' + data.flow : '';
+      runHarnessInfo.textContent = (data.branch || 'agent-harness-v1') + ' · ' + (data.harness || 'Antigravity V1.1') + flowLabel;
     }
 
     runStartedAt = data.startedAt ? new Date(data.startedAt) : null;
+    if (runElapsedEl && runStartedAt && data.endedAt && status !== 'RUNNING') {
+      const end = new Date(data.endedAt);
+      runElapsedEl.textContent = formatSeconds((end.getTime() - runStartedAt.getTime()) / 1000);
+    }
 
     // 2. Flow Graph Rendering
     if (flowContainer) {
       flowContainer.innerHTML = '';
+      const steps = data.steps || [];
 
-      if (status === 'IDLE' && (!data.steps || data.steps.length === 0)) {
+      if (status === 'IDLE' && steps.length === 0) {
         flowContainer.innerHTML = `
           <div class="obs-idle-state">
             <span class="obs-status-dot"></span>
@@ -214,39 +256,15 @@
             <p>No active tasks currently executing in the harness. Standing by for task dispatch.</p>
           </div>
         `;
+      } else if (steps.length === 0) {
+        flowContainer.innerHTML = `
+          <div class="obs-idle-state">
+            <strong>Run initialized</strong>
+            <p>Waiting for the Coordinator to publish the first execution step.</p>
+          </div>
+        `;
       } else {
-        const steps = data.steps || [];
-        
-        // Find individual steps
-        const coordinatorStep = steps.find(s => s.id === 'coordinator') || { id: 'coordinator', role: 'Coordinator', status: 'PENDING' };
-        const scoutAStep = steps.find(s => s.id === 'scout-a') || { id: 'scout-a', role: 'Scout A', status: 'PENDING' };
-        const scoutBStep = steps.find(s => s.id === 'scout-b') || { id: 'scout-b', role: 'Scout B', status: 'PENDING' };
-        const joinStep = steps.find(s => s.id === 'join') || { id: 'join', role: 'JOIN', status: 'PENDING' };
-        const workerStep = steps.find(s => s.id === 'worker') || { id: 'worker', role: 'Worker', status: 'PENDING' };
-        const verifyStep = steps.find(s => s.id === 'verification') || { id: 'verification', role: 'Verification', status: 'PENDING' };
-
-        // 1. Coordinator
-        flowContainer.appendChild(createNodeElement(coordinatorStep));
-        flowContainer.appendChild(createConnector());
-
-        // 2. Parallel Scouts Row
-        const parallelRow = document.createElement('div');
-        parallelRow.className = 'flow-parallel-row';
-        parallelRow.appendChild(createNodeElement(scoutAStep));
-        parallelRow.appendChild(createNodeElement(scoutBStep));
-        flowContainer.appendChild(parallelRow);
-        flowContainer.appendChild(createConnector());
-
-        // 3. JOIN Node
-        flowContainer.appendChild(createNodeElement(joinStep));
-        flowContainer.appendChild(createConnector());
-
-        // 4. Worker Node
-        flowContainer.appendChild(createNodeElement(workerStep));
-        flowContainer.appendChild(createConnector());
-
-        // 5. Verification Node
-        flowContainer.appendChild(createNodeElement(verifyStep));
+        renderFlowSteps(steps);
       }
     }
 
@@ -269,9 +287,15 @@
       if (actRoleEl) actRoleEl.textContent = status === 'COMPLETE' ? 'Verification' : 'Standby';
       if (actModelEl) actModelEl.textContent = 'Harness Idle';
       if (actDescEl) {
-        actDescEl.textContent = status === 'COMPLETE'
-          ? 'Task completed successfully and all verification checks passed.'
-          : (status === 'BLOCKED' ? 'Task execution blocked. Awaiting coordinator review.' : 'Workstation is idle. No subagent actively running.');
+        if (status === 'COMPLETE') {
+          actDescEl.textContent = 'Task completed successfully and all verification checks passed.';
+        } else if (status === 'BLOCKED') {
+          actDescEl.textContent = 'Task execution blocked. Awaiting coordinator review.';
+        } else if (status === 'FAILED') {
+          actDescEl.textContent = 'Task execution failed. Review the event stream for the failure point.';
+        } else {
+          actDescEl.textContent = 'Workstation is idle. No subagent actively running.';
+        }
       }
       if (actStartedEl) actStartedEl.textContent = '—';
       if (actElapsedEl) actElapsedEl.textContent = '00:00:00';
@@ -286,11 +310,10 @@
       if (events.length === 0) {
         eventListEl.innerHTML = '<li class="event-empty">No events recorded.</li>';
       } else {
-        // Render events in chronological order (latest at top or bottom)
         events.slice().reverse().forEach(ev => {
           const li = document.createElement('li');
           li.className = 'obs-event-row';
-          
+
           let typeClass = 'is-start';
           if (ev.type.includes('COMPLETED') || ev.type.includes('PASS') || ev.type.includes('COMPLETE')) typeClass = 'is-done';
           if (ev.type.includes('FAILED') || ev.type.includes('BLOCKED')) typeClass = 'is-fail';
@@ -312,15 +335,11 @@
   function tickTimer() {
     const now = new Date().getTime();
 
-    // Total run elapsed
     if (runStartedAt && currentRunData && currentRunData.status === 'RUNNING') {
       const elapsedSec = (now - runStartedAt.getTime()) / 1000;
       if (runElapsedEl) runElapsedEl.textContent = formatSeconds(elapsedSec);
-    } else if (currentRunData && currentRunData.status === 'COMPLETE') {
-      // Keep static duration if ended
     }
 
-    // Active step elapsed
     if (activeStepStartedAt && actElapsedEl && currentRunData && currentRunData.status === 'RUNNING') {
       const stepSec = (now - activeStepStartedAt.getTime()) / 1000;
       actElapsedEl.textContent = formatSeconds(stepSec);
@@ -358,6 +377,5 @@
     }
   }
 
-  // Start polling on load
   fetchTelemetry();
 })();
