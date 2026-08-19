@@ -1,11 +1,12 @@
 """
-Runtime script to manage AI Workstation current run state.
-Updates state/current-run.json and synchronizes a sanitized public copy to site/data/current-run.json.
+Manage DataWarsaw AI Workstation live run telemetry.
+
+Writes authoritative runtime state to state/current-run.json and a sanitized
+public copy to site/data/current-run.json for the /observability/ page.
 """
 
 import argparse
 import json
-import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -13,10 +14,13 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INTERNAL_STATE_FILE = REPO_ROOT / "state" / "current-run.json"
 PUBLIC_DATA_FILE = REPO_ROOT / "site" / "data" / "current-run.json"
+DEFAULT_BRANCH = "agent-harness-v1"
+DEFAULT_HARNESS = "Antigravity V1.1"
+TERMINAL_STEP_STATUSES = {"COMPLETE", "PASS", "FAILED", "BLOCKED"}
 
 
 def get_current_iso() -> str:
-    """Return current timestamp in ISO 8601 format with timezone."""
+    """Return current local timestamp in ISO 8601 format with timezone."""
     return datetime.now(timezone.utc).astimezone().isoformat()
 
 
@@ -25,196 +29,447 @@ def get_current_time_str() -> str:
     return datetime.now(timezone.utc).astimezone().strftime("%H:%M:%S")
 
 
+def parse_iso(value: str | None):
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return None
+
+
+def format_duration(started_at: str | None, ended_at: str | None = None) -> str | None:
+    """Return compact human-readable duration from ISO timestamps."""
+    start = parse_iso(started_at)
+    end = parse_iso(ended_at) if ended_at else datetime.now(timezone.utc).astimezone()
+    if not start or not end:
+        return None
+
+    total_seconds = max(0, int((end - start).total_seconds()))
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if hours:
+        return f"{hours}h {minutes}m {seconds}s"
+    if minutes:
+        return f"{minutes}m {seconds}s"
+    return f"{seconds}s"
+
+
 def sanitize_public_state(data: dict) -> dict:
-    """
-    Sanitize internal state for public consumption.
-    Strips any accidental secrets, tokens, private prompts, or absolute host paths.
-    """
+    """Remove internal fields, absolute paths, and likely secrets."""
     clean = json.loads(json.dumps(data))
-    
-    def clean_val(val):
-        if isinstance(val, str):
-            if ":\\" in val or ":/" in val:
+    windows_abs_path = re.compile(r"^[A-Za-z]:[\\/]")
+    secret_patterns = [
+        re.compile(r"sk-[A-Za-z0-9_-]+"),
+        re.compile(r"gh[pousr]_[A-Za-z0-9_]+"),
+    ]
+
+    def clean_val(value):
+        if isinstance(value, str):
+            if windows_abs_path.match(value) or value.startswith("/"):
                 try:
-                    val = Path(val).name
-                except Exception:
+                    value = Path(value).name
+                except (OSError, ValueError):
                     pass
-            if "sk-" in val:
-                val = re.sub(r'sk-[a-zA-Z0-9_-]+', 'sk-***[REDACTED]', val)
-            return val
-        elif isinstance(val, dict):
-            return {k: clean_val(v) for k, v in val.items() if not k.startswith("_")}
-        elif isinstance(val, list):
-            return [clean_val(item) for item in val]
-        return val
+            for pattern in secret_patterns:
+                value = pattern.sub("***[REDACTED]", value)
+            return value
+        if isinstance(value, dict):
+            return {
+                key: clean_val(item)
+                for key, item in value.items()
+                if not key.startswith("_")
+            }
+        if isinstance(value, list):
+            return [clean_val(item) for item in value]
+        return value
 
     return clean_val(clean)
 
 
-def load_state() -> dict:
-    """Load existing state or return default IDLE state."""
-    if INTERNAL_STATE_FILE.is_file():
-        try:
-            return json.loads(INTERNAL_STATE_FILE.read_text(encoding="utf-8"))
-        except Exception:
-            pass
-
+def idle_state(branch: str = DEFAULT_BRANCH, harness: str = DEFAULT_HARNESS) -> dict:
+    now = get_current_iso()
     return {
-        "taskId": "run-20260819-live",
-        "task": "Refactor observability and move live telemetry to /observability/",
-        "status": "RUNNING",
-        "startedAt": get_current_iso(),
-        "updatedAt": get_current_iso(),
-        "branch": "agent-harness-v1",
-        "harness": "Antigravity V1.1",
-        "currentActivity": {
-            "role": "Worker",
-            "activity": "Implementing /observability/ live console and removing benchmark from homepage...",
-            "model": "gemini-3.7-flash-high",
-            "startedAt": get_current_iso()
-        },
-        "steps": [
-            {"id": "coordinator", "role": "Coordinator", "model": "Antigravity Orchestrator", "status": "COMPLETE", "startedAt": get_current_iso(), "endedAt": get_current_iso(), "duration": "7s", "summary": "Dispatched dual concurrent Scouts for site inspection & UX architecture."},
-            {"id": "scout-a", "role": "Scout A", "model": "gemini-3.7-flash-high", "status": "COMPLETE", "startedAt": get_current_iso(), "endedAt": get_current_iso(), "duration": "15s", "summary": "Audited site/ files, benchmark markup, and public data bridge."},
-            {"id": "scout-b", "role": "Scout B", "model": "gemini-3.7-flash-high", "status": "COMPLETE", "startedAt": get_current_iso(), "endedAt": get_current_iso(), "duration": "22s", "summary": "Designed /observability/ live console layout and responsive flow graph."},
-            {"id": "join", "role": "JOIN", "model": "Antigravity Orchestrator", "status": "COMPLETE", "startedAt": get_current_iso(), "endedAt": get_current_iso(), "duration": "2s", "summary": "Synthesized implementation scope and routing plan."},
-            {"id": "worker", "role": "Worker", "model": "gemini-3.7-flash-high", "status": "RUNNING", "startedAt": get_current_iso(), "activity": "Implementing /observability/ live console and removing benchmark from homepage..."},
-            {"id": "verification", "role": "Verification", "model": "Deterministic Viewport QA", "status": "PENDING"}
-        ],
+        "taskId": "idle",
+        "task": "No active run",
+        "status": "IDLE",
+        "startedAt": now,
+        "updatedAt": now,
+        "branch": branch,
+        "harness": harness,
+        "currentActivity": None,
+        "steps": [],
         "events": [
-            {"timestamp": get_current_time_str(), "type": "TASK_STARTED", "label": "Task started: Refactor observability and remove benchmark"},
-            {"timestamp": get_current_time_str(), "type": "COORDINATOR_STARTED", "label": "Coordinator planning and routing"},
-            {"timestamp": get_current_time_str(), "type": "SCOUT_A_STARTED", "label": "Scout A started site audit"},
-            {"timestamp": get_current_time_str(), "type": "SCOUT_B_STARTED", "label": "Scout B started UX layout design"},
-            {"timestamp": get_current_time_str(), "type": "SCOUT_A_COMPLETED", "label": "Scout A completed site audit"},
-            {"timestamp": get_current_time_str(), "type": "SCOUT_B_COMPLETED", "label": "Scout B completed UX layout design"},
-            {"timestamp": get_current_time_str(), "type": "JOIN_COMPLETED", "label": "JOIN synthesis completed"},
-            {"timestamp": get_current_time_str(), "type": "WORKER_STARTED", "label": "Worker started implementation"}
-        ]
+            {
+                "timestamp": get_current_time_str(),
+                "type": "WORKSTATION_IDLE",
+                "label": "Workstation is in standby mode.",
+            }
+        ],
     }
 
 
-def save_state(data: dict):
-    """Save to internal state/ and export sanitized public site/data/."""
+def load_state() -> dict:
+    """Load existing state or return a clean IDLE state."""
+    if INTERNAL_STATE_FILE.is_file():
+        try:
+            return json.loads(INTERNAL_STATE_FILE.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            pass
+    return idle_state()
+
+
+def save_state(data: dict) -> None:
+    """Persist internal state and export a sanitized public copy."""
     INTERNAL_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
     PUBLIC_DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-
     data["updatedAt"] = get_current_iso()
 
-    INTERNAL_STATE_FILE.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-    public_data = sanitize_public_state(data)
-    PUBLIC_DATA_FILE.write_text(json.dumps(public_data, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"[OK] Run state updated: status={data.get('status')}, steps={len(data.get('steps', []))}, events={len(data.get('events', []))}")
+    INTERNAL_STATE_FILE.write_text(
+        json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    PUBLIC_DATA_FILE.write_text(
+        json.dumps(sanitize_public_state(data), indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    print(
+        "[OK] Run state updated: "
+        f"status={data.get('status')}, "
+        f"steps={len(data.get('steps', []))}, "
+        f"events={len(data.get('events', []))}"
+    )
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Update DataWarsaw current agent run state.")
-    parser.add_argument("--task-id", type=str, help="Task identifier")
-    parser.add_argument("--task", type=str, help="Task description")
-    parser.add_argument("--status", type=str, choices=["IDLE", "RUNNING", "COMPLETE", "BLOCKED", "FAILED"], help="Overall run status")
-    parser.add_argument("--branch", type=str, default="agent-harness-v1", help="Working branch name")
-    parser.add_argument("--harness", type=str, default="Antigravity V1.1", help="Harness version")
-    
-    parser.add_argument("--step-id", type=str, help="Step ID to update")
-    parser.add_argument("--step-role", type=str, help="Step role label")
-    parser.add_argument("--step-model", type=str, help="Model name for step")
-    parser.add_argument("--step-status", type=str, choices=["PENDING", "WAITING", "RUNNING", "COMPLETE", "PASS", "FAILED", "BLOCKED"], help="Step status")
-    parser.add_argument("--step-activity", type=str, help="Live activity description for the step")
-    parser.add_argument("--step-duration", type=str, help="Completed step duration")
-    parser.add_argument("--step-summary", type=str, help="Completed step summary output")
+def default_steps(flow: str) -> list[dict]:
+    """Return the canonical V1.1 step skeleton for the selected route."""
+    coordinator = {
+        "id": "coordinator",
+        "role": "Coordinator",
+        "model": "Antigravity Orchestrator",
+        "status": "PENDING",
+    }
+    worker = {
+        "id": "worker",
+        "role": "Worker",
+        "model": "Runtime-selected Worker",
+        "status": "PENDING",
+    }
+    verification = {
+        "id": "verification",
+        "role": "Verification",
+        "model": "Deterministic QA",
+        "status": "PENDING",
+    }
 
-    parser.add_argument("--event-type", type=str, help="Event type")
-    parser.add_argument("--event-label", type=str, help="Human-readable event label")
+    if flow == "simple":
+        return [coordinator, worker, verification]
+    if flow == "complex":
+        return [
+            coordinator,
+            {
+                "id": "join",
+                "role": "JOIN",
+                "model": "Antigravity Orchestrator",
+                "status": "PENDING",
+            },
+            worker,
+            verification,
+        ]
 
-    parser.add_argument("--init-default-flow", action="store_true", help="Initialize standard harness workflow steps")
-    parser.add_argument("--idle", action="store_true", help="Reset state to IDLE mode")
+    return [
+        coordinator,
+        {
+            "id": "scout-a",
+            "role": "Scout A",
+            "model": "gemini-3.7-flash-high",
+            "status": "PENDING",
+        },
+        {
+            "id": "scout-b",
+            "role": "Scout B",
+            "model": "gemini-3.7-flash-high",
+            "status": "PENDING",
+        },
+        {
+            "id": "join",
+            "role": "JOIN",
+            "model": "Antigravity Orchestrator",
+            "status": "PENDING",
+        },
+        worker,
+        verification,
+    ]
 
-    args = parser.parse_args()
-    state = load_state()
 
-    if args.idle:
-        state = {
-            "taskId": "idle",
-            "task": "No active run",
-            "status": "IDLE",
-            "startedAt": get_current_iso(),
-            "updatedAt": get_current_iso(),
-            "branch": args.branch,
-            "harness": args.harness,
-            "currentActivity": None,
-            "steps": [],
-            "events": [
-                {"timestamp": get_current_time_str(), "type": "WORKSTATION_IDLE", "label": "Workstation is in standby mode."}
-            ]
+def append_event(state: dict, event_type: str, label: str) -> None:
+    state.setdefault("events", []).append(
+        {
+            "timestamp": get_current_time_str(),
+            "type": event_type,
+            "label": label,
         }
-        save_state(state)
-        return
+    )
 
+
+def get_or_create_step(
+    state: dict,
+    step_id: str,
+    role: str | None = None,
+    model: str | None = None,
+) -> dict:
+    steps = state.setdefault("steps", [])
+    for step in steps:
+        if step.get("id") == step_id:
+            if role:
+                step["role"] = role
+            if model:
+                step["model"] = model
+            return step
+
+    step = {
+        "id": step_id,
+        "role": role or step_id.replace("-", " ").title(),
+        "model": model or "Runtime-selected model",
+        "status": "PENDING",
+    }
+
+    # Dynamic complex scouts should appear before JOIN when possible.
+    if step_id.startswith("scout-"):
+        join_index = next(
+            (index for index, item in enumerate(steps) if item.get("id") == "join"),
+            len(steps),
+        )
+        steps.insert(join_index, step)
+    else:
+        steps.append(step)
+    return step
+
+
+def step_event_prefix(step: dict) -> str:
+    return re.sub(r"[^A-Z0-9]+", "_", step.get("id", "STEP").upper()).strip("_")
+
+
+def start_run(args) -> dict:
+    if not args.task:
+        raise SystemExit("--task is required with --run-start")
+
+    now = get_current_iso()
+    task_id = args.task_id or f"run-{datetime.now().astimezone().strftime('%Y%m%d-%H%M%S')}"
+    state = {
+        "taskId": task_id,
+        "task": args.task,
+        "status": "RUNNING",
+        "startedAt": now,
+        "updatedAt": now,
+        "branch": args.branch,
+        "harness": args.harness,
+        "flow": args.flow,
+        "currentActivity": None,
+        "steps": default_steps(args.flow),
+        "events": [],
+    }
+    append_event(state, "TASK_STARTED", f"Task started: {args.task}")
+    return state
+
+
+def start_step(state: dict, args) -> None:
+    step = get_or_create_step(state, args.step_start, args.step_role, args.step_model)
+    now = get_current_iso()
+    step["status"] = "RUNNING"
+    step["startedAt"] = now
+    step.pop("endedAt", None)
+    step.pop("duration", None)
+    step.pop("summary", None)
+    if args.step_activity:
+        step["activity"] = args.step_activity
+
+    state["status"] = "RUNNING"
+    state["currentActivity"] = {
+        "stepId": step["id"],
+        "role": step.get("role", "Agent"),
+        "activity": args.step_activity or f"{step.get('role', 'Agent')} is running",
+        "model": step.get("model", "Runtime-selected model"),
+        "startedAt": now,
+    }
+    append_event(
+        state,
+        f"{step_event_prefix(step)}_STARTED",
+        args.event_label or f"{step.get('role', step['id'])} started",
+    )
+
+
+def finish_step(state: dict, args, status: str) -> None:
+    step_id = args.step_complete or args.step_fail or args.step_blocked
+    step = get_or_create_step(state, step_id, args.step_role, args.step_model)
+    now = get_current_iso()
+    step["status"] = status
+    step["endedAt"] = now
+    if args.step_duration:
+        step["duration"] = args.step_duration
+    else:
+        duration = format_duration(step.get("startedAt"), now)
+        if duration:
+            step["duration"] = duration
+    if args.step_summary:
+        step["summary"] = args.step_summary
+    if args.step_activity:
+        step["activity"] = args.step_activity
+
+    current = state.get("currentActivity") or {}
+    if current.get("stepId") == step_id or current.get("role") == step.get("role"):
+        state["currentActivity"] = None
+
+    suffix = "COMPLETED" if status in {"COMPLETE", "PASS"} else status
+    append_event(
+        state,
+        f"{step_event_prefix(step)}_{suffix}",
+        args.event_label
+        or f"{step.get('role', step['id'])} {suffix.lower().replace('_', ' ')}",
+    )
+
+
+def finish_run(state: dict, args, status: str) -> None:
+    now = get_current_iso()
+    state["status"] = status
+    state["endedAt"] = now
+    state["currentActivity"] = None
+    duration = format_duration(state.get("startedAt"), now)
+    if duration:
+        state["duration"] = duration
+
+    if status == "COMPLETE":
+        event_type = "TASK_COMPLETE"
+        default_label = f"Task complete: {state.get('task', 'run')}"
+    elif status == "FAILED":
+        event_type = "TASK_FAILED"
+        default_label = f"Task failed: {state.get('task', 'run')}"
+    else:
+        event_type = "TASK_BLOCKED"
+        default_label = f"Task blocked: {state.get('task', 'run')}"
+
+    append_event(state, event_type, args.event_label or default_label)
+
+
+def apply_legacy_updates(state: dict, args) -> None:
+    """Keep the original ad-hoc update interface working for manual use."""
     if args.task_id:
         state["taskId"] = args.task_id
     if args.task:
         state["task"] = args.task
     if args.status:
         state["status"] = args.status
-    if args.branch:
-        state["branch"] = args.branch
-    if args.harness:
-        state["harness"] = args.harness
+    state["branch"] = args.branch
+    state["harness"] = args.harness
 
     if args.init_default_flow:
-        state["steps"] = [
-            {"id": "coordinator", "role": "Coordinator", "model": "Antigravity Orchestrator", "status": "PENDING"},
-            {"id": "scout-a", "role": "Scout A", "model": "gemini-3.7-flash-high", "status": "PENDING"},
-            {"id": "scout-b", "role": "Scout B", "model": "gemini-3.7-flash-high", "status": "PENDING"},
-            {"id": "join", "role": "JOIN", "model": "Antigravity Orchestrator", "status": "PENDING"},
-            {"id": "worker", "role": "Worker", "model": "gemini-3.7-flash-high", "status": "PENDING"},
-            {"id": "verification", "role": "Verification", "model": "Deterministic Viewport QA", "status": "PENDING"}
-        ]
+        state["flow"] = args.flow
+        state["steps"] = default_steps(args.flow)
 
     if args.step_id:
-        steps = state.setdefault("steps", [])
-        target_step = None
-        for s in steps:
-            if s.get("id") == args.step_id:
-                target_step = s
-                break
-        
-        if not target_step:
-            target_step = {"id": args.step_id, "role": args.step_role or args.step_id.title(), "status": "PENDING"}
-            steps.append(target_step)
-
-        if args.step_role:
-            target_step["role"] = args.step_role
-        if args.step_model:
-            target_step["model"] = args.step_model
+        step = get_or_create_step(state, args.step_id, args.step_role, args.step_model)
         if args.step_status:
-            target_step["status"] = args.step_status
-            if args.step_status == "RUNNING" and "startedAt" not in target_step:
-                target_step["startedAt"] = get_current_iso()
-            elif args.step_status in ["COMPLETE", "PASS", "FAILED", "BLOCKED"]:
-                target_step["endedAt"] = get_current_iso()
-
+            step["status"] = args.step_status
+            if args.step_status == "RUNNING" and not step.get("startedAt"):
+                step["startedAt"] = get_current_iso()
+            elif args.step_status in TERMINAL_STEP_STATUSES:
+                step["endedAt"] = get_current_iso()
         if args.step_activity:
-            target_step["activity"] = args.step_activity
+            step["activity"] = args.step_activity
             state["currentActivity"] = {
-                "role": target_step.get("role", "Agent"),
+                "stepId": step["id"],
+                "role": step.get("role", "Agent"),
                 "activity": args.step_activity,
-                "model": target_step.get("model", "Default Model"),
-                "startedAt": target_step.get("startedAt", get_current_iso())
+                "model": step.get("model", "Runtime-selected model"),
+                "startedAt": step.get("startedAt", get_current_iso()),
             }
-        
         if args.step_duration:
-            target_step["duration"] = args.step_duration
+            step["duration"] = args.step_duration
         if args.step_summary:
-            target_step["summary"] = args.step_summary
+            step["summary"] = args.step_summary
 
     if args.event_type:
-        events = state.setdefault("events", [])
-        events.append({
-            "timestamp": get_current_time_str(),
-            "type": args.event_type,
-            "label": args.event_label or args.event_type
-        })
+        append_event(state, args.event_type, args.event_label or args.event_type)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Update DataWarsaw current agent run state.")
+    parser.add_argument("--task-id", type=str, help="Task identifier")
+    parser.add_argument("--task", type=str, help="Task description")
+    parser.add_argument(
+        "--status",
+        choices=["IDLE", "RUNNING", "COMPLETE", "BLOCKED", "FAILED"],
+        help="Overall run status (legacy/manual mode)",
+    )
+    parser.add_argument("--branch", default=DEFAULT_BRANCH, help="Working branch name")
+    parser.add_argument("--harness", default=DEFAULT_HARNESS, help="Harness version")
+    parser.add_argument(
+        "--flow",
+        choices=["simple", "diagnostic", "complex"],
+        default="diagnostic",
+        help="Coordinator routing pattern for a new run",
+    )
+
+    lifecycle = parser.add_mutually_exclusive_group()
+    lifecycle.add_argument("--run-start", action="store_true", help="Start a fresh run")
+    lifecycle.add_argument("--run-complete", action="store_true", help="Mark run complete")
+    lifecycle.add_argument("--run-fail", action="store_true", help="Mark run failed")
+    lifecycle.add_argument("--run-blocked", action="store_true", help="Mark run blocked")
+    lifecycle.add_argument("--step-start", metavar="STEP_ID", help="Start a step")
+    lifecycle.add_argument("--step-complete", metavar="STEP_ID", help="Complete a step")
+    lifecycle.add_argument("--step-fail", metavar="STEP_ID", help="Fail a step")
+    lifecycle.add_argument("--step-blocked", metavar="STEP_ID", help="Block a step")
+    lifecycle.add_argument("--idle", action="store_true", help="Reset workstation to IDLE")
+
+    parser.add_argument("--step-id", help="Step ID to update (legacy/manual mode)")
+    parser.add_argument("--step-role", help="Step role label")
+    parser.add_argument("--step-model", help="Actual model name for the step")
+    parser.add_argument(
+        "--step-status",
+        choices=["PENDING", "WAITING", "RUNNING", "COMPLETE", "PASS", "FAILED", "BLOCKED"],
+        help="Step status (legacy/manual mode)",
+    )
+    parser.add_argument("--step-activity", help="Live activity description")
+    parser.add_argument("--step-duration", help="Completed step duration override")
+    parser.add_argument("--step-summary", help="Completed step summary")
+    parser.add_argument("--event-type", help="Event type (legacy/manual mode)")
+    parser.add_argument("--event-label", help="Human-readable event label")
+    parser.add_argument(
+        "--init-default-flow",
+        action="store_true",
+        help="Initialize selected flow (legacy/manual mode)",
+    )
+    return parser
+
+
+def main() -> None:
+    args = build_parser().parse_args()
+
+    if args.idle:
+        save_state(idle_state(args.branch, args.harness))
+        return
+
+    if args.run_start:
+        save_state(start_run(args))
+        return
+
+    state = load_state()
+
+    if args.step_start:
+        start_step(state, args)
+    elif args.step_complete:
+        finish_step(state, args, "PASS" if args.step_complete == "verification" else "COMPLETE")
+    elif args.step_fail:
+        finish_step(state, args, "FAILED")
+    elif args.step_blocked:
+        finish_step(state, args, "BLOCKED")
+    elif args.run_complete:
+        finish_run(state, args, "COMPLETE")
+    elif args.run_fail:
+        finish_run(state, args, "FAILED")
+    elif args.run_blocked:
+        finish_run(state, args, "BLOCKED")
+    else:
+        apply_legacy_updates(state, args)
 
     save_state(state)
 
