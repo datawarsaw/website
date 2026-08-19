@@ -68,6 +68,7 @@ Lightweight, prioritized backlog for DataWarsaw development and AI Workstation i
 - [x] Live Agent Observability V1.1 (dedicated `/observability/` mission control page, file-driven live telemetry bridge, homepage teaser)
 - [x] Coordinator lifecycle telemetry interface (`run-start`, step lifecycle, verification/run completion) and actual-flow observability rendering
  - [x] Observability reliability consolidation (cross-platform file locking, atomic `os.replace` writes with retry, 200-event bounding, hardened sanitization, client-side stale detection, and deterministic test suite)
+- [x] Observability V1.3 Remote Live Publishing (`scripts/publish_current_run.py` with WinSCP SFTP transport, `--doctor`, `--dry-run`, `--deploy-static`, failure isolation, and bounded timeouts)
 
 ---
 

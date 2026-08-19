@@ -239,6 +239,41 @@ python scripts/update_current_run.py --idle
 - **Public Data Sanitization:** Automatically redacts absolute file paths (`C:\...`, `/Users/...`), API tokens (`sk-...`, `ghp_...`, `Bearer ...`), and internal fields before exporting to `site/data/current-run.json`.
 - **Client-Side Stale Detection:** If a run remains in `RUNNING` status without an updated heartbeat for >5 minutes, `/observability/` displays `STALE (NO HEARTBEAT)` in the UI without modifying repository ground truth.
 
+## Observability V1.3 — Remote Live Publishing
+
+Enables publishing live local workstation telemetry to public hosting (e.g. cyber_Folks `/public_html/data/current-run.json`) so the remote `/observability/` Mission Control page mirrors live local execution.
+
+### Remote Publisher CLI (`scripts/publish_current_run.py`)
+```bash
+# Diagnostic health check of tools, paths, and environment variables
+python scripts/publish_current_run.py --doctor
+
+# Validate local sanitized JSON and simulate upload without network I/O
+python scripts/publish_current_run.py --dry-run
+
+# One-time deployment of static /observability/ assets and initial data file
+python scripts/publish_current_run.py --deploy-static
+
+# Direct publish of sanitized site/data/current-run.json
+python scripts/publish_current_run.py
+```
+
+### Configuration & Credential Safety
+Configure remote publishing via environment variables (never committed to git):
+- `DATAWARSAW_REMOTE_OBSERVABILITY=true` — Enables automatic remote sync on lifecycle updates.
+- `DATAWARSAW_DEPLOY_HOST` — Remote server hostname / IP (e.g. cyber_Folks cPanel).
+- `DATAWARSAW_DEPLOY_USER` — Remote SFTP/FTPS username.
+- `DATAWARSAW_DEPLOY_PASSWORD` / `DATAWARSAW_DEPLOY_KEY` — Authentication credentials.
+- `DATAWARSAW_DEPLOY_PORT` — Target port (default: 22).
+- `DATAWARSAW_DEPLOY_PATH` — Target web root (default: `/public_html`).
+- `DATAWARSAW_DEPLOY_TRANSPORT` — Transport mechanism (`sftp` [default], `winscp_sftp`, `winscp_ftps`, `ftps`).
+
+### Failure Isolation
+Remote publishing is strictly auxiliary:
+- `scripts/update_current_run.py` calls the publisher with a non-blocking timeout budget (5–8s).
+- If remote upload fails (network down, bad credentials, timeout), the error is logged as an isolated warning and the **local task continues to succeed without interruption**.
+- Credentials and passwords are masked from all diagnostic outputs and process logs.
+
 ## Deployment Boundary
 
 Public website files live only under `site/`:

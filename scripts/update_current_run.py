@@ -11,6 +11,7 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 import time
 import uuid
@@ -227,6 +228,36 @@ def save_state(data: dict) -> None:
         f"steps={len(data.get('steps', []))}, "
         f"events={len(data.get('events', []))}"
     )
+    try_publish_remote()
+
+
+def try_publish_remote() -> None:
+    """
+    Publish live telemetry to remote hosting if DATAWARSAW_REMOTE_OBSERVABILITY is enabled.
+    Failure isolation: Catches all errors so remote upload issues never fail the local task.
+    """
+    remote_flag = os.environ.get("DATAWARSAW_REMOTE_OBSERVABILITY", "").lower().strip()
+    if remote_flag not in ("1", "true", "yes", "on", "enabled"):
+        return
+
+    try:
+        publisher_script = REPO_ROOT / "scripts" / "publish_current_run.py"
+        if publisher_script.is_file():
+            res = subprocess.run(
+                [sys.executable, str(publisher_script)],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            if res.returncode == 0:
+                print("[REMOTE] Telemetry synced to production hosting.")
+            else:
+                err_msg = res.stderr.strip() or res.stdout.strip()
+                print(f"[WARN] Remote telemetry publish failed (isolated): {err_msg[:120]}")
+    except subprocess.TimeoutExpired:
+        print("[WARN] Remote telemetry publish timed out (isolated, 10s budget exceeded).")
+    except Exception as exc:
+        print(f"[WARN] Remote telemetry publish error (isolated): {exc}")
 
 
 def default_steps(flow: str) -> list[dict]:
