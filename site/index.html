@@ -71,38 +71,55 @@
         <div class="expertise-map reveal" data-experience-map>
           <div class="radar-stage">
             <svg class="radar-chart" viewBox="0 0 800 560" role="img" aria-labelledby="radar-title radar-desc">
-              <title id="radar-title">Conceptual multidimensional map of analytical experience</title>
-              <desc id="radar-desc">Eight connected areas of experience arranged around a non-numeric signal shape. Use the surrounding controls to explore each area.</desc>
+              <title id="radar-title">Calibrated multidimensional map of analytical experience</title>
+              <desc id="radar-desc">Eight differentiated areas of analytical capability on an explicit 1–10 scale. Use the surrounding cards to explore each area.</desc>
               <g class="radar-grid" aria-hidden="true">
-                <polygon points="400,40 570,110 640,280 570,450 400,520 230,450 160,280 230,110"></polygon>
-                <polygon points="400,120 513,167 560,280 513,393 400,440 287,393 240,280 287,167"></polygon>
-                <polygon points="400,200 457,223 480,280 457,337 400,360 343,337 320,280 343,223"></polygon>
+                <polygon points="400,232 434,246 448,280 434,314 400,328 366,314 352,280 366,246"></polygon>
+                <polygon points="400,184 468,212 496,280 468,348 400,376 332,348 304,280 332,212"></polygon>
+                <polygon points="400,136 502,178 544,280 502,382 400,424 298,382 256,280 298,178"></polygon>
+                <polygon points="400,88 536,144 592,280 536,416 400,472 264,416 208,280 264,144"></polygon>
+                <polygon class="grid-boundary" points="400,40 570,110 640,280 570,450 400,520 230,450 160,280 230,110"></polygon>
               </g>
-              <polygon class="radar-signal" aria-hidden="true" points="400,88 532,148 594,280 526,410 400,472 264,418 205,280 271,151"></polygon>
-              <g class="radar-axes" aria-hidden="true">
-                <g data-radar-axis="0"><line x1="400" y1="280" x2="400" y2="40"></line><circle class="axis-node" cx="400" cy="40" r="5"></circle><circle class="signal-node" cx="400" cy="88" r="6"></circle></g>
-                <g data-radar-axis="1"><line x1="400" y1="280" x2="570" y2="110"></line><circle class="axis-node" cx="570" cy="110" r="5"></circle><circle class="signal-node" cx="532" cy="148" r="6"></circle></g>
-                <g data-radar-axis="2"><line x1="400" y1="280" x2="640" y2="280"></line><circle class="axis-node" cx="640" cy="280" r="5"></circle><circle class="signal-node" cx="594" cy="280" r="6"></circle></g>
-                <g data-radar-axis="3"><line x1="400" y1="280" x2="570" y2="450"></line><circle class="axis-node" cx="570" cy="450" r="5"></circle><circle class="signal-node" cx="526" cy="410" r="6"></circle></g>
-                <g data-radar-axis="4"><line x1="400" y1="280" x2="400" y2="520"></line><circle class="axis-node" cx="400" cy="520" r="5"></circle><circle class="signal-node" cx="400" cy="472" r="6"></circle></g>
-                <g data-radar-axis="5"><line x1="400" y1="280" x2="230" y2="450"></line><circle class="axis-node" cx="230" cy="450" r="5"></circle><circle class="signal-node" cx="264" cy="418" r="6"></circle></g>
-                <g data-radar-axis="6"><line x1="400" y1="280" x2="160" y2="280"></line><circle class="axis-node" cx="160" cy="280" r="5"></circle><circle class="signal-node" cx="205" cy="280" r="6"></circle></g>
-                <g data-radar-axis="7"><line x1="400" y1="280" x2="230" y2="110"></line><circle class="axis-node" cx="230" cy="110" r="5"></circle><circle class="signal-node" cx="271" cy="151" r="6"></circle></g>
-              </g>
-              <g class="radar-center" aria-hidden="true"><circle cx="400" cy="280" r="42"></circle><text x="400" y="276">EXPERTISE</text><text x="400" y="296">SIGNAL</text></g>
-            </svg>
-            <ol class="radar-labels" aria-label="Areas of analytical experience">
-              <li><button type="button" data-axis="0" data-experience="Sales &amp; Commercial Performance" data-kicker="Performance" data-summary="Drivers, variance and commercial opportunity" data-tools="Power BI · SQL"><span>01</span>Sales &amp; Commercial<br>Performance</button></li>
-              <li><button type="button" data-axis="1" data-experience="Customer Analytics" data-kicker="Behaviour" data-summary="Segments, retention and customer value" data-tools="SQL · Python"><span>02</span>Customer<br>Analytics</button></li>
-              <li><button type="button" data-axis="2" data-experience="Digital &amp; E-commerce Performance" data-kicker="Conversion" data-summary="Journey, channel and growth signals" data-tools="Power BI · Python"><span>03</span>Digital &amp; E-commerce<br>Performance</button></li>
-              <li><button type="button" data-axis="3" data-experience="Executive Reporting" data-kicker="Direction" data-summary="Signals leaders can explain and act on" data-tools="Power BI · Storytelling"><span>04</span>Executive<br>Reporting</button></li>
-              <li><button type="button" data-axis="4" data-experience="KPI Frameworks" data-kicker="Measurement" data-summary="Metrics connected to real decisions" data-tools="Data Modeling · BI"><span>05</span>KPI<br>Frameworks</button></li>
-              <li><button type="button" data-axis="5" data-experience="Data Quality &amp; Analytical Logic" data-kicker="Confidence" data-summary="Sound definitions and trusted data" data-tools="SQL · Data Modeling"><span>06</span>Data Quality &amp;<br>Analytical Logic</button></li>
-              <li><button type="button" data-axis="6" data-experience="Business Intelligence" data-kicker="Systems" data-summary="Reliable insight delivered at scale" data-tools="Power BI · SQL"><span>07</span>Business<br>Intelligence</button></li>
-              <li><button type="button" data-axis="7" data-experience="Dashboard Design" data-kicker="Clarity" data-summary="Information people can understand quickly" data-tools="Visualization · Power BI"><span>08</span>Dashboard<br>Design</button></li>
-            </ol>
+              <g class="radar-scale" aria-hidden="true">
+                <text x="408" y="235">2</text>
+                <text x="408" y="187">4</text>
+                <text x="408" y="139">6</text>
+              <text x="408" y="91">8</text>
+              <text x="408" y="44">10</text>
+            </g>
+            <polygon class="radar-signal" aria-hidden="true" points="400,64 536,144 568,280 553,433 400,472 247,433 160,280 247,127"></polygon>
+            <g class="radar-axes" aria-hidden="true">
+              <g data-radar-axis="0"><line x1="400" y1="280" x2="400" y2="40"></line><circle class="axis-node" cx="400" cy="40" r="4.5"></circle><circle class="signal-node" cx="400" cy="64" r="6"></circle></g>
+              <g data-radar-axis="1"><line x1="400" y1="280" x2="570" y2="110"></line><circle class="axis-node" cx="570" cy="110" r="4.5"></circle><circle class="signal-node" cx="536" cy="144" r="6"></circle></g>
+              <g data-radar-axis="2"><line x1="400" y1="280" x2="640" y2="280"></line><circle class="axis-node" cx="640" cy="280" r="4.5"></circle><circle class="signal-node" cx="568" cy="280" r="6"></circle></g>
+              <g data-radar-axis="3"><line x1="400" y1="280" x2="570" y2="450"></line><circle class="axis-node" cx="570" cy="450" r="4.5"></circle><circle class="signal-node" cx="553" cy="433" r="6"></circle></g>
+              <g data-radar-axis="4"><line x1="400" y1="280" x2="400" y2="520"></line><circle class="axis-node" cx="400" cy="520" r="4.5"></circle><circle class="signal-node" cx="400" cy="472" r="6"></circle></g>
+              <g data-radar-axis="5"><line x1="400" y1="280" x2="230" y2="450"></line><circle class="axis-node" cx="230" cy="450" r="4.5"></circle><circle class="signal-node" cx="247" cy="433" r="6"></circle></g>
+              <g data-radar-axis="6"><line x1="400" y1="280" x2="160" y2="280"></line><circle class="axis-node" cx="160" cy="280" r="4.5"></circle><circle class="signal-node" cx="160" cy="280" r="6"></circle></g>
+              <g data-radar-axis="7"><line x1="400" y1="280" x2="230" y2="110"></line><circle class="axis-node" cx="230" cy="110" r="4.5"></circle><circle class="signal-node" cx="247" cy="127" r="6"></circle></g>
+            </g>
+            <g class="radar-center" aria-hidden="true"><circle cx="400" cy="280" r="42"></circle><text class="center-kicker" x="400" y="267">SCALE</text><text class="center-val" x="400" y="295">1–10</text></g>
+          </svg>
+          <ol class="radar-labels" aria-label="Areas of analytical experience">
+            <li><button type="button" data-axis="0" data-experience="Sales &amp; Commercial Performance" data-kicker="Performance" data-score="9" data-summary="Drivers, variance and commercial opportunity" data-tools="Power BI · SQL"><span class="radar-card-meta"><span class="radar-card-index">01</span><span class="radar-card-score">9</span></span><strong class="radar-card-title">Sales &amp; Commercial<br>Performance</strong></button></li>
+            <li><button type="button" data-axis="1" data-experience="Customer Analytics" data-kicker="Behaviour" data-score="8" data-summary="Segments, retention and customer value" data-tools="SQL · Python"><span class="radar-card-meta"><span class="radar-card-index">02</span><span class="radar-card-score">8</span></span><strong class="radar-card-title">Customer<br>Analytics</strong></button></li>
+            <li><button type="button" data-axis="2" data-experience="Digital &amp; E-commerce Performance" data-kicker="Conversion" data-score="7" data-summary="Journey, channel and growth signals" data-tools="Power BI · Python"><span class="radar-card-meta"><span class="radar-card-index">03</span><span class="radar-card-score">7</span></span><strong class="radar-card-title">Digital &amp; E-commerce<br>Performance</strong></button></li>
+            <li><button type="button" data-axis="3" data-experience="Executive Reporting" data-kicker="Direction" data-score="9" data-summary="Signals leaders can explain and act on" data-tools="Power BI · Storytelling"><span class="radar-card-meta"><span class="radar-card-index">04</span><span class="radar-card-score">9</span></span><strong class="radar-card-title">Executive<br>Reporting</strong></button></li>
+            <li><button type="button" data-axis="4" data-experience="KPI Frameworks" data-kicker="Measurement" data-score="8" data-summary="Metrics connected to real decisions" data-tools="Data Modeling · BI"><span class="radar-card-meta"><span class="radar-card-index">05</span><span class="radar-card-score">8</span></span><strong class="radar-card-title">KPI<br>Frameworks</strong></button></li>
+            <li><button type="button" data-axis="5" data-experience="Data Quality &amp; Analytical Logic" data-kicker="Confidence" data-score="9" data-summary="Sound definitions and trusted data" data-tools="SQL · Data Modeling"><span class="radar-card-meta"><span class="radar-card-index">06</span><span class="radar-card-score">9</span></span><strong class="radar-card-title">Data Quality &amp;<br>Analytical Logic</strong></button></li>
+            <li><button type="button" data-axis="6" data-experience="Business Intelligence" data-kicker="Systems" data-score="10" data-summary="Reliable insight delivered at scale" data-tools="Power BI · SQL"><span class="radar-card-meta"><span class="radar-card-index">07</span><span class="radar-card-score">10</span></span><strong class="radar-card-title">Business<br>Intelligence</strong></button></li>
+            <li><button type="button" data-axis="7" data-experience="Dashboard Design" data-kicker="Clarity" data-score="9" data-summary="Information people can understand quickly" data-tools="Visualization · Power BI"><span class="radar-card-meta"><span class="radar-card-index">08</span><span class="radar-card-score">9</span></span><strong class="radar-card-title">Dashboard<br>Design</strong></button></li>
+          </ol>
+        </div>
+        <div class="experience-context" aria-live="polite">
+            <div class="experience-context-head">
+              <span data-experience-kicker>Calibrated profile</span>
+              <span class="experience-context-score" data-experience-score>Scale 1–10</span>
+            </div>
+            <strong data-experience-title>Analytical expertise</strong>
+            <p data-experience-summary>Choose an axis to explore commercial context, calibrated proficiency, and core tools.</p>
+            <small>Tools in focus&nbsp; / &nbsp;<b data-experience-tools>Power BI · SQL · Python</b></small>
           </div>
-          <div class="experience-context" aria-live="polite"><span data-experience-kicker>Conceptual map</span><strong data-experience-title>Analytical expertise</strong><p data-experience-summary>Choose an axis to explore its business context.</p><small>Tools in focus&nbsp; / &nbsp;<b data-experience-tools>Power BI · SQL · Python</b></small></div>
         </div>
         <div class="experience-toolkit reveal"><h3>Tools behind the insight</h3><ul aria-label="Analytical toolkit"><li>Power BI</li><li>SQL</li><li>Python</li><li>Data Modeling</li><li>Data Visualization</li><li>Business Intelligence</li></ul></div>
       </div>
@@ -123,44 +140,44 @@
     </section>
 
     <section class="practice section-light" id="practice" aria-labelledby="practice-title">
-      <div class="container">
-        <div class="section-index reveal"><span>04</span> Work in practice</div>
-        <div class="practice-heading reveal">
-          <div>
-            <p class="kicker">Public repository, not a claim</p>
-            <h2 id="practice-title">Analytical work,<br><em>built in public.</em></h2>
-          </div>
-          <p>This website is itself the primary working artefact. Analytical pipelines, telemetry integrations and interaction logic are developed in the open.</p>
-        </div>
+     <div class="container">
+       <div class="section-index reveal"><span>04</span> Work in practice</div>
+       <div class="practice-heading reveal">
+         <div>
+            <p class="kicker">Public activity, not a claim</p>
+           <h2 id="practice-title">Analytical work,<br><em>built in public.</em></h2>
+         </div>
+          <p>Open-source repositories, analytical pipelines and telemetry integrations developed in the open across the DataWarsaw GitHub organisation.</p>
+       </div>
 
-        <div class="practice-module reveal" data-practice-module>
-          <div class="practice-topbar">
-            <div class="practice-repo-identity">
-              <a class="practice-repo-link" href="https://github.com/datawarsaw/website" target="_blank" rel="noopener noreferrer">
-                <span class="repo-glyph" aria-hidden="true">repo</span>
-                <strong>datawarsaw/website</strong>
+       <div class="practice-module reveal" data-practice-module>
+         <div class="practice-topbar">
+           <div class="practice-repo-identity">
+              <a class="practice-repo-link" href="https://github.com/datawarsaw" target="_blank" rel="noopener noreferrer">
+                <span class="repo-glyph" aria-hidden="true">org</span>
+                <strong>datawarsaw</strong>
                 <span class="external-arrow" aria-hidden="true">↗</span>
               </a>
               <a class="practice-org-link" href="https://github.com/datawarsaw" target="_blank" rel="noopener noreferrer">github.com/datawarsaw ↗</a>
             </div>
             <div class="practice-status" data-practice-status role="status" aria-live="polite">
               <span class="practice-status-dot"></span>
-              <span data-practice-status-text>Syncing repository activity</span>
+              <span data-practice-status-text>Syncing DataWarsaw activity</span>
             </div>
           </div>
 
           <div class="practice-meta-strip">
-            <div class="meta-item"><span>Stack</span><strong>HTML · CSS · JS · Canvas · GSAP</strong></div>
-            <div class="meta-item"><span>Primary Language</span><strong data-practice-lang>JavaScript</strong></div>
-            <div class="meta-item"><span>Default Branch</span><strong data-practice-branch>main</strong></div>
-            <div class="meta-item"><span>Latest Push</span><strong data-practice-pushed>Active repository</strong></div>
+            <div class="meta-item"><span>Scope</span><strong data-practice-scope>All Public Repos</strong></div>
+            <div class="meta-item"><span>Public Repositories</span><strong data-practice-repos>7 repositories</strong></div>
+            <div class="meta-item"><span>Primary Stack</span><strong data-practice-stack>JavaScript · Python</strong></div>
+            <div class="meta-item"><span>Latest Push</span><strong data-practice-pushed>Active organisation</strong></div>
           </div>
 
           <div class="practice-activity-stage">
             <div class="activity-head">
               <div>
-                <h3>Repository Commit Activity</h3>
-                <p>Direct commits to datawarsaw/website recorded on public GitHub.</p>
+                <h3>DataWarsaw Commit Activity</h3>
+                <p>Aggregated commit activity across public DataWarsaw repositories.</p>
               </div>
               <div class="activity-legend" aria-hidden="true">
                 <span>0</span>
@@ -173,8 +190,8 @@
             </div>
 
             <div class="activity-matrix-wrapper">
-              <div class="activity-matrix" data-practice-matrix role="region" aria-label="Interactive commit activity matrix. Use arrow keys to explore daily commit activity." tabindex="0">
-                <div class="matrix-loading">Loading repository activity…</div>
+              <div class="activity-matrix" data-practice-matrix role="region" aria-label="Interactive commit activity matrix across public DataWarsaw repositories. Use arrow keys to explore daily commit activity." tabindex="0">
+                <div class="matrix-loading">Loading DataWarsaw activity…</div>
               </div>
             </div>
 
@@ -197,15 +214,15 @@
           <div class="practice-ledger" data-practice-ledger>
             <div class="ledger-head">
               <h4>Recent Public Commits</h4>
-              <a class="ledger-all-link" href="https://github.com/datawarsaw/website/commits" target="_blank" rel="noopener noreferrer">All commits on GitHub ↗</a>
+              <a class="ledger-all-link" href="https://github.com/datawarsaw" target="_blank" rel="noopener noreferrer">All activity on GitHub ↗</a>
             </div>
-            <ol class="ledger-list" data-practice-ledger-list aria-label="Recent commits to datawarsaw/website">
+            <ol class="ledger-list" data-practice-ledger-list aria-label="Recent commits across public DataWarsaw repositories">
               <li class="ledger-empty">Fetching recent commits…</li>
             </ol>
           </div>
 
           <div class="practice-fallback-note" data-practice-fallback hidden>
-            <p>Live GitHub API activity is currently unavailable (rate-limited or offline). The complete source code and commit history remain public at <a href="https://github.com/datawarsaw/website" target="_blank" rel="noopener noreferrer">github.com/datawarsaw/website ↗</a>.</p>
+            <p>Live GitHub API activity is currently unavailable (rate-limited or offline). Complete source code, models and commit history remain public at <a href="https://github.com/datawarsaw" target="_blank" rel="noopener noreferrer">github.com/datawarsaw ↗</a>.</p>
           </div>
         </div>
       </div>
@@ -245,53 +262,43 @@
           <div class="pulse-timeline-card" data-pulse-timeline-card>
             <div class="pulse-timeline-head">
               <div>
-                <span class="timeline-title-label">24-Hour Analytical Decision Timeline</span>
+                <span class="timeline-title-label">24-Hour Temperature Profile</span>
                 <strong data-pulse-live-time>Resolving next 24 hours…</strong>
               </div>
               <div class="pulse-selected-metrics" data-pulse-selected-metrics>
-                <div class="metric-pill"><span class="m-label">Suitability</span><strong data-pulse-selected-suitability>—</strong></div>
+                <div class="metric-pill"><span class="m-label">Time</span><strong data-pulse-selected-time>—</strong></div>
                 <div class="metric-pill"><span class="m-label">Temp</span><strong data-pulse-selected-temp>—</strong></div>
-                <div class="metric-pill"><span class="m-label">Rain</span><strong data-pulse-selected-rain>—</strong></div>
-                <div class="metric-pill"><span class="m-label">Wind</span><strong data-pulse-selected-wind>—</strong></div>
-                <div class="metric-pill"><span class="m-label">AQI</span><strong data-pulse-selected-aqi>—</strong></div>
               </div>
             </div>
 
-           <div class="pulse-timeline-stage" id="pulse-timeline" role="region" aria-label="Interactive 24-hour conditions and suitability timeline. Use Left and Right arrow keys to inspect each hour." tabindex="0" data-pulse-chart>
-              <svg class="pulse-timeline-svg" viewBox="0 0 960 340" role="img" aria-labelledby="pulse-chart-title pulse-chart-desc" preserveAspectRatio="none" data-pulse-svg>
-                <title id="pulse-chart-title">Warsaw 24-Hour Conditions, Raw Signals and Decision Timeline</title>
-                <desc id="pulse-chart-desc">Interactive 24-hour composite analytical timeline showing continuous outdoor suitability, temperature trend, recommended 3-hour window, and hourly raw signal strip for precipitation probability, wind speed, and European AQI. Use arrow keys to explore each hour.</desc>
+           <div class="pulse-timeline-stage" id="pulse-timeline" role="region" aria-label="Interactive 24-hour temperature timeline. Use Left and Right arrow keys to inspect each hour." tabindex="0" data-pulse-chart>
+              <svg class="pulse-timeline-svg" role="img" aria-labelledby="pulse-chart-title pulse-chart-desc" data-pulse-svg>
+                <title id="pulse-chart-title">Warsaw 24-Hour Temperature Forecast</title>
+                <desc id="pulse-chart-desc">Interactive 24-hour temperature forecast timeline for Warsaw. Use arrow keys to explore each hour.</desc>
                 <defs>
-                  <linearGradient id="suitability-gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="var(--lime)" stop-opacity="0.30"></stop>
-                    <stop offset="100%" stop-color="var(--lime)" stop-opacity="0.02"></stop>
+                  <linearGradient id="temp-gradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--lime)" stop-opacity="0.25"></stop>
+                    <stop offset="100%" stop-color="var(--lime)" stop-opacity="0.01"></stop>
                   </linearGradient>
                 </defs>
                 <g class="pulse-grid" aria-hidden="true" data-pulse-grid></g>
-                <rect class="pulse-window-highlight" aria-hidden="true" data-pulse-window-highlight x="0" y="20" width="0" height="175"></rect>
-                <path class="pulse-suitability-area" aria-hidden="true" data-pulse-area fill="url(#suitability-gradient)"></path>
-                <path class="pulse-suitability-line" aria-hidden="true" data-pulse-line></path>
+                <g class="pulse-y-labels" aria-hidden="true" data-pulse-y-axis></g>
+                <path class="pulse-temp-area" aria-hidden="true" data-pulse-temp-area fill="url(#temp-gradient)"></path>
                 <path class="pulse-temp-line" aria-hidden="true" data-pulse-temp-line></path>
                 <g class="pulse-points" aria-hidden="true" data-pulse-points></g>
-                <g class="pulse-signal-strip" aria-hidden="true" data-pulse-signal-strip></g>
                 <g class="pulse-axis-labels" aria-hidden="true" data-pulse-axis></g>
-                <line class="pulse-cursor" x1="0" x2="0" y1="18" y2="280" aria-hidden="true" data-pulse-cursor></line>
-                <rect class="pulse-hit-area" x="32" y="18" width="906" height="268" aria-hidden="true" data-pulse-hit></rect>
+                <line class="pulse-cursor" x1="0" x2="0" y1="0" y2="0" aria-hidden="true" data-pulse-cursor></line>
+                <rect class="pulse-hit-area" x="0" y="0" width="100%" height="100%" aria-hidden="true" data-pulse-hit></rect>
               </svg>
               <div class="pulse-tooltip" aria-hidden="true" data-pulse-tooltip>
                 <span data-tooltip-time></span>
-                <strong data-tooltip-suitability></strong>
-                <small data-tooltip-detail></small>
+                <strong data-tooltip-temp></strong>
               </div>
               <p class="sr-only" aria-live="polite" data-pulse-announcement></p>
             </div>
 
             <div class="pulse-timeline-legend" aria-hidden="true">
-              <div class="legend-item"><span class="legend-swatch suitability-swatch"></span> Derived suitability (0–100%)</div>
-              <div class="legend-item"><span class="legend-swatch temp-swatch"></span> Temperature trend (°C)</div>
-              <div class="legend-item"><span class="legend-swatch window-swatch"></span> Best 3-hour window</div>
-              <div class="legend-item"><span class="legend-swatch signal-swatch"></span> Hourly signals (Rain · Wind · AQI)</div>
-              <div class="legend-item"><span class="legend-swatch friction-swatch"></span> Friction threshold</div>
+              <div class="legend-item"><span class="legend-swatch temp-swatch"></span> Temperature forecast (°C)</div>
             </div>
           </div>
 
