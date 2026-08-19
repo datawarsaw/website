@@ -42,7 +42,8 @@ Lightweight, prioritized backlog for DataWarsaw development and AI Workstation i
 ## RESEARCH
 
 - [ ] MCP architecture for shared tools across models
-- [ ] Cloudflare Agents as possible public AI/backend layer
+- [ ] Cloudflare Workers / Agents evaluation (serverless edge API & agent endpoint routing)
+- [ ] VPS / Docker infrastructure evaluation (long-running processes, WebSockets, databases, and MCP servers)
 - [ ] Quota-aware routing across GEM and CLA pools
   - *Concept:* `task complexity + available provider quota + model strength = routing decision` (record idea only; do not implement yet)
 

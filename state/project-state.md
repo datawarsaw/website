@@ -83,6 +83,15 @@ Current policy:
 - Only `site/` may be deployed.
 - `main` will eventually act as production source of truth.
 
+## Infrastructure Escalation Policy
+
+The project follows a lightweight infrastructure escalation rule:
+- **Core Rule:** Use the simplest infrastructure that fits the current milestone. Upgrade hosting only when product requirements justify it.
+- **Tier 1 (Current Static / cyber_Folks `/public_html/`):** Portfolio, static assets, client-side polling, and file-driven telemetry (`current-run.json`). Keep it simple; do not add infrastructure without concrete need.
+- **Tier 2 (Cloudflare Workers / Agents):** Evaluate when milestones require lightweight public APIs, webhooks, serverless execution, or edge agent routing without managing a server.
+- **Tier 3 (VPS / Docker):** Evaluate when milestones require long-running processes, WebSockets, background workers, databases, MCP servers, or custom backend services.
+- **Decision Rule:** Evaluate Tier 1 → Tier 2 → Tier 3 based on requirements, maintenance burden, reliability, and cost. The project is explicitly allowed to adopt external infrastructure when justified; current hosting is a baseline, not a permanent constraint.
+
 ## Project Memory Rule
 
 - Chat/model memory may contain user preferences.

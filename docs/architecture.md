@@ -97,3 +97,70 @@ Visualizes atmospheric conditions and derived suitability:
 5. **Reduced Motion Compliance:**
    - Detects `window.matchMedia('(prefers-reduced-motion: reduce)')`.
    - Halts continuous animation loops, renders static representations of all graphs, and sets CSS transitions to zero duration.
+
+---
+
+## 6. Infrastructure Escalation Policy & Hosting Progression
+
+### 6.1 Core Principle
+> **Rule:** Use the simplest infrastructure that fits the current milestone. Upgrade hosting only when product requirements justify it.
+
+This principle prevents both premature infrastructure complexity and forced architectural compromises (such as contorting dynamic workloads onto static hosts when a backend is genuinely required).
+
+The project is explicitly authorized to adopt external infrastructure (such as serverless workers or a dedicated VPS) when it materially improves architecture or delivers capabilities that static hosting cannot support. Current static/shared hosting is a starting baseline, not a permanent constraint.
+
+---
+
+### 6.2 Infrastructure Progression Tiers
+
+#### Tier 1: Static Hosting / Current Hosting (cyber_Folks `/public_html/`)
+**Suitable for:**
+- Portfolio pages, editorial content, and static assets (`HTML`/`CSS`/`JS`).
+- Static public data files (e.g. `site/data/current-run.json`, `site/data/model-benchmarks.json`).
+- Client-side polling and lightweight observability UI.
+- Direct file-driven updates via SFTP/WinSCP.
+
+*Constraint:* Do not replace or complicate this infrastructure without a concrete product requirement.
+
+#### Tier 2: Edge Serverless & Agents (e.g. Cloudflare Workers / Cloudflare Agents)
+**Evaluate when requirements include:**
+- Lightweight public APIs and webhook endpoints.
+- Serverless AI agent routing and edge request handling.
+- Lightweight stateful workflows and key-value/D1 caching.
+- Edge authentication, rate-limiting, or dynamic request transformation.
+- Avoiding operational maintenance of a persistent virtual server.
+
+*Guideline:* Evaluate at decision time based on current capabilities. Do not encode volatile vendor pricing as durable project constraints.
+
+#### Tier 3: Dedicated Virtual Private Server (VPS)
+**Evaluate when requirements include:**
+- Full operating system and kernel control (Docker, containers, systemd).
+- Long-running persistent processes and background job queues.
+- Real-time bi-directional streaming (WebSockets, SSE streams).
+- Relational/vector databases or persistent analytical caches.
+- Custom APIs, MCP (Model Context Protocol) servers, and agent swarms.
+- Self-hosted services, reverse proxy layers (Nginx/Caddy), or complex telemetry infrastructure.
+- Workloads unsuitable for static hosting or serverless execution timeouts.
+
+---
+
+### 6.3 Decision Hierarchy
+
+When planning new features or architecture milestones, evaluate in order:
+
+```text
+1. Can the milestone work reliably on existing static hosting?
+   └── YES ──> Keep it simple. Deploy to site/ -> /public_html/.
+   └── NO
+       │
+2. Does it require lightweight APIs, webhooks, or serverless execution?
+   └── YES ──> Evaluate Cloudflare Workers / Agents or equivalent edge runtime.
+   └── NO
+       │
+3. Does it require Docker, long-running services, WebSockets, databases, or MCP servers?
+   └── YES ──> Evaluate and provision a VPS.
+
+4. Final selection: Choose infrastructure based on product requirements,
+   maintenance burden, privacy/security boundaries, reliability, and cost.
+   Never upgrade infrastructure solely for technical novelty.
+```
