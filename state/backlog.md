@@ -8,7 +8,6 @@ Lightweight, prioritized backlog for DataWarsaw development and AI Workstation i
 
 - [ ] Add and adopt `state/project-state.md`
 - [ ] Add and adopt `state/backlog.md`
-- [ ] Ensure Coordinator reads current project state at task start
 
 ---
 
@@ -64,8 +63,10 @@ Lightweight, prioritized backlog for DataWarsaw development and AI Workstation i
 - [x] Differentiate Analytical Expertise radar scores to integer 1–10 scale
 - [x] Public GitHub activity component aggregation & responsive container layout
 - [x] Antigravity V1 agent harness specification and native subagent configuration
+- [x] Ensure Coordinator reads current project state at task start
 - [x] Model Benchmark Dashboard V1 (empirical model evaluation matrix; archived internally and removed from public site)
 - [x] Live Agent Observability V1.1 (dedicated `/observability/` mission control page, file-driven live telemetry bridge, homepage teaser)
+- [x] Coordinator lifecycle telemetry interface (`run-start`, step lifecycle, verification/run completion) and actual-flow observability rendering
 
 ---
 
