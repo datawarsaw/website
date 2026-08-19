@@ -118,6 +118,36 @@ git log --oneline --decorate -10
 
 If the remote cannot be reached, stop and report that repository freshness could not be verified rather than silently assuming local state is authoritative.
 
+### Worker Debug / Retry Budget
+
+Workers must not enter open-ended debugging loops.
+
+For infrastructure, deployment, environment, authentication, networking, or tooling failures:
+
+* Try at most **2 materially different approaches**.
+* Spend at most about **3 minutes** on infrastructure-level debugging unless the Coordinator explicitly authorizes more.
+* Do not keep retrying small variations of the same failing approach.
+* Do not build custom protocol clients or large workarounds unless the task explicitly requires it.
+* If the issue remains unresolved after the retry budget is exhausted:
+
+  1. STOP,
+  2. preserve the current state,
+  3. do not make risky or unrelated changes,
+  4. return `STATUS: BLOCKED`,
+  5. report the exact failure point,
+  6. summarize evidence already collected,
+  7. recommend the simplest next escalation or alternative.
+
+The Coordinator may then decide whether to:
+
+* retry with a different tool,
+* assign a higher-effort/model Worker,
+* ask the user for missing information,
+* or change the implementation approach.
+
+Long execution time is not itself a reason to increase reasoning effort.
+First identify whether the delay comes from tooling, retries, network latency, excessive exploration, or genuine task complexity.
+
 ---
 
 ## 5. Testing & Verification Checklist

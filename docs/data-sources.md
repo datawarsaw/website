@@ -49,23 +49,23 @@ The Warsaw Data Pulse component displays live meteorological conditions and a 24
 ## 3. GitHub REST API (Public & Unauthenticated)
 
 ### Purpose
-Powers the **Work in Practice** section by loading live commit activity and project metadata directly from the public GitHub repository (`datawarsaw/website`).
+Powers the **Work in Practice** section by discovering all public repositories owned by the `datawarsaw` GitHub owner/organisation and aggregating public commit activity across them.
 
 ### Endpoint Details
-- **Repository Metadata:** `https://api.github.com/repos/datawarsaw/website`
-- **Commit History:** `https://api.github.com/repos/datawarsaw/website/commits?per_page=100`
+- **Organisation / User Repositories:** `https://api.github.com/users/datawarsaw/repos?per_page=100&sort=pushed`
+- **Public Commits per Repository:** `https://api.github.com/repos/datawarsaw/{repo}/commits?per_page=100`
 - **Authentication:** None (client-side unauthenticated). No API keys or tokens are stored or sent.
 
 ### Ingestion & Matrix Generation
-1. **Session Caching:** Responses cached in browser `sessionStorage` (`dw_github_repo_v1`, `dw_github_commits_v1`) with 10-minute TTL to respect GitHub's 60 req/hr unauthenticated IP limit.
-2. **Aggregation:** Group commit timestamps into daily counts and index the latest message per date.
-3. **Activity Matrix:** Rendered into a responsive SVG grid (8 weeks on mobile <=480px, 12 weeks on tablet <=900px, 16 weeks on desktop) with discrete intensity levels (0, 1, 2, 3+ commits/day) in dark graphite and acid-lime, grouped accurately in the `Europe/Warsaw` timezone.
-4. **Commit Ledger:** Displays the 5 most recent public commits with SHA badge, message, and date.
+1. **Session Caching:** Aggregated organisation payload cached in browser `sessionStorage` (`dw_github_org_activity_v2`) with 10-minute TTL to respect GitHub's 60 req/hr unauthenticated IP rate limit.
+2. **Aggregation:** Commits across all public non-fork repositories are aggregated into daily totals and indexed with repository tags, timestamps, and commit messages in the `Europe/Warsaw` timezone.
+3. **Compact Activity Matrix:** Rendered into a dense, non-stretched technical dashboard SVG matrix (20 weeks on mobile <=480px, 32 weeks on tablet <=900px, 52 weeks on desktop) with 9.5px cells and 2.5px gaps with discrete intensity levels (0, 1, 2, 3+ commits/day). Hovering cells provides exact repository and commit counts without layout shifts.
+4. **Commit Ledger:** Displays the 5 most recent public commits across all DataWarsaw repositories, showing repository badge, SHA, commit message, and date linking directly to each commit.
 
 ### Resiliency & Fallback Strategy
 - **Fallback Mode:** If throttled (HTTP 403), disconnected, or malformed, the component:
   - Sets status to "Live GitHub activity unavailable" (`.is-fallback`).
-  - Displays known static facts: repo `datawarsaw/website`, default branch `main`, language `JavaScript`, stack `HTML · CSS · JS · Canvas · GSAP`.
+  - Displays known static facts: Scope: `All Public Repos`, Repositories: `7 public repositories`, Stack: `JavaScript · Python`.
   - Renders an honest offline status placeholder without drawing a false grid of zero-activity cells (which misleadingly implies zero historical commits).
   - Hides the recent commit ledger.
   - Displays transparent fallback notice with direct link to GitHub.

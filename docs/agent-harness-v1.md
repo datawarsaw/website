@@ -1,97 +1,191 @@
-# DataWarsaw Agent Harness V1
+﻿# DataWarsaw Agent Harness V1 (Antigravity Edition)
 
 ## Goal
-Build a small, observable AI development workflow before introducing a larger multi-agent graph.
+Build a small, observable AI development workflow using native Antigravity subagent capabilities while retaining provider-neutral agent specifications.
 
-V1 optimizes for reliability, context isolation, bounded retries, and evidence-based completion.
+V1 optimizes for reliability, context isolation, bounded retries, deterministic verification, and explicit multi-model routing.
 
 ## Architecture
 
 ```text
 User
-  <-> Coordinator
+  <-> Coordinator (Antigravity runtime)
           |
-          +-> Scout   (optional, read-only, fresh context)
+          +--> Scout A (gemini-3.7-flash-high)  ---  Parallel discovery
+          |                                         +-> Joined by Coordinator
+          +--> Scout B (gemini-3.7-flash-high)  ---/
           |
-          +-> Worker  (scoped implementation)
+          +--> Worker  (claude-sonnet-4-6)     ---> Scoped edits & root-cause fix
                    |
                    v
-             Verification
+             Verification (test-datawarsaw-web)
                    |
              pass / fail
               |      |
-             done  feedback -> Worker
+             done  feedback -> Worker (within 2-retry budget)
 ```
 
-## Agent Contracts
+## Native Antigravity Subagent Definitions
 
-- `agents/coordinator.md` — owns routing, user approvals, retry budget, and final result.
-- `agents/scout.md` — performs narrow read-only investigation and returns compact findings.
-- `agents/worker.md` — implements one scoped change and must provide verification evidence.
+Antigravity native configuration lives under `.agents/`:
+- `.agents/agents/coordinator/agent.md` — Main coordinator role (`subagent: false`, `enable_subagent_tools: true`).
+- `.agents/agents/scout/agent.md` — Read-only scout role (`subagent: true`, `enable_write_tools: false`, `enable_subagent_tools: false`, model: `gemini-3.7-flash-high`).
+- `.agents/agents/worker/agent.md` — Scoped implementation role (`subagent: true`, `enable_write_tools: true`, `enable_subagent_tools: false`, model: `claude-sonnet-4-6`).
+- `.agents/skills.json` — Workspace skill registry exposing `skills/` to Antigravity runtime.
 
-Only the Coordinator may delegate in V1. Scout and Worker are leaf agents and must not spawn additional agents.
+Provider-neutral contract documentation remains preserved under `agents/`:
+- `agents/coordinator.md`
+- `agents/scout.md`
+- `agents/worker.md`
+
+## Model Routing Matrix
+
+| Role | Default Model | Reasoning / Effort | Allowed Actions | Delegation |
+| :--- | :--- | :--- | :--- | :--- |
+| **Coordinator** | Orchestrator (Antigravity default) | Standard | Orchestrate, create task contracts, join results, verify | Yes (up to 2 concurrent subagents) |
+| **Scout** | `gemini-3.7-flash-high` | High | Read-only search, inspection, viewport analysis | No (Leaf agent) |
+| **Scout (Deep Reasoning)** | `claude-opus-4-6-thinking` / `gemini-3.1-pro-high` | High / Thinking | Complex logic/structural code analysis | No (Leaf agent) |
+| **Worker** | `claude-sonnet-4-6` | Standard | Scoped code edits, deterministic checks | No (Leaf agent) |
+
+### Available Native Models in Antigravity
+The authenticated Antigravity CLI environment exposes the following verified models:
+- `gemini-3.7-flash-high`
+- `gemini-3.7-flash-medium`
+- `gemini-3.7-flash-low`
+- `gemini-3.1-pro-high`
+- `claude-sonnet-4-6`
+- `claude-opus-4-6-thinking`
+- `gpt-oss-120b-medium`
+
+*Note on GPT-5.6 Sol:* GPT-5.6 Sol is not available natively within Antigravity. Utilizing GPT-5.6 would require an external proxy or Codex bridge and is outside the native V1.1 harness scope.
+
+### Model Fallback & Block Policy
+If a designated model slug is not available or unauthenticated in the active CLI environment (`agy models`):
+1. **Never silently substitute** a different model family.
+2. Report `STATUS: MODEL ROUTING BLOCKED`.
+3. Provide the list of available models detected by the CLI and await approval.
+
+## Parallelism & Join Rules
+
+1. **Max Concurrency:** Maximum 2 concurrent leaf subagents in V1.1.
+2. **Scout Parallelism:** Two independent Scouts (Scout A and Scout B) may execute simultaneously only when:
+   - Their discovery questions are orthogonal and independent.
+   - Neither subagent requires the output of the other.
+   - Both operate read-only (zero file mutations).
+3. **Worker Exclusivity:** Never run parallel editing Workers. Worker execution is always serial and bounded.
+4. **Coordinator Join Behavior:**
+   - Wait for both Scouts to finish.
+   - Identify points of agreement, divergence, and potential contradictions.
+   - Synthesize a single consolidated implementation brief.
+   - Delegate the implementation brief to Worker.
+
+## Task Complexity Routing
+
+The Coordinator must choose the smallest orchestration pattern that is sufficient for the task.
+
+### 1. Simple / Local Refinement
+Use when:
+- Scope is narrow and explicit,
+- Affected files are known,
+- Implementation path is obvious,
+- Little or no investigation is required.
+
+Default flow:
+```text
+Coordinator -> Worker -> Verification
+```
+*Do not spawn Scouts by default.*
+
+Examples:
+- Change labels or copy,
+- Adjust one CSS component,
+- Convert displayed values,
+- Small visual refinement,
+- Update a known config value.
+
+### 2. Diagnostic / Moderately Complex
+Use when:
+- Root cause is not yet known,
+- Implementation affects multiple concerns,
+- Responsive/data/API behavior must be inspected,
+- Two independent questions can be investigated.
+
+Default flow:
+```text
+Coordinator
+├── Scout A
+├── Scout B
+└── JOIN -> Worker -> Verification
+```
+*Scouts should run concurrently when independent.*
+
+### 3. Complex / Ambiguous
+Use when:
+- Several subsystems are involved,
+- Architecture or implementation path is uncertain,
+- Multiple independent investigations would materially reduce risk,
+- The task has meaningful regression potential.
+
+Default flow:
+```text
+Coordinator
+├── 2–4 dynamic read-only Scouts
+└── JOIN -> Worker -> Verification
+```
+*Use the minimum number of Scouts needed. Do not automatically use four.*
+
+### 4. Escalation Rule
+Start with the lowest reasonable orchestration level. Escalate only when evidence shows it is necessary:
+- Worker blocked -> add Scout / diagnosis.
+- Two-Scout diagnosis insufficient -> expand Scout swarm.
+- *Do not increase agent count merely because a task is taking longer than expected.*
+
+### 5. Failure / Runtime Fallback
+If parallel subagent execution fails because of a runtime/provider issue:
+- 2 Scouts parallel -> retry with 1 Scout.
+- If still blocked -> Coordinator -> Worker.
+- *Do not repeatedly recreate parallel agents for the same runtime error.*
+
+### 6. General Principle
+More agents are not inherently better. Optimize for:
+- Shortest reliable path,
+- Minimal context duplication,
+- Minimal tool calls,
+- Clear ownership,
+- Sufficient evidence before implementation.
+
+## Worker Debug & Retry Budget
+
+For infrastructure, networking, authentication, environment, or tooling errors:
+- Maximum **2 materially different approaches**.
+- Spend at most **~3 minutes** on infrastructure-level troubleshooting.
+- Never loop over trivial variations of failing commands.
+- If unresolved:
+  1. STOP immediately.
+  2. Preserve workspace state.
+  3. Return `STATUS: BLOCKED`.
+  4. Report exact failure point, evidence collected, and simplest escalation path.
+
+For code implementation verification failures:
+- Default maximum **2 implementation retries** after actionable verification feedback.
+- If acceptance criteria remain unmet after 2 retries, escalate to Coordinator with full diff and test logs.
+
+## Runtime Subagent Inspection & Verification
+
+To verify that subagents are running in real, isolated contexts and using the expected models:
+
+1. **Inspect Active Subagents:**
+   - In Antigravity interactive / TUI mode, run `/agents` or `/tasks` to view the active subagent process tree, IDs, and lifecycle states (`waiting_for_message`, `running`, `completed`).
+   - In programmatic/CLI mode, check the session database under `~/.gemini/antigravity-cli/conversations/` or trajectory logs under `~/.gemini/antigravity-cli/log/`.
+2. **Model Attribution & Token Ledger:**
+   - Run `codeburn doctor` and `codeburn models --sessions` to verify per-session model attribution and exact token consumption breakdown.
+   - Ensure separate session IDs are assigned to Coordinator, Scout, and Worker.
 
 ## Skills
 
-- `skills/planning-grill/` — resolves meaningful ambiguity before implementation.
-- `skills/test-datawarsaw-web/` — verifies the real site against project QA checklists and required viewports.
-- `skills/simplify/` — reduces unnecessary complexity only after the implementation already works.
-
-Skills are capabilities, not agents. Load them only when the current task needs them.
-
-## State
-
-V1 uses simple JSON artifacts instead of a database or vector store:
-
-- `state/task.example.json` — task contract template.
-- `state/progress.example.json` — resumable progress/checkpoint template.
-
-For real work, create task-specific state outside the example files or in a future ignored runtime directory. Do not commit credentials, secrets, or transient conversation history.
-
-## Verification Loop
-
-Default implementation loop:
-
-1. Coordinator defines the scoped task contract.
-2. Scout runs only when focused discovery would reduce uncertainty.
-3. Worker inspects and implements the smallest robust change.
-4. `test-datawarsaw-web` gathers deterministic/browser evidence.
-5. On failure, return concise actionable evidence to the Worker.
-6. Retry within the task retry budget; default maximum is two implementation retries.
-7. On pass, optionally run `simplify`, then rerun the same verification.
-8. Coordinator returns the final result to the user.
-
-Success is proven by evidence, not by a model declaring that work is complete.
-
-## Concurrency
-
-Keep V1 conservative:
-- Prefer one leaf agent at a time.
-- Maximum two concurrent leaf agents only when assignments are independent.
-- Do not duplicate investigations.
-
-## Not in V1
-
-Deliberately deferred until real task traces justify them:
-- full graph orchestration,
-- recursive delegation,
-- seven permanent specialist agents,
-- automatic cross-provider model routing,
-- large memory/RAG systems,
-- broad parallel agent teams,
-- plugin packaging.
-
-## Next Validation
-
-The next milestone is not another synthetic role benchmark. Run V1 on several real DataWarsaw tasks and record:
-- task success,
-- retry count,
-- elapsed time,
-- verification failures,
-- context/delegation mistakes,
-- resume behavior after interruption.
-
-Only add architecture where these traces show a real need.
+- `skills/planning-grill/` — Resolves meaningful ambiguity before implementation.
+- `skills/test-datawarsaw-web/` — Verifies the real site against project QA checklists and required viewports.
+- `skills/simplify/` — Reduces unnecessary complexity only after the implementation already works.
 
 ## Deployment Boundary
 
@@ -105,19 +199,10 @@ site/
 └── assets/
 ```
 
-`site/` is the future deployment source. Everything inside `site/` may be copied to the server's `/public_html/`. Nothing outside `site/` should be deployed publicly, including:
-
-- `AGENTS.md`
-- `agents/`
-- `skills/`
-- `state/`
-- `docs/`
-- `evals/`
-- future deployment scripts
-
-Serve the website from `site/`, not the repository root:
+Serve the website locally from `site/`:
 
 ```powershell
 cd C:\AI\datawarsaw\site
 python -m http.server 8081
 ```
+
