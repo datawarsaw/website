@@ -955,7 +955,7 @@
       const best = windows[0];
       const startHour = data.times[best.index].getUTCHours();
       const endHour = (startHour + 3) % 24;
-      const range = `${String(startHour).padStart(2, '0')}:00â€“${String(endHour).padStart(2, '0')}:00`;
+      const range = `${String(startHour).padStart(2, '0')}:00–${String(endHour).padStart(2, '0')}:00`;
       const clear = best.penalty === 0;
       const barrier = Object.entries(best.excess).sort((a, b) => b[1] - a[1])[0][0];
       const barrierCopy = {
