@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0c0e">
+  <meta name="robots" content="index, follow">
+  <meta name="description" content="Case Study: Scout — An autonomous edge agent on Cloudflare Workers that evaluates, deduplicates, and scores X bookmarks into structured Notion knowledge.">
+  <meta name="author" content="Michał Domaradzki">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://datawarsaw.com/experiments/scout/">
+  <meta property="og:title" content="Scout: X → Cloudflare → Notion · DataWarsaw AI Experiments">
+  <meta property="og:description" content="Autonomous research pipeline evaluating bookmarked technology signals at the edge with GLM-4.7-Flash and Notion.">
+  <meta property="og:site_name" content="DataWarsaw">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Scout: X → Cloudflare → Notion · DataWarsaw AI Experiments">
+  <meta name="twitter:description" content="Autonomous research pipeline evaluating bookmarked technology signals at the edge with GLM-4.7-Flash and Notion.">
+  <title>Scout — Autonomous Intelligence for X Bookmarks · DataWarsaw</title>
+  <link rel="canonical" href="https://datawarsaw.com/experiments/scout/">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Scout — Autonomous Intelligence for X Bookmarks",
+    "description": "An autonomous edge agent running 24/7 on Cloudflare Workers that evaluates, context-enriches, and scores bookmarked technology signals into structured Notion knowledge.",
+    "url": "https://datawarsaw.com/experiments/scout/",
+    "datePublished": "2026-08-01",
+    "inLanguage": "en",
+    "author": {
+      "@type": "Person",
+      "name": "Michał Domaradzki",
+      "url": "https://datawarsaw.com/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "DataWarsaw",
+      "url": "https://datawarsaw.com/"
+    },
+    "isPartOf": {
+      "@type": "CollectionPage",
+      "name": "AI Experiments & Applied Systems · DataWarsaw",
+      "url": "https://datawarsaw.com/experiments/"
+    },
+    "keywords": [
+      "Cloudflare Agents",
+      "Workers AI",
+      "Durable Objects",
+      "Notion API",
+      "GLM-4.7-Flash",
+      "Edge AI"
+    ]
+  }
+  </script>
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body class="exp-body" id="top">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="exp-header">
+    <div class="exp-container exp-header-inner">
+      <div class="exp-brand-wrap">
+        <a href="/" class="exp-brand-link">
+          <span class="exp-brand-dot"></span>
+          <span>DataWarsaw</span>
+        </a>
+        <span class="exp-badge-section">AI EXPERIMENTS / 01</span>
+      </div>
+
+      <nav class="exp-nav" aria-label="Main navigation">
+        <a href="/" class="exp-nav-link">Homepage</a>
+        <a href="/experiments/" class="exp-nav-link is-active">AI Experiments</a>
+        <a href="/observability/" class="exp-nav-link">Observability</a>
+        <a href="/#contact" class="exp-nav-cta">Let’s talk ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="exp-container">
+      <nav class="exp-breadcrumbs" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="crumb-sep">/</span>
+        <a href="/experiments/">AI Experiments</a>
+        <span class="crumb-sep">/</span>
+        <span class="crumb-current">Scout</span>
+      </nav>
+
+      <!-- Hero -->
+      <section class="case-hero" aria-labelledby="case-title">
+        <div class="case-hero-meta">
+          <span class="case-tag">CASE STUDY · EDGE AGENT</span>
+          <span class="exp-status-badge status-production">● PRODUCTION MVP · OBSERVATION PHASE</span>
+        </div>
+        <h1 id="case-title">Scout — Autonomous Intelligence for <em>X Bookmarks.</em></h1>
+        <p class="case-hero-sub">X API → Cloudflare Agent → GLM-4.7-Flash → Notion Knowledge Inbox</p>
+        <p class="case-hero-lead">An autonomous edge agent running 24/7 on Cloudflare Workers that evaluates, context-enriches, and scores bookmarked technology signals, turning a chaotic social bookmark feed into structured, evidence-weighted research intelligence.</p>
+
+        <div class="case-stats-strip">
+          <div class="case-stat-item">
+            <span class="case-stat-label">Trigger Frequency</span>
+            <strong class="case-stat-val is-lime">Every 5 Minutes (Cron)</strong>
+          </div>
+          <div class="case-stat-item">
+            <span class="case-stat-label">Execution Runtime</span>
+            <strong class="case-stat-val">Cloudflare Workers + Agents SDK</strong>
+          </div>
+          <div class="case-stat-item">
+            <span class="case-stat-label">Evaluation Engine</span>
+            <strong class="case-stat-val">@cf/zai-org/glm-4.7-flash</strong>
+          </div>
+          <div class="case-stat-item">
+            <span class="case-stat-label">State Persistence</span>
+            <strong class="case-stat-val">Durable Objects / SQLite</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 1: Problem & Idea -->
+      <section class="case-section" aria-labelledby="problem-heading">
+        <div class="case-section-grid">
+          <header class="case-section-header">
+            <div class="section-index"><span>01</span> Problem &amp; Thesis</div>
+            <h2 id="problem-heading">The Bookmarking Graveyard vs. <em>Active Pipelines.</em></h2>
+            <p>Why saving links is a broken paradigm for technical research, and how automated ingestion changes the equation.</p>
+          </header>
+
+          <div class="case-body">
+            <p class="lead">High-signal technical breakthroughs, research papers, model releases, and architectural patterns emerge constantly on X. Yet bookmarks almost inevitably become an unstructured graveyard.</p>
+            <p>Bookmarking is frictionless and high-frequency, but reading, evaluating, and cataloging is low-frequency and cognitively expensive. Interesting threads sit unread, linked GitHub repositories are forgotten, and claims remain unverified.</p>
+
+            <div class="case-callout">
+              <h4>The Core Idea</h4>
+              <p>Bookmarking should not be a passive storage action. It should act as an intentional trigger for an autonomous research pipeline that evaluates evidence, extracts facts, and organizes structured knowledge without requiring manual triage.</p>
+            </div>
+
+            <div class="case-callout">
+              <h4>Evidence Skepticism by Design</h4>
+              <p>Social media is full of exaggerated claims, marketing benchmarks, and hype cycles. Scout operates on a strict principle of <strong>evidence conservatism</strong>: a social post alone should never automatically become <code>ADOPT</code>. The system deliberately isolates author claims from verifiable benchmarks and code evidence.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Architecture Pipeline -->
+      <section class="case-section" aria-labelledby="arch-heading">
+        <div class="case-section-grid">
+          <header class="case-section-header">
+            <div class="section-index"><span>02</span> System Architecture</div>
+            <h2 id="arch-heading">End-to-End <em>Autonomous Flow.</em></h2>
+            <p>Fully cloud-native execution running independently of the local workstation on Cloudflare's global edge network.</p>
+          </header>
+
+          <div class="case-body">
+            <p>The entire pipeline executes at the edge using Cloudflare Workers and the Agents SDK. State is maintained inside a persistent Durable Object backed by embedded SQLite, preventing duplicate processing and tracking ingestion history.</p>
+
+            <div class="pipeline-stage">
+              <div class="pipeline-stage-head">
+                <span class="pipeline-stage-title">Scout Ingestion &amp; Evaluation Pipeline</span>
+                <span class="pipeline-stage-badge">Automated Edge Cycle · 5m Polling</span>
+              </div>
+
+              <div class="pipeline-flow">
+                <!-- Step 1 -->
+                <div class="pipeline-node">
+                  <div class="node-header">
+                    <span class="node-step">01</span>
+                    <span class="node-layer">Source</span>
+                  </div>
+                  <h3 class="node-title">X Bookmarks</h3>
+                  <div class="node-tech">X API v2 · OAuth 2.0</div>
+                  <p class="node-desc">Monitors user bookmark stream with user-context OAuth 2.0 PKCE tokens.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="pipeline-node">
+                  <div class="node-header">
+                    <span class="node-step">02</span>
+                    <span class="node-layer">Runtime</span>
+                  </div>
+                  <h3 class="node-title">Cloudflare Agent</h3>
+                  <div class="node-tech">Workers · Durable Objects</div>
+                  <p class="node-desc">Wakes every 5 min, queries SQLite for deduplication, and schedules ingestion tasks.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="pipeline-node">
+                  <div class="node-header">
+                    <span class="node-step">03</span>
+                    <span class="node-layer">Intelligence</span>
+                  </div>
+                  <h3 class="node-title">Scout Evaluation</h3>
+                  <div class="node-tech">Workers AI · GLM-4.7-Flash</div>
+                  <p class="node-desc">Unrolls context, separates claims from evidence, scores rubric, and assigns decisions.</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="pipeline-node">
+                  <div class="node-header">
+                    <span class="node-step">04</span>
+                    <span class="node-layer">Destination</span>
+                  </div>
+                  <h3 class="node-title">Knowledge Inbox</h3>
+                  <div class="node-tech">Notion API · Database</div>
+                  <p class="node-desc">Syncs multi-property structured cards with prescriptive next actions for review.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Scout Intelligence & Rubric -->
+      <section class="case-section" aria-labelledby="intelligence-heading">
+        <div class="case-section-grid">
+          <header class="case-section-header">
+            <div class="section-index"><span>03</span> Scout Intelligence</div>
+            <h2 id="intelligence-heading">Evidence-Aware <em>Decisioning.</em></h2>
+            <p>How Scout evaluates technical content rather than simply saving raw links.</p>
+          </header>
+
+          <div class="case-body">
+            <p>Instead of generating generic summaries, Scout executes a calibrated multi-factor analytical evaluation tailored to our active technology stack:</p>
+
+            <div class="scoring-grid">
+              <div class="scoring-card">
+                <div class="scoring-card-head">
+                  <strong class="scoring-card-title">Relevance</strong>
+                  <span class="scoring-card-scale">0 – 10</span>
+                </div>
+                <p>Alignment with active domains: Data Analytics, Power BI, Python pipelines, Cloudflare Agents, and local AI orchestration.</p>
+              </div>
+
+              <div class="scoring-card">
+                <div class="scoring-card-head">
+                  <strong class="scoring-card-title">Novelty</strong>
+                  <span class="scoring-card-scale">0 – 10</span>
+                </div>
+                <p>Differentiates genuine architectural innovations from rehashed tutorials or repackaged API wrappers.</p>
+              </div>
+
+              <div class="scoring-card">
+                <div class="scoring-card-head">
+                  <strong class="scoring-card-title">Evidence Quality</strong>
+                  <span class="scoring-card-scale">0 – 10</span>
+                </div>
+                <p>Checks for reproducible code repositories, concrete benchmarks, and verifiable methodology over subjective claims.</p>
+              </div>
+
+              <div class="scoring-card">
+                <div class="scoring-card-head">
+                  <strong class="scoring-card-title">Practical Fit &amp; Complexity</strong>
+                  <span class="scoring-card-scale">0 – 10</span>
+                </div>
+                <p>Estimates friction, architectural overhead, and maintenance cost required to test or adopt.</p>
+              </div>
+            </div>
+
+            <h3 style="font-size: 1.3rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--exp-paper);">Autonomous Decision Classification</h3>
+            <p>Every evaluated signal is classified into one of three operational buckets:</p>
+
+            <div class="decision-matrix">
+              <div class="decision-card is-ignore">
+                <span class="decision-badge">IGNORE</span>
+                <h4>Low Signal / Hype</h4>
+                <p>Pure promotional material, unsubstantiated claims, or low-quality noise with no actionable substance.</p>
+              </div>
+
+              <div class="decision-card is-watch">
+                <span class="decision-badge">WATCH</span>
+                <h4>Promising Pattern</h4>
+                <p>Interesting theoretical idea or early library that warrants observation as it matures or gains adoption.</p>
+              </div>
+
+              <div class="decision-card is-test">
+                <span class="decision-badge">TEST</span>
+                <h4>Actionable Signal</h4>
+                <p>High evidence quality, direct stack relevance, and clear immediate ROI. Generates a concrete test step.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Technology Stack -->
+      <section class="case-section" aria-labelledby="tech-heading">
+        <div class="case-section-grid">
+          <header class="case-section-header">
+            <div class="section-index"><span>04</span> Technology Stack</div>
+            <h2 id="tech-heading">Production <em>Implementation.</em></h2>
+            <p>Lightweight, resilient edge architecture built on modern serverless foundations.</p>
+          </header>
+
+          <div class="case-body">
+            <table class="tech-stack-table" aria-label="Scout technology stack components">
+              <thead>
+                <tr>
+                  <th scope="col">Layer</th>
+                  <th scope="col">Technology</th>
+                  <th scope="col">Role &amp; Responsibility</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Upstream Source</td>
+                  <td class="is-mono">X API v2</td>
+                  <td>User-context OAuth 2.0 bookmark stream polling and tweet expansion.</td>
+                </tr>
+                <tr>
+                  <td>Agent Runtime</td>
+                  <td class="is-mono">Cloudflare Workers</td>
+                  <td>Serverless edge execution with scheduled cron triggers and zero cold-start overhead.</td>
+                </tr>
+                <tr>
+                  <td>State &amp; Deduplication</td>
+                  <td class="is-mono">Durable Objects / SQLite</td>
+                  <td>Transactional persistence and fast index queries across processed bookmark IDs.</td>
+                </tr>
+                <tr>
+                  <td>LLM Engine</td>
+                  <td class="is-mono">@cf/zai-org/glm-4.7-flash</td>
+                  <td>Edge inference via Cloudflare Workers AI for rapid structured extraction and rubric scoring.</td>
+                </tr>
+                <tr>
+                  <td>Knowledge Base</td>
+                  <td class="is-mono">Notion API</td>
+                  <td>Knowledge Inbox database sync with categorized tags, scoring properties, and summaries.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Scope Boundaries & Next Steps -->
+      <section class="case-section" aria-labelledby="limits-heading">
+        <div class="case-section-grid">
+          <header class="case-section-header">
+            <div class="section-index"><span>05</span> Scope &amp; Roadmap</div>
+            <h2 id="limits-heading">Boundaries &amp; <em>Next Iteration.</em></h2>
+            <p>Deliberate constraints kept for the MVP, and empirical observation priorities.</p>
+          </header>
+
+          <div class="case-body">
+            <h3 style="font-size: 1.2rem; color: var(--exp-paper); margin: 0;">What Is Deliberately Not Built Yet (MVP Discipline)</h3>
+            <ul class="limits-list" aria-label="Features omitted from MVP">
+              <li>
+                <span class="limit-icon">✕</span>
+                <div class="item-content">
+                  <strong>Multi-Hop Web Search Verification</strong>
+                  <p>Kept out of the initial pipeline to preserve sub-second edge evaluation and avoid API cost sprawl.</p>
+                </div>
+              </li>
+              <li>
+                <span class="limit-icon">✕</span>
+                <div class="item-content">
+                  <strong>Deep Media / Video Frame Extraction</strong>
+                  <p>Focus is currently restricted to text, linked articles, and repository code context.</p>
+                </div>
+              </li>
+              <li>
+                <span class="limit-icon">✕</span>
+                <div class="item-content">
+                  <strong>Multi-Platform Ingestion Feeds</strong>
+                  <p>YouTube, Reddit, and GitHub release scrapers will only be added after X ingestion proves stable in practice.</p>
+                </div>
+              </li>
+            </ul>
+
+            <h3 style="font-size: 1.2rem; color: var(--exp-paper); margin-top: 1rem;">Observation &amp; Next Steps</h3>
+            <ul class="next-list" aria-label="Next steps for Scout">
+              <li>
+                <span class="next-icon">✓</span>
+                <div class="item-content">
+                  <strong>Live Observation Phase</strong>
+                  <p>Run Scout continuously in real daily workflow to observe false-positive and false-negative decision accuracy.</p>
+                </div>
+              </li>
+              <li>
+                <span class="next-icon">✓</span>
+                <div class="item-content">
+                  <strong>Rubric &amp; Weight Calibration</strong>
+                  <p>Fine-tune prompt scoring guidelines based on real-world Notion inbox feedback.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Case Footer Navigation -->
+      <footer class="case-footer-nav">
+        <a href="/experiments/" class="case-back-link">
+          <span aria-hidden="true">←</span>
+          <span>Back to All AI Experiments</span>
+        </a>
+
+        <a href="/observability/" class="case-next-cta">
+          <span>Explore Live Observability Mission Control</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      </footer>
+    </div>
+  </main>
+
+  <footer class="site-footer section-dark">
+    <div class="exp-container footer-grid">
+      <div><strong>DataWarsaw</strong><span>by Michał Domaradzki</span></div>
+      <a href="#top" class="back-top">Back to top ↑</a>
+      <div><span>datawarsaw.com</span><span>© 2026 Warsaw Analytica</span></div>
+    </div>
+  </footer>
+</body>
+</html>

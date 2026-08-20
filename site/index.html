@@ -19,6 +19,47 @@
   <title>Warsaw Analytica — Michał Domaradzki, Senior Data Analyst</title>
   <link rel="canonical" href="https://datawarsaw.com/">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://datawarsaw.com/#person",
+        "name": "Michał Domaradzki",
+        "jobTitle": "Senior Data Analyst",
+        "url": "https://datawarsaw.com/",
+        "sameAs": [
+          "https://www.linkedin.com/in/domaradzki-michal/",
+          "https://github.com/datawarsaw"
+        ],
+        "knowsAbout": [
+          "Data Analytics",
+          "Business Intelligence",
+          "Data Storytelling",
+          "Data Visualization",
+          "SQL",
+          "Python",
+          "Applied AI"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://datawarsaw.com/#website",
+        "name": "DataWarsaw",
+        "url": "https://datawarsaw.com/",
+        "description": "Michał Domaradzki helps businesses turn complex data into clear insights, compelling stories and better decisions.",
+        "author": {
+          "@id": "https://datawarsaw.com/#person"
+        },
+        "creator": {
+          "@id": "https://datawarsaw.com/#person"
+        },
+        "inLanguage": "en"
+      }
+    ]
+  }
+  </script>
  <script>document.documentElement.classList.add('js');</script>
   <link rel="stylesheet" href="styles.css?v=20260818m">
   <script src="assets/vendor/gsap/gsap.min.js?v=3.13.0" defer></script>
@@ -30,7 +71,7 @@
   <header class="site-header" data-header>
     <a class="brand" href="#top" aria-label="Warsaw Analytica, home"><span class="brand-name">Warsaw Analytica</span><span class="brand-by">by Michał Domaradzki</span></a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span class="sr-only">Toggle navigation</span><span></span><span></span></button>
-    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav><a href="#about">About</a><a href="#practice">Practice</a><a href="#pulse">Pulse</a><a href="#harness">Workstation</a><a href="#approach">Approach</a><a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a></nav>
+    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav><a href="#about">About</a><a href="#practice">Practice</a><a href="#pulse">Pulse</a><a href="/experiments/">AI Experiments</a><a href="/observability/">Observability</a><a href="#approach">Approach</a><a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a></nav>
   </header>
 
   <main id="main">
@@ -310,62 +351,6 @@
        </div>
      </div>
    </section>
-
-    <section class="harness section-dark" id="harness" aria-labelledby="harness-title">
-      <div class="container">
-        <div class="section-index reveal"><span>06</span> AI Workstation · Live Observability</div>
-        <div class="harness-heading reveal">
-          <div>
-            <p class="kicker">Antigravity Multi-Agent Orchestration</p>
-            <h2 id="harness-title">Observable agent runs.<br><em>Live mission control.</em></h2>
-          </div>
-          <p>See how tasks move through Coordinator, parallel Scout discovery swarms, JOIN synthesis, Worker implementation, and deterministic verification in real time on our dedicated live console.</p>
-        </div>
-
-        <div class="harness-teaser-card reveal" data-harness-teaser>
-          <div class="harness-teaser-topbar">
-            <div class="harness-teaser-badge-group">
-              <span class="teaser-tag">ANTIGRAVITY HARNESS V1.1</span>
-              <div class="teaser-status-pill" data-teaser-status-pill>
-                <span class="status-dot"></span>
-                <span data-teaser-status-text>LIVE MISSION CONTROL</span>
-              </div>
-            </div>
-            <span class="teaser-branch">branch: <code>agent-harness-v1</code></span>
-          </div>
-
-          <div class="harness-teaser-body">
-            <div class="harness-teaser-content">
-              <h3>Real-Time Multi-Agent Telemetry</h3>
-              <p>Experience the internal lifecycle of our autonomous workstation. Track live step transitions, model specializations, parallel exploration trees, and execution event streams as code is actively designed, inspected, and verified.</p>
-              
-              <div class="harness-teaser-flow-preview" aria-hidden="true">
-                <span class="flow-pill">Coordinator</span>
-                <span class="flow-arrow">→</span>
-                <span class="flow-pill-group">
-                  <span class="flow-pill is-scout">Scout A</span>
-                  <span class="flow-pill is-scout">Scout B</span>
-                </span>
-                <span class="flow-arrow">→</span>
-                <span class="flow-pill">JOIN</span>
-                <span class="flow-arrow">→</span>
-                <span class="flow-pill is-worker">Worker</span>
-                <span class="flow-arrow">→</span>
-                <span class="flow-pill is-verify">Verify</span>
-              </div>
-            </div>
-
-            <div class="harness-teaser-action">
-              <a class="harness-live-cta" href="/observability/">
-                <span>Open Live View</span>
-                <span class="cta-arrow" aria-hidden="true">→</span>
-              </a>
-              <span class="teaser-note">Updated live via file-driven runtime telemetry</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <section class="contact section-accent" id="contact" aria-labelledby="contact-title">
       <div class="container contact-grid">

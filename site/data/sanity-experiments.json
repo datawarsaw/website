@@ -1,0 +1,192 @@
+[
+  {
+    "category": "Edge Agent",
+    "date": "August 2026",
+    "featured": true,
+    "id": "scout",
+    "metrics": [
+      {
+        "description": "Scheduled cron trigger waking the worker agent",
+        "isAccent": true,
+        "label": "Trigger Frequency",
+        "unit": "Cron",
+        "value": "Every 5 Minutes"
+      },
+      {
+        "description": "Serverless global edge compute with Durable Objects",
+        "isAccent": false,
+        "label": "Execution Runtime",
+        "unit": null,
+        "value": "Cloudflare Workers + Agents SDK"
+      },
+      {
+        "description": "Edge LLM inference via Workers AI",
+        "isAccent": false,
+        "label": "Evaluation Engine",
+        "unit": null,
+        "value": "@cf/zai-org/glm-4.7-flash"
+      },
+      {
+        "description": "Embedded transactional database for deduplication",
+        "isAccent": false,
+        "label": "State Persistence",
+        "unit": null,
+        "value": "Durable Objects / SQLite"
+      }
+    ],
+    "number": "01",
+    "seo": {
+      "canonicalUrl": "https://datawarsaw.com/experiments/scout/",
+      "metaDescription": "Case Study: Scout — An autonomous edge agent on Cloudflare Workers that evaluates, deduplicates, and scores X bookmarks into structured Notion knowledge.",
+      "metaTitle": "Scout: X → Cloudflare → Notion · DataWarsaw AI Experiments",
+      "noIndex": false
+    },
+    "slug": "scout",
+    "status": "Production MVP",
+    "statusType": "production",
+    "subtitle": "X API → Cloudflare Agent → GLM-4.7-Flash → Notion Knowledge Inbox",
+    "summary": "An autonomous edge agent that continuously evaluates, deduplicates, and scores bookmarked technical signals on X, separating evidence from hype before routing structured insights into Notion.",
+    "tags": [
+      "Cloudflare Agents",
+      "Workers AI",
+      "Durable Objects",
+      "Notion API",
+      "OAuth 2.0",
+      "Edge AI"
+    ],
+    "technologies": [
+      "Cloudflare Workers",
+      "Cloudflare Agents SDK",
+      "Durable Objects / SQLite",
+      "GLM-4.7-Flash",
+      "X API v2",
+      "Notion API"
+    ],
+    "title": "Scout — Autonomous Intelligence for X Bookmarks",
+    "url": "https://datawarsaw.com/experiments/scout/"
+  },
+  {
+    "category": "Orchestration",
+    "date": "August 2026",
+    "featured": false,
+    "id": "antigravity-harness",
+    "metrics": [
+      {
+        "description": "Continuous event stream emitted during multi-agent task execution",
+        "isAccent": true,
+        "label": "Frequency",
+        "unit": null,
+        "value": "Real-Time Event Stream"
+      },
+      {
+        "description": "Hybrid workstation execution with file-driven telemetry bridge",
+        "isAccent": false,
+        "label": "Runtime",
+        "unit": null,
+        "value": "Local Workstation + Remote Sync"
+      },
+      {
+        "description": "Adaptive model routing with specialist escalation ladder",
+        "isAccent": false,
+        "label": "Model",
+        "unit": null,
+        "value": "Gemini 3.7 Flash High / Multi-Model"
+      },
+      {
+        "description": "Atomic file-locked state exchange for zero backend overhead",
+        "isAccent": false,
+        "label": "Storage",
+        "unit": null,
+        "value": "File-Locked Telemetry JSON"
+      }
+    ],
+    "number": "02",
+    "seo": {
+      "canonicalUrl": "https://datawarsaw.com/observability/",
+      "metaDescription": "Multi-agent engineering workstation with real-time lifecycle telemetry, deterministic verification loops, and live mission control observability.",
+      "metaTitle": "Antigravity Multi-Agent Orchestration · DataWarsaw",
+      "noIndex": false
+    },
+    "slug": "antigravity-harness",
+    "status": "Active V1.3",
+    "statusType": "active",
+    "subtitle": "Coordinator → Parallel Scouts → JOIN → Worker → Verification",
+    "summary": "Multi-agent engineering workstation with real-time lifecycle telemetry, deterministic verification loops, and live mission control observability.",
+    "tags": [
+      "Multi-Agent",
+      "Telemetry",
+      "Deterministic Verification",
+      "Observability"
+    ],
+    "technologies": [
+      "Python",
+      "Antigravity Runtime",
+      "SFTP Telemetry",
+      "Vanilla Web"
+    ],
+    "title": "Antigravity Multi-Agent Orchestration & Telemetry",
+    "url": "https://datawarsaw.com/observability/"
+  },
+  {
+    "category": "Data Analytics",
+    "date": "Roadmap 2026",
+    "featured": false,
+    "id": "semantic-assistant",
+    "metrics": [
+      {
+        "description": "Triggered on dataset refresh cycles or user ad-hoc analytical inquiry",
+        "isAccent": false,
+        "label": "Frequency",
+        "unit": null,
+        "value": "Scheduled Batch / On-Demand"
+      },
+      {
+        "description": "Hybrid analytical bridge executing DAX against Tabular Object Model",
+        "isAccent": false,
+        "label": "Runtime",
+        "unit": null,
+        "value": "Cloud / Hybrid"
+      },
+      {
+        "description": "Domain-tuned LLM for dimensional data interpretation and narrative synthesis",
+        "isAccent": false,
+        "label": "Model",
+        "unit": null,
+        "value": "Specialist Analytical LLM"
+      },
+      {
+        "description": "Direct connection to Power BI VertiPaq tabular model",
+        "isAccent": false,
+        "label": "Storage",
+        "unit": null,
+        "value": "Tabular Semantic Model"
+      }
+    ],
+    "number": "03",
+    "seo": {
+      "canonicalUrl": "https://datawarsaw.com/experiments/",
+      "metaDescription": "Automated analytical commentary and DAX optimization pipelines integrating LLM semantic models directly with enterprise Power BI datasets.",
+      "metaTitle": "Power BI + AI Semantic Analyst · DataWarsaw",
+      "noIndex": false
+    },
+    "slug": "semantic-assistant",
+    "status": "In Design",
+    "statusType": "lab",
+    "subtitle": "DAX Query Engine → Automated Commentary & Metric Anomaly Detection",
+    "summary": "Automated analytical commentary and DAX optimization pipelines integrating LLM semantic models directly with enterprise Power BI datasets.",
+    "tags": [
+      "Power BI",
+      "DAX",
+      "Semantic Modeling",
+      "Automated Commentary"
+    ],
+    "technologies": [
+      "Power BI",
+      "Tabular Model",
+      "Python",
+      "OpenAI / Claude API"
+    ],
+    "title": "Power BI + AI Semantic Analyst",
+    "url": "#"
+  }
+]

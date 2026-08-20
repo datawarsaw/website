@@ -147,3 +147,54 @@ A decision-making dashboard should answer immediately: "What are conditions doin
 - Deterministic suitability formula: `suitability = clamp(1 - (rainPenalty + aqiPenalty + windPenalty), 0, 1)` documented and exposed.
 - Single unified SVG timeline with glowing lime suitability area curve, dotted temperature context line, bounding best-window highlight, and a 24-column raw-signal strip under the chart for precipitation probability, wind speed, and European AQI.
 - Interactive scrubbing, keyboard arrow navigation, and responsive tick reduction across all viewports.
+
+---
+
+## ADR 009: Adopt Sanity Free as Headless Content Foundation for Experiments
+
+- **Date:** 2026-08-20
+- **Status:** Accepted
+
+### Decision
+Adopt Sanity Free as the headless CMS for DataWarsaw's dynamic AI experiments and technology taxonomy, hosted locally in `cms/` as a standalone TypeScript Studio and integrated with Sanity's Content Lake.
+
+### Rationale
+1. **Managed Structured Content vs Custom Backend:** Eliminates the operational burden of building and hosting custom admin panels, database migrations, authentication, and MCP endpoints.
+2. **Agent & MCP Compatibility:** Official hosted MCP server (`https://mcp.sanity.io`) enables future autonomous draft authoring and document patching directly by AI agents without custom tooling.
+3. **Guaranteed €0/Month Guardrail:** Sanity Free provides 10,000 documents, 1,000,000 CDN requests/month, 100GB bandwidth, and hard-stops with `HTTP 402 Payment Required` at quota limits rather than silently billing overages.
+4. **Zero Vendor Lock-in:** Content can be exported at any time into standard `ndjson` files via `sanity dataset export`.
+
+### Content vs Code Boundary
+- **Git Repository:** Strictly owns all application code, design tokens, responsive layouts, Canvas 2D engine, GSAP animations, telemetry UI, and static homepage sections.
+- **Sanity CMS:** Owns high-velocity structured content (AI Experiments, Technology relations, Tags, Case Study block content, and SEO metadata).
+
+### Provisioning Status & State
+- **Remote Cloud Project:** Provisioned on project `oxemv355` with public `production` dataset and hosted Studio at `https://datawarsaw-studio.sanity.studio`.
+- **Content Parity:** Full content parity reached with 3 published experiments (`scout`, `antigravity-harness`, `semantic-assistant`).
+
+### Free-Tier & Agent Security Guardrails
+- **Public Dataset:** Uses a single public `production` dataset queried via cached CDN API endpoints.
+- **MCP Permission Finding:** The Free tier does not support custom RBAC or enforceable draft-only Contributor roles. Therefore, any write-capable agent token carries broad dataset mutation access.
+- **Mitigation:** Agent workflows must follow a **draft-first supervised policy**: explicit human confirmation is required for publishing, unpublishing, or deleting documents; periodic `ndjson` dataset exports act as pre-mutation backups; no unattended autonomous publishing.
+- **Growth Trial Risk:** Temporary automatic Growth trials on new accounts expire into the permanent Free plan without charge as no credit card is attached.
+
+---
+
+## ADR 010: Automated Zero-Cost Content Deployment via Sanity Webhooks and Cloudflare Pages Deploy Hooks
+
+- **Date:** 2026-08-21
+- **Status:** Accepted
+
+### Decision
+Automate DataWarsaw static experiment deployment by connecting Sanity publication lifecycle webhooks directly to a Cloudflare Pages Deploy Hook, executing `node scripts/sync_sanity_experiments.mjs` during the build step.
+
+### Rationale
+1. **Zero Runtime Latency & Zero Client Sanity Requests:** Browsers continue to fetch static JSON from the DataWarsaw domain with zero client-side SDKs or API calls.
+2. **Zero Incremental Cost (€0/Month):** Uses native managed features of Cloudflare Pages and Sanity Free without introducing intermediate workers, queues, cron jobs, or third-party CI servers.
+3. **Strict Build Failure Isolation:** If Sanity Content Lake synchronization fails, the build exits non-zero, immediately halting the deployment and preventing corrupt or partial data releases.
+4. **Draft Safety:** The webhook content filter covers `experiment`, `technology`, and `tag` lifecycle events (`coalesce(after()._type, before()._type) in ["experiment","technology","tag"]`). Drafts and Versions/Releases remain disabled in the Sanity webhook settings, so draft-only edits do not trigger builds.
+
+### Consequence
+- **Build Command:** Cloudflare Pages runs `node scripts/sync_sanity_experiments.mjs`, outputting to `site/`.
+- **Deploy Hook Security:** The Cloudflare Deploy Hook URL is treated as a secret and is never committed to Git or documentation.
+- **Lifecycle Coverage:** Create, Update, and Delete/Unpublish events for `experiment`, `technology`, and `tag` documents trigger rebuilds once the Sanity webhook and Cloudflare Deploy Hook are enabled.

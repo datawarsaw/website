@@ -68,8 +68,12 @@ Lightweight, prioritized backlog for DataWarsaw development and AI Workstation i
 - [x] Model Benchmark Dashboard V1 (empirical model evaluation matrix; archived internally and removed from public site)
 - [x] Live Agent Observability V1.1 (dedicated `/observability/` mission control page, file-driven live telemetry bridge, homepage teaser)
 - [x] Coordinator lifecycle telemetry interface (`run-start`, step lifecycle, verification/run completion) and actual-flow observability rendering
- - [x] Observability reliability consolidation (cross-platform file locking, atomic `os.replace` writes with retry, 200-event bounding, hardened sanitization, client-side stale detection, and deterministic test suite)
+- [x] Observability reliability consolidation (cross-platform file locking, atomic `os.replace` writes with retry, 200-event bounding, hardened sanitization, client-side stale detection, and deterministic test suite)
 - [x] Observability V1.3 Remote Live Publishing (`scripts/publish_current_run.py` with WinSCP SFTP transport, `--doctor`, `--dry-run`, `--deploy-static`, failure isolation, and bounded timeouts)
+- [x] Technical SEO Baseline & Schema.org JSON-LD (Robots.txt, Sitemap.xml, Canonical parity, WebSite & Person metadata)
+- [x] Local Sanity Studio & TypeScript Schema Foundation (`cms/` setup, `experiment`, `technology`, `tag`, `seo`, `metric`, `link`, `blockContent` schemas)
+- [x] Sanity Free Cloud Project & Content Parity Migration (Project `oxemv355`, `production` dataset, hosted Studio deployed, 3 experiments published with 1:1 registry parity)
+- [x] Automated Content Deployment Pipeline Architecture (Sanity published webhook → Cloudflare Pages Deploy Hook → `node scripts/sync_sanity_experiments.mjs`)
 
 ---
 
