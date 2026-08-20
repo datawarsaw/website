@@ -48,11 +48,21 @@ def get_config() -> dict:
         "host": os.environ.get("DATAWARSAW_DEPLOY_HOST", "").strip(),
         "user": os.environ.get("DATAWARSAW_DEPLOY_USER", "").strip(),
         "password": os.environ.get("DATAWARSAW_DEPLOY_PASSWORD", ""),
+        "hostkey": os.environ.get("DATAWARSAW_DEPLOY_HOSTKEY", "").strip(),
         "key_path": os.environ.get("DATAWARSAW_DEPLOY_KEY", "").strip(),
         "port": os.environ.get("DATAWARSAW_DEPLOY_PORT", "22").strip(),
         "remote_path": os.environ.get("DATAWARSAW_DEPLOY_PATH", "/public_html").strip().rstrip("/"),
         "transport": os.environ.get("DATAWARSAW_DEPLOY_TRANSPORT", "sftp").lower().strip(),
     }
+
+
+def sanitize_process_output(text: str | None, config: dict) -> str:
+    """Redact credentials and local key paths from subprocess diagnostics."""
+    sanitized = text or ""
+    for sensitive in (config.get("password"), config.get("key_path")):
+        if sensitive:
+            sanitized = sanitized.replace(sensitive, "***")
+    return sanitized
 
 
 def validate_local_telemetry() -> tuple[bool, str, dict | None]:
@@ -107,7 +117,11 @@ def upload_via_winscp(winscp_bin: Path, config: dict, local_file: Path, remote_s
         open_cmd = f"open {protocol}://{user}"
         if config["password"]:
             open_cmd += f":{config['password']}"
-        open_cmd += f"@{host}:{port} -hostkey=*"
+        open_cmd += f"@{host}:{port}"
+        if protocol == "sftp":
+            if not config["hostkey"]:
+                return False, "Missing DATAWARSAW_DEPLOY_HOSTKEY for SFTP host verification"
+            open_cmd += f' -hostkey="{config["hostkey"]}"'
         if config["key_path"]:
             open_cmd += f' -privatekey="{config["key_path"]}"'
 
@@ -130,9 +144,7 @@ def upload_via_winscp(winscp_bin: Path, config: dict, local_file: Path, remote_s
             return True, "WinSCP upload and atomic rename succeeded"
         else:
             # Sanitize output so passwords never leak in error messages
-            sanitized_err = proc.stderr or proc.stdout
-            if config["password"]:
-                sanitized_err = sanitized_err.replace(config["password"], "***")
+            sanitized_err = sanitize_process_output(proc.stderr or proc.stdout, config)
             return False, f"WinSCP exit code {proc.returncode}: {sanitized_err.strip()[:200]}"
     except subprocess.TimeoutExpired:
         return False, f"WinSCP connection timed out after {DEFAULT_TIMEOUT_SEC}s"
@@ -170,6 +182,8 @@ def upload_current_run(dry_run: bool = False) -> tuple[bool, str]:
         missing.append("DATAWARSAW_DEPLOY_USER")
     if not config["password"] and not config["key_path"]:
         missing.append("DATAWARSAW_DEPLOY_PASSWORD or DATAWARSAW_DEPLOY_KEY")
+    if "sftp" in config["transport"] and not config["hostkey"]:
+        missing.append("DATAWARSAW_DEPLOY_HOSTKEY")
 
     if missing:
         return False, f"READY_FOR_REMOTE_TEST: Missing credentials ({', '.join(missing)})"
@@ -209,6 +223,8 @@ def run_doctor() -> dict:
         missing_env.append("DATAWARSAW_DEPLOY_USER")
     if not config["password"] and not config["key_path"]:
         missing_env.append("DATAWARSAW_DEPLOY_PASSWORD or DATAWARSAW_DEPLOY_KEY")
+    if "sftp" in config["transport"] and not config["hostkey"]:
+        missing_env.append("DATAWARSAW_DEPLOY_HOSTKEY")
 
     return {
         "remote_observability_enabled": config["enabled"],
@@ -222,6 +238,7 @@ def run_doctor() -> dict:
         "remote_web_root": config["remote_path"],
         "transport": config["transport"],
         "auth_configured": bool(config["password"] or config["key_path"]),
+        "hostkey_configured": bool(config["hostkey"]),
         "missing_environment_vars": missing_env,
         "status": "READY_FOR_REMOTE_TEST" if missing_env else ("ENABLED" if config["enabled"] else "DISABLED"),
     }
@@ -237,6 +254,8 @@ def deploy_static_observability() -> tuple[bool, str]:
         missing.append("DATAWARSAW_DEPLOY_USER")
     if not config["password"] and not config["key_path"]:
         missing.append("DATAWARSAW_DEPLOY_PASSWORD or DATAWARSAW_DEPLOY_KEY")
+    if "sftp" in config["transport"] and not config["hostkey"]:
+        missing.append("DATAWARSAW_DEPLOY_HOSTKEY")
 
     if missing:
         return False, f"READY_FOR_REMOTE_TEST: Missing credentials ({', '.join(missing)})"
@@ -273,7 +292,9 @@ def deploy_static_observability() -> tuple[bool, str]:
         open_cmd = f"open {protocol}://{config['user']}"
         if config["password"]:
             open_cmd += f":{config['password']}"
-        open_cmd += f"@{config['host']}:{config['port']} -hostkey=*"
+        open_cmd += f"@{config['host']}:{config['port']}"
+        if protocol == "sftp":
+            open_cmd += f' -hostkey="{config["hostkey"]}"'
         if config["key_path"]:
             open_cmd += f' -privatekey="{config["key_path"]}"'
 
@@ -283,7 +304,10 @@ def deploy_static_observability() -> tuple[bool, str]:
         if proc.returncode == 0:
             return True, "Static /observability/ assets deployed successfully"
         else:
-            return False, f"Static deploy failed: {proc.stderr or proc.stdout}"
+            sanitized_err = sanitize_process_output(proc.stderr or proc.stdout, config)
+            return False, f"Static deploy failed: {sanitized_err.strip()[:200]}"
+    except subprocess.TimeoutExpired:
+        return False, "Static deploy timed out after 15s"
     except Exception as exc:
         return False, f"Static deploy error: {exc}"
     finally:

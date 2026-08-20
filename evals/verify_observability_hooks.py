@@ -246,6 +246,7 @@ def test_suite():
         "DATAWARSAW_DEPLOY_HOST": "invalid-nonexistent-host.local",
         "DATAWARSAW_DEPLOY_USER": "testuser",
         "DATAWARSAW_DEPLOY_PASSWORD": "testpassword_super_secret",
+        "DATAWARSAW_DEPLOY_HOSTKEY": "ssh-ed25519 255 SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "DATAWARSAW_DEPLOY_TIMEOUT": "2",
         "DATAWARSAW_DEPLOY_RETRIES": "1"
     }
