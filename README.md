@@ -28,44 +28,41 @@ The website demonstrates analytical rigor and bespoke data visualization princip
 
 ```text
 datawarsaw/
-├── assets/                  # Static assets and vendor libraries
-│   ├── favicon.svg          # Site icon
-│   └── vendor/
-│       └── gsap/            # Bundled GSAP and ScrollTrigger libraries
+├── site/                    # Public website only; future /public_html/ deploy source
+│   ├── index.html           # Main single-page application markup
+│   ├── styles.css           # Design system, layout, and responsive styles
+│   ├── script.js            # Core application logic and visualization engines
+│   └── assets/              # Static assets and vendor libraries
+│       ├── favicon.svg      # Site icon
+│       └── vendor/
+│           └── gsap/        # Bundled GSAP and ScrollTrigger libraries
+├── agents/                  # AI harness agent contracts
+├── skills/                  # Task-specific AI skills
+├── state/                   # Harness task/progress templates
 ├── docs/                    # In-depth project documentation
-│   ├── architecture.md      # Technical architecture and component lifecycles
-│   ├── design-system.md     # Visual identity, typography, and palette specifications
-│   ├── responsive-guidelines.md # Viewport standards and mobile design rules
-│   ├── data-sources.md      # Open-Meteo API integration and fallback strategy
-│   ├── decisions.md         # Architecture and design decision log (ADR)
-│   ├── failures-and-lessons.md  # Historical lessons and confirmed edge cases
-│   └── roadmap.md           # Current state and candidate enhancements
 ├── evals/                   # Quality assurance checklists
-│   ├── responsive-checklist.md  # Breakpoint validation rubric
-│   └── visual-regression-checklist.md # Visual fidelity and motion QA
 ├── AGENTS.md                # Project-specific AI agent guidelines and constraints
-├── index.html               # Main single-page application markup
-├── script.js                # Core application logic and visualization engines
-├── styles.css               # Design system, layout, and responsive styles
 └── README.md                # Project overview and developer guide
 ```
+
+`site/` is the only public deployment source. Everything inside it may be copied to the server's `/public_html/`. Development and AI-harness files outside `site/` must not be deployed.
 
 ---
 
 ## Running Locally
 
-The site requires no compilation, bundling, or package installation. Any static HTTP server can serve the directory:
+The site requires no compilation, bundling, or package installation. Serve the `site/` directory, not the repository root:
 
 ### Using Python (Recommended)
-```bash
-# From the project root (C:\AI\datawarsaw)
+```powershell
+cd C:\AI\datawarsaw\site
 python -m http.server 8081
 ```
 Then open [http://localhost:8081/#top](http://localhost:8081/#top) in your browser.
 
 ### Using Node.js (Alternative)
 ```bash
-npx serve -l 8081 .
+npx serve -l 8081 site
 ```
 
 ---

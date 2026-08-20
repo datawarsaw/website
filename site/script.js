@@ -146,7 +146,7 @@
 
   const animateDataState = (targets, options = {}) => {
     if (!motionAllowed()) return;
-    const elements = [...targets].filter(Boolean);
+    const elements = (targets instanceof Element ? [targets] : Array.isArray(targets) ? targets : targets ? Array.from(targets) : []).filter(Boolean);
     if (!elements.length) return;
     window.gsap.killTweensOf(elements);
     window.gsap.fromTo(elements,
@@ -168,22 +168,31 @@
     const experienceButtons = [...experienceMap.querySelectorAll('[data-experience]')];
     const radarAxes = [...experienceMap.querySelectorAll('[data-radar-axis]')];
     const experienceKicker = experienceMap.querySelector('[data-experience-kicker]');
+    const experienceScore = experienceMap.querySelector('[data-experience-score]');
     const experienceTitle = experienceMap.querySelector('[data-experience-title]');
     const experienceSummary = experienceMap.querySelector('[data-experience-summary]');
     const experienceTools = experienceMap.querySelector('[data-experience-tools]');
+    const centerKicker = experienceMap.querySelector('.radar-center .center-kicker');
+    const centerVal = experienceMap.querySelector('.radar-center .center-val');
     let selectedExperience = null;
 
     const showExperience = button => {
       if (!button) {
-        experienceKicker.textContent = 'Conceptual map';
-        experienceTitle.textContent = 'Analytical expertise';
-        experienceSummary.textContent = 'Choose an axis to explore its business context.';
-        experienceTools.textContent = 'Power BI · SQL · Python';
+        if (experienceKicker) experienceKicker.textContent = 'Calibrated profile';
+        if (experienceScore) experienceScore.textContent = 'Scale 1–10';
+        if (experienceTitle) experienceTitle.textContent = 'Analytical expertise';
+        if (experienceSummary) experienceSummary.textContent = 'Choose an axis to explore commercial context, calibrated proficiency, and core tools.';
+        if (experienceTools) experienceTools.textContent = 'Power BI · SQL · Python';
+        if (centerKicker) centerKicker.textContent = 'SCALE';
+        if (centerVal) centerVal.textContent = '1–10';
       } else {
-        experienceKicker.textContent = button.dataset.kicker;
-        experienceTitle.textContent = button.dataset.experience;
-        experienceSummary.textContent = button.dataset.summary;
-        experienceTools.textContent = button.dataset.tools;
+        if (experienceKicker) experienceKicker.textContent = button.dataset.kicker + ' · Axis 0' + (Number(button.dataset.axis) + 1);
+        if (experienceScore) experienceScore.textContent = button.dataset.score + ' / 10';
+        if (experienceTitle) experienceTitle.textContent = button.dataset.experience;
+        if (experienceSummary) experienceSummary.textContent = button.dataset.summary;
+        if (experienceTools) experienceTools.textContent = button.dataset.tools;
+        if (centerKicker) centerKicker.textContent = 'SCORE';
+        if (centerVal) centerVal.textContent = button.dataset.score;
       }
       const axis = button ? button.dataset.axis : null;
       experienceMap.classList.toggle('has-preview', Boolean(button));
@@ -273,16 +282,15 @@
 
   const practiceModule = document.querySelector('[data-practice-module]');
   if (practiceModule) {
-    const REPO_URL = 'https://api.github.com/repos/datawarsaw/website';
-    const COMMITS_URL = 'https://api.github.com/repos/datawarsaw/website/commits?per_page=100';
-    const CACHE_KEY_REPO = 'dw_github_repo_v1';
-    const CACHE_KEY_COMMITS = 'dw_github_commits_v1';
+    const ORG_REPOS_URL = 'https://api.github.com/users/datawarsaw/repos?per_page=100&sort=pushed';
+    const CACHE_KEY_ACTIVITY = 'dw_github_org_activity_v2';
     const CACHE_TTL_MS = 10 * 60 * 1000;
 
     const statusEl = practiceModule.querySelector('[data-practice-status]');
     const statusTextEl = practiceModule.querySelector('[data-practice-status-text]');
-    const langEl = practiceModule.querySelector('[data-practice-lang]');
-    const branchEl = practiceModule.querySelector('[data-practice-branch]');
+    const scopeEl = practiceModule.querySelector('[data-practice-scope]');
+    const reposEl = practiceModule.querySelector('[data-practice-repos]');
+    const stackEl = practiceModule.querySelector('[data-practice-stack]');
     const pushedEl = practiceModule.querySelector('[data-practice-pushed]');
     const matrixContainer = practiceModule.querySelector('[data-practice-matrix]');
     const practiceLedger = practiceModule.querySelector('[data-practice-ledger]');
@@ -292,9 +300,8 @@
     const inspectorCount = practiceModule.querySelector('[data-inspector-count]');
     const inspectorMsg = practiceModule.querySelector('[data-inspector-msg]');
 
-    let currentCommitsData = null;
-    let currentRepoData = null;
-    let currentRenderedWeeks = 0;
+    let currentPayload = null;
+    let lastRenderedWidth = 0;
 
     const svgNS = 'http://www.w3.org/2000/svg';
 
@@ -304,11 +311,57 @@
       return el;
     };
 
-    const getTargetWeeks = () => {
-      const w = window.innerWidth;
-      if (w <= 480) return 8;
-      if (w <= 900) return 12;
-      return 16;
+    const computeMatrixLayout = (containerWidth) => {
+      const w = Math.max(260, containerWidth || (window.innerWidth ? window.innerWidth - 64 : 320));
+
+      let numWeeks;
+      let targetFill;
+      let minCell;
+      let maxCell;
+      let leftPad;
+      let topPad = 18;
+
+      if (w < 460) {
+        numWeeks = w < 330 ? 20 : (w < 380 ? 22 : 24);
+        targetFill = 0.94;
+        minCell = 8.5;
+        maxCell = 10.5;
+        leftPad = 20;
+        topPad = 15;
+      } else if (w < 850) {
+        numWeeks = w < 600 ? 32 : (w < 720 ? 36 : 40);
+        targetFill = 0.88;
+        minCell = 9.5;
+        maxCell = 13.0;
+        leftPad = 24;
+        topPad = 16;
+      } else {
+        numWeeks = 52;
+        targetFill = w > 1300 ? 0.82 : 0.86;
+        minCell = 10.5;
+        maxCell = 16.0;
+        leftPad = 26;
+        topPad = 18;
+      }
+
+      const gridAvailable = Math.max(160, w * targetFill - leftPad);
+      const colWidth = gridAvailable / numWeeks;
+      const cellGap = Math.max(2.0, Math.min(4.5, Math.round(colWidth * 0.21 * 2) / 2));
+      const rawCellSize = colWidth - cellGap;
+      const cellSize = Math.max(minCell, Math.min(maxCell, Math.round(rawCellSize * 10) / 10));
+
+      const svgWidth = Math.round(leftPad + numWeeks * (cellSize + cellGap));
+      const svgHeight = Math.round(topPad + 7 * (cellSize + cellGap) + 4);
+
+      return {
+        numWeeks,
+        cellSize,
+        cellGap,
+        leftPad,
+        topPad,
+        svgWidth,
+        svgHeight
+      };
     };
 
     const getWarsawDateParts = (date = new Date()) => {
@@ -375,19 +428,30 @@
       }
       const count = parseInt(cell.dataset.count, 10) || 0;
       const dateStr = cell.dataset.dateHuman || cell.dataset.date;
-      const msg = cell.dataset.msg || 'No public commits on datawarsaw/website on this day.';
+      const repos = cell.dataset.repos || '';
+      const repo = cell.dataset.repo || '';
+      const msg = cell.dataset.msg || '';
 
       inspectorDate.textContent = dateStr;
-      inspectorCount.textContent = count === 1 ? '1 commit' : `${count} commits`;
-      inspectorMsg.textContent = msg;
+      if (count === 0) {
+        inspectorCount.textContent = '0 commits';
+        inspectorMsg.textContent = 'No public commits recorded across DataWarsaw repositories on this day.';
+      } else {
+        const repoCount = repos ? repos.split(',').length : 1;
+        inspectorCount.textContent = `${count} commit${count === 1 ? '' : 's'}${repoCount > 1 ? ` · ${repoCount} repos` : (repo ? ` · ${repo}` : '')}`;
+        inspectorMsg.textContent = repo ? `[${repo}] ${msg}` : msg;
+      }
     };
 
-    const buildMatrix = (commits, repo) => {
+    const buildMatrix = (payload) => {
+      const commits = payload?.commits || [];
+      const repos = payload?.repos || [];
+
       if (!Array.isArray(commits) || commits.length === 0) {
         matrixContainer.innerHTML = `
           <div class="matrix-fallback-state">
-            <p>Live repository telemetry is currently unavailable from the GitHub API.</p>
-            <span>Source code, commit logs and architecture decisions remain public on <a href="https://github.com/datawarsaw/website" target="_blank" rel="noopener noreferrer">github.com/datawarsaw/website ↗</a></span>
+            <p>Live organisation telemetry is currently unavailable from the GitHub API.</p>
+            <span>Source code, models and commit logs remain public across <a href="https://github.com/datawarsaw" target="_blank" rel="noopener noreferrer">github.com/datawarsaw ↗</a></span>
           </div>
         `;
         if (practiceLedger) practiceLedger.hidden = true;
@@ -395,36 +459,32 @@
         return;
       }
 
-      currentCommitsData = commits;
-      currentRepoData = repo;
+      currentPayload = payload;
 
-      const numWeeks = getTargetWeeks();
-      currentRenderedWeeks = numWeeks;
+      const wrapperWidth = matrixContainer.parentElement ? matrixContainer.parentElement.clientWidth : matrixContainer.clientWidth;
+      const layout = computeMatrixLayout(wrapperWidth);
+      const { numWeeks, cellSize, cellGap, leftPad, topPad, svgWidth, svgHeight } = layout;
+      lastRenderedWidth = wrapperWidth;
 
       const dailyMap = new Map();
       const recentList = [];
 
       commits.forEach(item => {
-        const dateStr = item.commit?.author?.date || item.commit?.committer?.date;
+        const dateStr = item.date;
         if (!dateStr) return;
         const d = new Date(dateStr);
         if (isNaN(d.getTime())) return;
         const iso = formatWarsawDateIso(d);
-        const firstLine = (item.commit?.message || '').split('\n')[0].trim();
 
         if (!dailyMap.has(iso)) {
-          dailyMap.set(iso, { count: 0, latestMsg: firstLine, date: d, url: item.html_url });
+          dailyMap.set(iso, { count: 0, latestMsg: item.msg, latestRepo: item.repo, date: d, url: item.url, repos: new Set() });
         }
         const entry = dailyMap.get(iso);
         entry.count += 1;
+        if (item.repo) entry.repos.add(item.repo);
 
         if (recentList.length < 5) {
-          recentList.push({
-            sha: (item.sha || '').slice(0, 7),
-            msg: firstLine || 'Commit update',
-            date: d,
-            url: item.html_url || 'https://github.com/datawarsaw/website/commits'
-          });
+          recentList.push(item);
         }
       });
 
@@ -438,25 +498,19 @@
       const totalDays = numWeeks * 7;
       const startDate = new Date(Date.UTC(tY, tM - 1, tD - (totalDays - 1 - (6 - dayIndex))));
 
-      const cellSize = 13;
-      const cellGap = 3.5;
-      const leftPad = 28;
-      const topPad = 20;
-      const svgWidth = leftPad + numWeeks * (cellSize + cellGap);
-      const svgHeight = topPad + 7 * (cellSize + cellGap) + 8;
-
       const svg = createSvg('svg', {
         class: 'matrix-svg',
         viewBox: `0 0 ${svgWidth} ${svgHeight}`,
+        width: String(svgWidth),
         role: 'grid',
-        'aria-label': `Commit activity grid for the last ${numWeeks} weeks`
+        'aria-label': `Commit activity grid across DataWarsaw repositories for the last ${numWeeks} weeks`
       });
 
       const dayLabels = [{ text: 'Mon', row: 0 }, { text: 'Wed', row: 2 }, { text: 'Fri', row: 4 }];
       dayLabels.forEach(({ text, row }) => {
         const y = topPad + row * (cellSize + cellGap) + cellSize * 0.82;
         const textEl = createSvg('text', {
-          x: leftPad - 6,
+          x: leftPad - 5,
           y: y,
           class: 'matrix-day-label'
         });
@@ -464,7 +518,9 @@
         svg.appendChild(textEl);
       });
 
+      const monthLabelDist = Math.max(30, (cellSize + cellGap) * 2.8);
       let lastMonth = -1;
+      let lastMonthX = -100;
       let activeCell = null;
 
       for (let w = 0; w < numWeeks; w++) {
@@ -474,7 +530,10 @@
           const entry = dailyMap.get(iso);
           const count = entry ? entry.count : 0;
           const msg = entry ? entry.latestMsg : '';
+          const repo = entry ? entry.latestRepo : '';
+          const repoList = entry ? Array.from(entry.repos).join(', ') : '';
           const isFuture = current.getTime() > todayUtc.getTime();
+          const colX = leftPad + w * (cellSize + cellGap);
 
           let lvl = 0;
           if (count === 1) lvl = 1;
@@ -483,12 +542,13 @@
 
           if (r === 0) {
             const m = current.getUTCMonth();
-            if (m !== lastMonth && w < numWeeks - 1) {
+            if (m !== lastMonth && (colX - lastMonthX >= monthLabelDist) && ((numWeeks - 1 - w) * (cellSize + cellGap) >= 22)) {
               lastMonth = m;
+              lastMonthX = colX;
               const monthName = new Intl.DateTimeFormat('en-GB', { month: 'short', timeZone: 'Europe/Warsaw' }).format(current);
               const mText = createSvg('text', {
-                x: leftPad + w * (cellSize + cellGap),
-                y: topPad - 7,
+                x: colX,
+                y: topPad - 5,
                 class: 'matrix-month-label'
               });
               mText.textContent = monthName;
@@ -513,8 +573,10 @@
             'data-date': iso,
             'data-date-human': humanDate,
             'data-count': String(count),
+            'data-repos': repoList,
+            'data-repo': repo,
             'data-msg': msg,
-            'aria-label': `${humanDate}: ${count} commit${count === 1 ? '' : 's'}${msg ? ' - ' + msg : ''}`
+            'aria-label': `${humanDate}: ${count} commit${count === 1 ? '' : 's'}${repo ? ` (${repo})` : ''}${msg ? ' - ' + msg : ''}`
           });
 
           cell.addEventListener('pointerenter', () => {
@@ -546,6 +608,10 @@
           a.target = '_blank';
           a.rel = 'noopener noreferrer';
 
+          const repoSpan = document.createElement('span');
+          repoSpan.className = 'ledger-repo';
+          repoSpan.textContent = item.repo || 'repo';
+
           const shaSpan = document.createElement('span');
           shaSpan.className = 'ledger-sha';
           shaSpan.textContent = item.sha;
@@ -556,55 +622,96 @@
 
           const dateSpan = document.createElement('span');
           dateSpan.className = 'ledger-date';
-          dateSpan.textContent = formatWarsawHumanDate(item.date);
+          dateSpan.textContent = formatWarsawHumanDate(new Date(item.date));
 
-          a.append(shaSpan, msgSpan, dateSpan);
+          a.append(repoSpan, shaSpan, msgSpan, dateSpan);
           li.appendChild(a);
           return li;
         }));
       } else {
         if (practiceLedger) practiceLedger.hidden = false;
-        ledgerList.innerHTML = '<li class="ledger-empty">Public repository with active development on GitHub.</li>';
+        ledgerList.innerHTML = '<li class="ledger-empty">Public organisation with active development on GitHub.</li>';
       }
     };
 
     const loadPracticeData = async () => {
-      let repoData = getCached(CACHE_KEY_REPO);
-      let commitsData = getCached(CACHE_KEY_COMMITS);
+      let cachedPayload = getCached(CACHE_KEY_ACTIVITY);
 
-      if (!repoData || !commitsData) {
+      if (!cachedPayload) {
         try {
-          const [repoRes, commitsRes] = await Promise.allSettled([
-            fetchWithTimeout(REPO_URL),
-            fetchWithTimeout(COMMITS_URL)
-          ]);
+          const reposData = await fetchWithTimeout(ORG_REPOS_URL);
+          if (Array.isArray(reposData) && reposData.length > 0) {
+            const publicRepos = reposData.filter(r => !r.fork);
+            const commitResults = await Promise.allSettled(
+              publicRepos.map(repo =>
+                fetchWithTimeout(`https://api.github.com/repos/datawarsaw/${repo.name}/commits?per_page=100`)
+                  .then(commits => ({ repo, commits: Array.isArray(commits) ? commits : [] }))
+                  .catch(() => ({ repo, commits: [] }))
+              )
+            );
 
-          if (repoRes.status === 'fulfilled' && repoRes.value) {
-            repoData = repoRes.value;
-            setCached(CACHE_KEY_REPO, repoData);
-          }
-          if (commitsRes.status === 'fulfilled' && Array.isArray(commitsRes.value)) {
-            commitsData = commitsRes.value;
-            setCached(CACHE_KEY_COMMITS, commitsData);
+            const allCommits = [];
+            commitResults.forEach(res => {
+              if (res.status === 'fulfilled' && res.value) {
+                const { repo, commits } = res.value;
+                commits.forEach(item => {
+                  const dateStr = item.commit?.author?.date || item.commit?.committer?.date;
+                  if (!dateStr) return;
+                  const d = new Date(dateStr);
+                  if (isNaN(d.getTime())) return;
+                  const firstLine = (item.commit?.message || '').split('\n')[0].trim();
+                  allCommits.push({
+                    repo: repo.name,
+                    repoUrl: repo.html_url,
+                    sha: (item.sha || '').slice(0, 7),
+                    msg: firstLine || 'Commit update',
+                    date: d.toISOString(),
+                    url: item.html_url || `${repo.html_url}/commit/${item.sha}`
+                  });
+                });
+              }
+            });
+
+            allCommits.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+            const langs = [...new Set(publicRepos.map(r => r.language).filter(Boolean))];
+            let latestPushIso = null;
+            publicRepos.forEach(r => {
+              if (r.pushed_at) {
+                if (!latestPushIso || new Date(r.pushed_at).getTime() > new Date(latestPushIso).getTime()) {
+                  latestPushIso = r.pushed_at;
+                }
+              }
+            });
+
+            cachedPayload = {
+              repos: publicRepos.map(r => ({ name: r.name, url: r.html_url, language: r.language, pushed_at: r.pushed_at })),
+              commits: allCommits,
+              languages: langs,
+              latestPush: latestPushIso || (allCommits[0] ? allCommits[0].date : null),
+              repoCount: publicRepos.length
+            };
+            setCached(CACHE_KEY_ACTIVITY, cachedPayload);
           }
         } catch (e) {}
       }
 
-      if (repoData && commitsData) {
+      if (cachedPayload && Array.isArray(cachedPayload.commits) && cachedPayload.commits.length > 0) {
         statusEl.classList.remove('is-fallback');
         statusEl.classList.add('is-ready');
-        statusTextEl.textContent = 'Live GitHub activity · datawarsaw/website';
+        statusTextEl.textContent = `Live GitHub activity · ${cachedPayload.repoCount || cachedPayload.repos?.length || '7'} public repos`;
         fallbackNote.hidden = true;
         if (practiceLedger) practiceLedger.hidden = false;
 
-        if (langEl && repoData.language) langEl.textContent = repoData.language;
-        if (branchEl && repoData.default_branch) branchEl.textContent = repoData.default_branch;
-        if (pushedEl && repoData.pushed_at) {
-          const pDate = new Date(repoData.pushed_at);
-          pushedEl.textContent = !isNaN(pDate.getTime()) ? formatWarsawHumanDate(pDate) : 'Active';
+        if (scopeEl) scopeEl.textContent = 'All Public Repos';
+        if (reposEl) reposEl.textContent = `${cachedPayload.repoCount || cachedPayload.repos?.length || '7'} repositories`;
+        if (stackEl && cachedPayload.languages?.length) stackEl.textContent = cachedPayload.languages.slice(0, 3).join(' · ');
+        if (pushedEl && cachedPayload.latestPush) {
+          const pDate = new Date(cachedPayload.latestPush);
+          pushedEl.textContent = !isNaN(pDate.getTime()) ? formatWarsawHumanDate(pDate) : 'Active organisation';
         }
 
-        buildMatrix(commitsData, repoData);
+        buildMatrix(cachedPayload);
       } else {
         statusEl.classList.remove('is-ready');
         statusEl.classList.add('is-fallback');
@@ -612,25 +719,41 @@
         fallbackNote.hidden = false;
         if (practiceLedger) practiceLedger.hidden = true;
 
-        if (langEl) langEl.textContent = 'JavaScript';
-        if (branchEl) branchEl.textContent = 'main';
+        if (scopeEl) scopeEl.textContent = 'All Public Repos';
+        if (reposEl) reposEl.textContent = '7 public repositories';
+        if (stackEl) stackEl.textContent = 'JavaScript · Python';
         if (pushedEl) pushedEl.textContent = 'Public on GitHub';
 
-        buildMatrix([], null);
+        buildMatrix(null);
         renderInspector(null);
       }
     };
 
     let practiceResizeTimer = null;
-    window.addEventListener('resize', () => {
-      if (!currentCommitsData) return;
-      if (practiceResizeTimer) window.clearTimeout(practiceResizeTimer);
-      practiceResizeTimer = window.setTimeout(() => {
-        if (getTargetWeeks() !== currentRenderedWeeks) {
-          buildMatrix(currentCommitsData, currentRepoData);
-        }
-      }, 150);
-    }, { passive: true });
+    const handlePracticeResize = () => {
+      if (!currentPayload) return;
+      const wrapperWidth = matrixContainer.parentElement ? matrixContainer.parentElement.clientWidth : matrixContainer.clientWidth;
+      if (Math.abs(wrapperWidth - lastRenderedWidth) >= 6) {
+        buildMatrix(currentPayload);
+      }
+    };
+
+    if ('ResizeObserver' in window) {
+      const ro = new ResizeObserver(() => {
+        if (practiceResizeTimer) cancelAnimationFrame(practiceResizeTimer);
+        practiceResizeTimer = requestAnimationFrame(handlePracticeResize);
+      });
+      if (matrixContainer.parentElement) {
+        ro.observe(matrixContainer.parentElement);
+      } else {
+        ro.observe(matrixContainer);
+      }
+    } else {
+      window.addEventListener('resize', () => {
+        if (practiceResizeTimer) window.clearTimeout(practiceResizeTimer);
+        practiceResizeTimer = window.setTimeout(handlePracticeResize, 120);
+      }, { passive: true });
+    }
 
     if ('IntersectionObserver' in window) {
       const practiceObserver = new IntersectionObserver(entries => {
@@ -655,27 +778,21 @@
     const chart = pulse.querySelector('[data-pulse-chart]');
     const svg = pulse.querySelector('[data-pulse-svg]');
     const grid = pulse.querySelector('[data-pulse-grid]');
-    const windowHighlight = pulse.querySelector('[data-pulse-window-highlight]');
-    const area = pulse.querySelector('[data-pulse-area]');
-    const line = pulse.querySelector('[data-pulse-line]');
+    const yAxis = pulse.querySelector('[data-pulse-y-axis]');
+    const tempArea = pulse.querySelector('[data-pulse-temp-area]');
     const tempLine = pulse.querySelector('[data-pulse-temp-line]');
     const pointsGroup = pulse.querySelector('[data-pulse-points]');
-    const signalStrip = pulse.querySelector('[data-pulse-signal-strip]');
     const axis = pulse.querySelector('[data-pulse-axis]');
     const cursor = pulse.querySelector('[data-pulse-cursor]');
     const hitArea = pulse.querySelector('[data-pulse-hit]');
     const tooltip = pulse.querySelector('[data-pulse-tooltip]');
     const tooltipTime = pulse.querySelector('[data-tooltip-time]');
-    const tooltipSuitability = pulse.querySelector('[data-tooltip-suitability]');
-    const tooltipDetail = pulse.querySelector('[data-tooltip-detail]');
+    const tooltipTemp = pulse.querySelector('[data-tooltip-temp]');
     const announcement = pulse.querySelector('[data-pulse-announcement]');
     const liveTime = pulse.querySelector('[data-pulse-live-time]');
 
-    const selectedSuitability = pulse.querySelector('[data-pulse-selected-suitability]');
+    const selectedTime = pulse.querySelector('[data-pulse-selected-time]');
     const selectedTemp = pulse.querySelector('[data-pulse-selected-temp]');
-    const selectedRain = pulse.querySelector('[data-pulse-selected-rain]');
-    const selectedWind = pulse.querySelector('[data-pulse-selected-wind]');
-    const selectedAqi = pulse.querySelector('[data-pulse-selected-aqi]');
 
     const dataOutput = pulse.querySelector('[data-pulse-data]');
     const signalOutput = pulse.querySelector('[data-pulse-signal]');
@@ -816,13 +933,6 @@
       }
     };
 
-    const computeHourlySuitability = (rain, aqi, wind) => {
-      const rainPenalty = Math.max(0, rain - 35) / 65;
-      const aqiPenalty = Math.max(0, aqi - 60) / 60;
-      const windPenalty = Math.max(0, wind - 30) / 40;
-      return Math.max(0, Math.min(1, 1 - (rainPenalty + aqiPenalty + windPenalty)));
-    };
-
     const computeDecision = data => {
       const candidates = Array.from({ length: 22 }, (_, index) => {
         const rain = Math.max(...data.rain.slice(index, index + 3));
@@ -865,168 +975,165 @@
       };
     };
 
+    const getChartDimensions = () => {
+      const width = Math.max(300, chart.clientWidth || 800);
+      const isMobile = width < 600;
+      const height = isMobile ? 230 : 260;
+      const margin = {
+        top: 24,
+        right: isMobile ? 16 : 24,
+        bottom: 32,
+        left: isMobile ? 40 : 48
+      };
+      const plotWidth = width - margin.left - margin.right;
+      const plotHeight = height - margin.top - margin.bottom;
+      return { width, height, isMobile, margin, plotWidth, plotHeight };
+    };
+
+    const getTempDomain = temps => {
+      const rawMin = Math.min(...temps);
+      const rawMax = Math.max(...temps);
+      const span = rawMax - rawMin;
+      const paddedSpan = Math.max(7, span + 3);
+      const mid = (rawMax + rawMin) / 2;
+      let domainMin = Math.floor(mid - paddedSpan / 2);
+      let domainMax = Math.ceil(mid + paddedSpan / 2);
+      let domainDiff = domainMax - domainMin;
+      while (domainDiff % 3 !== 0 || domainDiff < 6) {
+        domainMax += 1;
+        domainDiff = domainMax - domainMin;
+      }
+      const step = domainDiff / 3;
+      const yTicks = [domainMin, domainMin + step, domainMin + 2 * step, domainMax];
+      return { domainMin, domainMax, domainDiff, yTicks };
+    };
+
     const renderActivePoint = (index, announce = false) => {
       if (!pulseData) return;
       activeIndex = Math.max(0, Math.min(23, index));
       const time = pulseData.times[activeIndex];
       const temp = pulseData.temperature[activeIndex];
-      const rain = pulseData.rain[activeIndex];
-      const wind = pulseData.wind[activeIndex];
-      const aqi = pulseData.aqi[activeIndex];
-      const suitability = computeHourlySuitability(rain, aqi, wind);
-      const suitabilityPct = Math.round(suitability * 100);
 
-      const point = pointsGroup.querySelector(`[data-pulse-index="${activeIndex}"]`);
-      pulse.querySelectorAll('.pulse-points circle').forEach(item => item.classList.toggle('is-active', item === point));
+      const { width, height, margin, plotWidth, plotHeight } = getChartDimensions();
+      const { domainMin, domainDiff } = getTempDomain(pulseData.temperature);
 
-      const x = 32 + activeIndex * (906 / 23);
-      const y = 195 - suitability * 160;
-      cursor.setAttribute('x1', x);
-      cursor.setAttribute('x2', x);
-      cursor.setAttribute('y1', 18);
-      cursor.setAttribute('y2', 280);
-      cursor.classList.add('is-active');
+      const x = margin.left + (activeIndex / 23) * plotWidth;
+      const y = margin.top + (1 - (temp - domainMin) / domainDiff) * plotHeight;
 
-      pulse.querySelectorAll('.pulse-signal-col').forEach(col => {
-        col.classList.toggle('is-active', col.getAttribute('data-col-index') === String(activeIndex));
+      if (cursor) {
+        cursor.setAttribute('x1', x);
+        cursor.setAttribute('x2', x);
+        cursor.setAttribute('y1', margin.top);
+        cursor.setAttribute('y2', height - margin.bottom);
+        cursor.classList.add('is-active');
+      }
+
+      pulse.querySelectorAll('.pulse-points circle').forEach((item, i) => {
+        const isActive = i === activeIndex;
+        item.classList.toggle('is-active', isActive);
+        item.setAttribute('r', isActive ? '5.5' : '3.5');
       });
 
       const timeText = dataTime(time, true);
-      liveTime.textContent = `${timeText} · Warsaw local time`;
+      if (liveTime) liveTime.textContent = `${timeText} · Warsaw local time`;
+      if (selectedTime) selectedTime.textContent = dataTime(time);
+      if (selectedTemp) selectedTemp.textContent = `${temp.toFixed(1)}°C`;
 
-      selectedSuitability.textContent = `${suitabilityPct}%`;
-      selectedTemp.textContent = `${temp.toFixed(1)}°C`;
-      selectedRain.textContent = `${Math.round(rain)}%`;
-      selectedWind.textContent = `${Math.round(wind)} km/h`;
-      selectedAqi.textContent = `${Math.round(aqi)} AQI`;
+      if (tooltipTime) tooltipTime.textContent = timeText;
+      if (tooltipTemp) tooltipTemp.textContent = `${temp.toFixed(1)}°C`;
 
-      tooltipTime.textContent = timeText;
-      tooltipSuitability.textContent = `Suitability: ${suitabilityPct}%`;
-      tooltipDetail.textContent = `${temp.toFixed(0)}°C · Rain ${Math.round(rain)}% · Wind ${Math.round(wind)} km/h · AQI ${Math.round(aqi)}`;
+      if (tooltip) {
+        const tooltipLeft = (x / width) * svg.clientWidth;
+        const tooltipTop = (y / height) * svg.clientHeight;
+        const halfTip = (tooltip.offsetWidth || 110) / 2;
+        const clampedX = Math.max(halfTip + 8, Math.min(chart.clientWidth - halfTip - 8, tooltipLeft));
+        tooltip.style.left = `${clampedX}px`;
+        tooltip.style.top = `${Math.max(28, tooltipTop)}px`;
+        tooltip.classList.add('is-active');
+      }
 
-      const tooltipLeft = svg.offsetLeft + (x / 960) * svg.clientWidth;
-      const tooltipTop = svg.offsetTop + (y / 340) * svg.clientHeight;
-      tooltip.style.left = `${Math.max(68, Math.min(chart.clientWidth - 68, tooltipLeft))}px`;
-      tooltip.style.top = `${Math.max(50, tooltipTop)}px`;
-      tooltip.classList.add('is-active');
-
-      if (announce) {
-        announcement.textContent = `${timeText}: Suitability ${suitabilityPct}%, Temperature ${temp.toFixed(1)}°C, Rain chance ${Math.round(rain)}%, Wind ${Math.round(wind)} km/h, European AQI ${Math.round(aqi)}`;
+      if (announce && announcement) {
+        announcement.textContent = `${timeText}: Temperature ${temp.toFixed(1)}°C`;
       }
     };
 
     const renderTimeline = (animate = false) => {
       if (!pulseData) return;
       const times = pulseData.times;
-      const suitabilities = times.map((_, i) => computeHourlySuitability(pulseData.rain[i], pulseData.aqi[i], pulseData.wind[i]));
       const temps = pulseData.temperature;
 
-      const minTemp = Math.min(...temps);
-      const maxTemp = Math.max(...temps);
-      const tempSpan = Math.max(1, maxTemp - minTemp);
+      const { width, height, isMobile, margin, plotWidth, plotHeight } = getChartDimensions();
+      const { domainMin, domainDiff, yTicks } = getTempDomain(temps);
 
-      const xFor = index => 32 + index * (906 / 23);
-      const yForSuit = s => 195 - s * 160;
-      const yForTemp = t => 180 - ((t - minTemp) / tempSpan) * 130;
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.style.height = `${height}px`;
 
-      const availableWidth = Math.min(window.innerWidth, chart.clientWidth || window.innerWidth);
-      const tickCount = availableWidth < 400 ? 3 : availableWidth < 700 ? 4 : 6;
-      const tickIndexes = [...new Set(Array.from({ length: tickCount }, (_, index) => Math.round(index * 23 / (tickCount - 1))))];
+      const xFor = index => margin.left + (index / 23) * plotWidth;
+      const yFor = temp => margin.top + (1 - (temp - domainMin) / domainDiff) * plotHeight;
 
-      const suitCoords = suitabilities.map((s, i) => [xFor(i), yForSuit(s)]);
-      const suitPath = suitCoords.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
-      line.setAttribute('d', suitPath);
-      area.setAttribute('d', `${suitPath} L938,195 L32,195 Z`);
-
-      const tempCoords = temps.map((t, i) => [xFor(i), yForTemp(t)]);
+      const tempCoords = temps.map((t, i) => [xFor(i), yFor(t)]);
       const tempPath = tempCoords.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
       tempLine.setAttribute('d', tempPath);
 
-      if (decisionData) {
-        const startX = xFor(decisionData.startIndex);
-        const endX = xFor(decisionData.endIndex);
-        const boxLeft = Math.max(20, startX - 16);
-        const boxWidth = (endX - startX) + 32;
-        windowHighlight.setAttribute('x', boxLeft);
-        windowHighlight.setAttribute('y', 20);
-        windowHighlight.setAttribute('width', boxWidth);
-        windowHighlight.setAttribute('height', 175);
-        windowHighlight.setAttribute('rx', 4);
-      }
+      const bottomY = height - margin.bottom;
+      const areaPath = `${tempPath} L${xFor(23).toFixed(2)},${bottomY.toFixed(2)} L${xFor(0).toFixed(2)},${bottomY.toFixed(2)} Z`;
+      tempArea.setAttribute('d', areaPath);
 
       grid.replaceChildren();
-      [35, 75, 115, 155, 195].forEach(y => {
-        grid.append(createSvgElement('line', { x1: 32, x2: 938, y1: y, y2: y }));
-      });
-      tickIndexes.forEach(index => {
-        grid.append(createSvgElement('line', { x1: xFor(index), x2: xFor(index), y1: 20, y2: 195 }));
-      });
-      grid.append(createSvgElement('line', { x1: 32, x2: 938, y1: 206, y2: 206, stroke: 'rgba(247,246,241,.14)' }));
-
-      pointsGroup.replaceChildren(...suitCoords.map(([x, y], index) => createSvgElement('circle', {
-        cx: x,
-        cy: y,
-        r: 4,
-        'data-pulse-index': index
-      })));
-
-      if (signalStrip) {
-        signalStrip.replaceChildren();
-        const rainLabel = createSvgElement('text', { x: 26, y: 225, class: 'signal-row-label' });
-        rainLabel.textContent = 'Rain';
-        const windLabel = createSvgElement('text', { x: 26, y: 245, class: 'signal-row-label' });
-        windLabel.textContent = 'Wind';
-        const aqiLabel = createSvgElement('text', { x: 26, y: 265, class: 'signal-row-label' });
-        aqiLabel.textContent = 'AQI';
-        signalStrip.append(rainLabel, windLabel, aqiLabel);
-
-        for (let i = 0; i < 24; i++) {
-          const cx = xFor(i);
-          const col = createSvgElement('rect', {
-            class: `pulse-signal-col${i === activeIndex ? ' is-active' : ''}`,
-            x: cx - 17,
-            y: 212,
-            width: 34,
-            height: 60,
-            rx: 2,
-            'data-col-index': String(i)
+      if (yAxis) yAxis.replaceChildren();
+      yTicks.forEach(tVal => {
+        const y = yFor(tVal);
+        grid.append(createSvgElement('line', {
+          x1: margin.left,
+          x2: width - margin.right,
+          y1: y,
+          y2: y
+        }));
+        if (yAxis) {
+          const yText = createSvgElement('text', {
+            x: margin.left - 8,
+            y: y,
+            'text-anchor': 'end',
+            'dominant-baseline': 'central',
+            class: 'pulse-y-label'
           });
-          signalStrip.append(col);
-
-          const rainVal = pulseData.rain[i];
-          const rainW = Math.max(2, (Math.min(100, Math.max(0, rainVal)) / 100) * 28);
-          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 216, width: 28, height: 10, rx: 1.5, class: 'signal-track-bg' }));
-          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 216, width: rainW.toFixed(1), height: 10, rx: 1.5, class: rainVal > 35 ? 'signal-bar-val is-friction' : 'signal-bar-val is-nominal' }));
-
-          const windVal = pulseData.wind[i];
-          const windW = Math.max(2, (Math.min(50, Math.max(0, windVal)) / 50) * 28);
-          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 236, width: 28, height: 10, rx: 1.5, class: 'signal-track-bg' }));
-          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 236, width: windW.toFixed(1), height: 10, rx: 1.5, class: windVal > 30 ? 'signal-bar-val is-friction' : 'signal-bar-val is-nominal' }));
-
-          const aqiVal = pulseData.aqi[i];
-          const aqiW = Math.max(2, (Math.min(100, Math.max(0, aqiVal)) / 100) * 28);
-          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 256, width: 28, height: 10, rx: 1.5, class: 'signal-track-bg' }));
-          signalStrip.append(createSvgElement('rect', { x: cx - 14, y: 256, width: aqiW.toFixed(1), height: 10, rx: 1.5, class: aqiVal > 60 ? 'signal-bar-val is-friction' : 'signal-bar-val is-nominal' }));
+          yText.textContent = `${tVal}°C`;
+          yAxis.append(yText);
         }
-      }
+      });
 
+      const tickIndexes = isMobile ? [0, 6, 12, 18, 23] : [0, 3, 6, 9, 12, 15, 18, 21, 23];
       axis.replaceChildren(...tickIndexes.map(index => {
+        const x = xFor(index);
         const text = createSvgElement('text', {
-          x: xFor(index),
-          y: 296,
+          x,
+          y: height - margin.bottom + 18,
           'text-anchor': index === 0 ? 'start' : index === 23 ? 'end' : 'middle'
         });
         text.textContent = dataTime(pulseData.times[index]);
         return text;
       }));
 
+      pointsGroup.replaceChildren(...tempCoords.map(([x, y], index) => createSvgElement('circle', {
+        cx: x,
+        cy: y,
+        r: index === activeIndex ? 5.5 : 3.5,
+        class: index === activeIndex ? 'is-active' : '',
+        'data-pulse-index': index
+      })));
+
+      hitArea.setAttribute('x', margin.left);
+      hitArea.setAttribute('y', margin.top);
+      hitArea.setAttribute('width', plotWidth);
+      hitArea.setAttribute('height', plotHeight);
+
       renderActivePoint(activeIndex);
 
       if (animate && motionAllowed()) {
-        const length = line.getTotalLength();
-        window.gsap.killTweensOf([line, area, tempLine, ...pointsGroup.children]);
-        window.gsap.fromTo(line, { strokeDasharray: length, strokeDashoffset: length }, { strokeDashoffset: 0, duration: .65, ease: 'power2.out', clearProps: 'strokeDasharray,strokeDashoffset' });
-        window.gsap.fromTo(area, { autoAlpha: 0 }, { autoAlpha: 1, duration: .5, clearProps: 'opacity' });
+        const length = tempLine.getTotalLength();
+        window.gsap.killTweensOf([tempLine, tempArea, ...pointsGroup.children]);
+        window.gsap.fromTo(tempLine, { strokeDasharray: length, strokeDashoffset: length }, { strokeDashoffset: 0, duration: .65, ease: 'power2.out', clearProps: 'strokeDasharray,strokeDashoffset' });
+        window.gsap.fromTo(tempArea, { autoAlpha: 0 }, { autoAlpha: 1, duration: .5, clearProps: 'opacity' });
         window.gsap.fromTo(pointsGroup.children, { autoAlpha: 0, scale: .4, transformOrigin: 'center' }, { autoAlpha: 1, scale: 1, duration: .3, stagger: .012, ease: 'power2.out', clearProps: 'transform,opacity,visibility' });
       }
     };
@@ -1034,29 +1141,28 @@
     const animatePulseEntrance = () => {
       if (!motionAllowed()) return;
       const gridLines = [...grid.querySelectorAll('line')];
+      const yLabels = yAxis ? [...yAxis.querySelectorAll('text')] : [];
+      const xLabels = [...axis.querySelectorAll('text')];
       const points = [...pointsGroup.children];
-      const signalItems = signalStrip ? [...signalStrip.children] : [];
       const stages = [...pulse.querySelectorAll('[data-pulse-stage]')];
-      const length = line.getTotalLength();
+      const length = tempLine.getTotalLength();
 
       window.gsap.set(gridLines, { scaleX: 0, transformOrigin: 'left center' });
+      window.gsap.set([...yLabels, ...xLabels], { autoAlpha: 0 });
       window.gsap.set(points, { autoAlpha: 0, scale: 0, transformOrigin: 'center' });
-      if (signalItems.length) window.gsap.set(signalItems, { autoAlpha: 0, y: 4 });
-      window.gsap.set(line, { strokeDasharray: length, strokeDashoffset: length });
-      window.gsap.set(area, { autoAlpha: 0 });
-      window.gsap.set(windowHighlight, { autoAlpha: 0, scaleY: 0, transformOrigin: 'center bottom' });
+      window.gsap.set(tempLine, { strokeDasharray: length, strokeDashoffset: length });
+      window.gsap.set(tempArea, { autoAlpha: 0 });
       window.gsap.set(stages, { autoAlpha: 0, y: 12 });
 
       entranceTimeline = window.gsap.timeline({ paused: true, defaults: { ease: 'power3.out' }, onStart: () => pulse.classList.add('is-animated') });
       entranceTimeline
         .to(gridLines, { scaleX: 1, duration: .45, stagger: .02, clearProps: 'transform' }, 0)
-        .to(points, { autoAlpha: 1, scale: 1, duration: .3, stagger: .015, clearProps: 'transform,opacity,visibility' }, .15)
-        .to(signalItems, { autoAlpha: 1, y: 0, duration: .35, stagger: .006, clearProps: 'transform,opacity,visibility' }, .18)
-        .to(line, { strokeDashoffset: 0, duration: .85, ease: 'power2.inOut', clearProps: 'strokeDasharray,strokeDashoffset' }, .2)
-        .to(area, { autoAlpha: 1, duration: .45, clearProps: 'opacity' }, .55)
-        .to(windowHighlight, { autoAlpha: 1, scaleY: 1, duration: .55, ease: 'back.out(1.4)', clearProps: 'transform,opacity' }, .65)
-        .to(stages, { autoAlpha: 1, y: 0, duration: .45, stagger: .1, clearProps: 'transform,opacity,visibility' }, .7)
-        .fromTo(pulse.querySelector('.pulse-decision'), { boxShadow: 'inset 0 0 0 0 rgba(11,21,20,0)' }, { boxShadow: 'inset 0 0 0 6px rgba(11,21,20,.13)', duration: .36, yoyo: true, repeat: 1, clearProps: 'boxShadow' }, 1.1);
+        .to([...yLabels, ...xLabels], { autoAlpha: 1, duration: .35, stagger: .015, clearProps: 'opacity,visibility' }, .1)
+        .to(tempLine, { strokeDashoffset: 0, duration: .85, ease: 'power2.inOut', clearProps: 'strokeDasharray,strokeDashoffset' }, .15)
+        .to(tempArea, { autoAlpha: 1, duration: .45, clearProps: 'opacity' }, .5)
+        .to(points, { autoAlpha: 1, scale: 1, duration: .3, stagger: .012, clearProps: 'transform,opacity,visibility' }, .55)
+        .to(stages, { autoAlpha: 1, y: 0, duration: .45, stagger: .1, clearProps: 'transform,opacity,visibility' }, .6)
+        .fromTo(pulse.querySelector('.pulse-decision'), { boxShadow: 'inset 0 0 0 0 rgba(11,21,20,0)' }, { boxShadow: 'inset 0 0 0 6px rgba(11,21,20,.13)', duration: .36, yoyo: true, repeat: 1, clearProps: 'boxShadow' }, 1.0);
 
       window.ScrollTrigger.create({
         id: 'datawarsaw-pulse-narrative',
@@ -1070,8 +1176,10 @@
 
     const pointFromPointer = event => {
       const rect = svg.getBoundingClientRect();
-      const x = ((event.clientX - rect.left) / rect.width) * 960;
-      return Math.round(Math.max(0, Math.min(23, ((x - 32) / 906) * 23)));
+      const { width, margin, plotWidth } = getChartDimensions();
+      const svgX = ((event.clientX - rect.left) / rect.width) * width;
+      const ratio = (svgX - margin.left) / plotWidth;
+      return Math.round(Math.max(0, Math.min(23, ratio * 23)));
     };
 
     hitArea.addEventListener('pointermove', event => renderActivePoint(pointFromPointer(event)));
@@ -1154,7 +1262,12 @@
       window.ScrollTrigger?.getById('datawarsaw-pulse-narrative')?.kill();
       entranceTimeline?.kill();
       window.gsap?.set([
-        ...grid.querySelectorAll('line'), ...pointsGroup.children, line, area, tempLine, windowHighlight,
+        ...grid.querySelectorAll('line'),
+        ...(yAxis ? yAxis.querySelectorAll('text') : []),
+        ...axis.querySelectorAll('text'),
+        ...pointsGroup.children,
+        tempLine,
+        tempArea,
         ...pulse.querySelectorAll('[data-pulse-stage]')
       ], { autoAlpha: 1, scale: 1, y: 0, clearProps: 'transform,opacity,visibility,strokeDasharray,strokeDashoffset' });
     };
@@ -1169,6 +1282,30 @@
       reduceMotionQuery.removeEventListener('change', handlePulseMotionPreference);
     }, { once: true });
   }
+
+  /* 06 AI Workstation - Live Observability Teaser */
+  const teaserModule = document.querySelector('[data-harness-teaser]');
+  if (teaserModule) {
+    const statusText = teaserModule.querySelector('[data-teaser-status-text]');
+    const fetchTeaserState = () => {
+      fetch('data/current-run.json?t=' + Date.now())
+        .then(res => {
+          if (!res.ok) throw new Error('status ' + res.status);
+          return res.json();
+        })
+        .then(data => {
+          if (statusText && data.status) {
+            statusText.textContent = data.status === 'RUNNING' ? 'LIVE · ' + data.status : data.status;
+          }
+        })
+        .catch(() => {
+          if (statusText) statusText.textContent = 'LIVE MISSION CONTROL';
+        });
+    };
+    fetchTeaserState();
+    setInterval(fetchTeaserState, 5000);
+  }
+
   const canvas = document.querySelector('[data-signal-canvas]');
   if (!canvas) {
     window.__heroGraphAnimation = null;

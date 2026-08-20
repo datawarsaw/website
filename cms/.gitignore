@@ -1,0 +1,16 @@
+node_modules
+dist
+.env
+.env.local
+.sanity
+
+*.tsbuildinfo
+
+# One-time CMS migration artifacts
+generate_docs.mjs
+make_scout_payload.py
+verify_scout.py
+remaining_experiments.json
+scout_documents.json
+scout_documents.ndjson
+*.tsbuildinfo

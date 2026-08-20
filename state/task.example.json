@@ -1,0 +1,12 @@
+{
+  "task_id": "DW-000",
+  "goal": "Describe the user-visible outcome.",
+  "status": "planned",
+  "in_scope": [],
+  "out_of_scope": [],
+  "acceptance_criteria": [],
+  "constraints": [],
+  "relevant_paths": [],
+  "assigned_role": "worker",
+  "retry_budget": 2
+}

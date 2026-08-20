@@ -6,92 +6,140 @@ This document describes the software architecture, rendering pipelines, runtime 
 
 ## 1. High-Level Architecture Overview
 
-Data Warsaw is architected as a high-performance, single-page vanilla web application with zero runtime framework dependencies (no React, Vue, or build-step bundler). 
+Data Warsaw is architected as a high-performance, single-page and multi-route vanilla web application with zero runtime framework dependencies (no React, Vue, or build-step bundler).
 
-The application is structured into four core layers:
-1. **Semantic DOM Layer (`index.html`):** Structured accessible markup with aria roles, metadata, and progressive enhancement anchors.
-2. **Design System & Layout Engine (`styles.css`):** CSS custom properties, grid/flex layouts, CSS 3D stage perspectives, and media-query breakpoints.
-3. **Motion & Interaction Orchestrator (`script.js` + GSAP):** Timeline sequencing, scroll triggers, active state toggling, and user interaction management.
-4. **Rendering Engines (`script.js` Canvas 2D / SVG):** Projective 3D analytical hero graph renderer and responsive time-series weather chart renderer.
+The application is structured into core layers:
+1. **Semantic DOM Layer (`site/index.html`, `site/observability/index.html`, `site/experiments/index.html`, `site/experiments/scout/index.html`):** Structured accessible markup with aria roles, metadata, and progressive enhancement anchors.
+2. **Design System & Layout Engine (`site/styles.css`, `site/observability/styles.css`, `site/experiments/styles.css`):** CSS custom properties, grid/flex layouts, responsive stages, and media-query breakpoints.
+3. **Motion & Interaction Orchestrator (`site/script.js` + GSAP):** Timeline sequencing, scroll triggers, active state toggling, and user interaction management.
+4. **Rendering Engines (`site/script.js` Canvas 2D / SVG):** Projective 3D analytical hero graph renderer and responsive time-series weather chart renderer.
+5. **Observability & Telemetry Pipeline (`state/current-run.json` → `site/data/current-run.json` → `site/observability/`):** Real-time execution flow graph and live agent lifecycle streaming.
+6. **Data-Driven AI Experiments Layer (`site/experiments/experiments.json` → `site/experiments/`):** Declarative metadata registry powering modular case studies and prototype listings.
+
+These public website files live only under `site/`. That directory is the deployment source for the server's `/public_html/`; harness, docs, and other repository files stay outside it.
 
 ---
 
-## 2. Major Page Sections & Components
+## 2. Site Structure & Routes
+
+| Route | Source Directory | Primary Technology | Key Responsibilities |
+| :--- | :--- | :--- | :--- |
+| `/` | `site/index.html` | HTML5, CSS3, GSAP, Canvas 2D | Main homepage showcasing editorial profile, analytical expertise radar, process narrative, open-source commit matrix, and 24h Warsaw weather pulse. |
+| `/observability/` | `site/observability/` | HTML5, CSS3, Polling, SVG Flow Graph | Live Agent Observability console streaming multi-agent execution trees, active model state, and chronological event logs. |
+| `/experiments/` | `site/experiments/` | HTML5, CSS3, JSON Registry | AI Experiments gallery indexing deployed agents, orchestration harnesses, and analytical tools with category filtering. |
+| `/experiments/scout/` | `site/experiments/scout/` | HTML5, CSS3, Responsive Diagram | Case study for the Scout autonomous X bookmark ingestion and evaluation pipeline running on Cloudflare Workers & GLM-4.7-Flash. |
+
+---
+
+## 3. Major Page Sections & Components
 
 | Section | Target Element ID | Rendering & Technology | Key Responsibilities |
 | :--- | :--- | :--- | :--- |
-| **Hero** | `#top` (`.hero`) | HTML5 Canvas 2D + GSAP | Renders the projective 3-layer analytical scatter plot, trajectory curve, and decision node with damped pointer parallax. |
-| **About** | `#about` (`.about`) | Semantic HTML + CSS | Communicates background, analytical philosophy, and business positioning. |
-| **Experience Map** | `#experience` (`.experience`) | SVG Radar + Interactive DOM | Interactive multidimensional map connecting business questions with analytical solutions across 8 core axes. |
-| **Approach & Process** | `#approach` (`.approach`) | CSS Timeline + State Manager | Four-step narrative flow (01 Understand, 02 Explore, 03 Explain, 04 Decide) with interactive question toggling. |
-| **Work in Practice** | `#practice` (`.practice`) | SVG Matrix + GitHub REST API | Public working artifact showcase with unauthenticated commit matrix, real-time repository metadata, and commit ledger. |
-| **Warsaw Data Pulse** | `#pulse` (`.pulse`) | SVG Timeline + Open-Meteo API | 24-hour analytical Decision Timeline plotting continuous temperature, precipitation, wind, AQI, and derived hourly outdoor suitability. |
-| **Contact** | `#contact` (`.contact`) | Accessible Form + Status Indicator | Direct reach-out channel with project availability status. |
+| **Hero** | `#top` (`.hero`) | HTML5 Canvas 2D + GSAP | Renders the projective 3-layer analytical scatter plot with interactive cursor tilt and lime decision trajectory. |
+| **About** | `#about` (`.about`) | Semantic CSS Grid | Editorial lockup, typography contrast, professional positioning, and verified external profiles. |
+| **Experience Map** | `#experience` (`.experience`) | Inline SVG Radar + HTML Buttons | Calibrated 8-axis proficiency radar on a 1–10 scale with interactive hover/selection previews. |
+| **Process** | `#approach` (`.approach`) | Responsive 4-Step Track | Sequential narrative (01 Understand → 02 Explore → 03 Explain → 04 Decide) with contextual business question toggle. |
+| **Work in Practice** | `#practice` (`.practice`) | GitHub API Client + CSS Grid | Public DataWarsaw commit heatmap, daily activity inspector, and recent repository commit ledger. |
+| **Data Pulse** | `#pulse` (`.pulse`) | Open-Meteo API + Inline SVG Chart | 24-hour temperature profile with interactive cursor scrubbing, European AQI / rain / wind gates, and outdoor window recommendation. |
+| **Contact** | `#contact` (`.contact`) | Semantic Form / Lockup | High-contrast lime call-to-action with direct email and verified organization channels. |
 
 ---
 
-## 3. Visualization Engines
+## 4. Visualization Engines
 
-### 3.1 Hero Graph (Projective Canvas 2D)
+### 4.1 Hero Graph (Projective Canvas 2D)
 The hero graph visualizes the journey from data complexity to clear decision making:
-- **Geometry & Spatial Depth:**
-  - 38 scattered signal points distributed across three discrete depth planes ($z \in [-56, -32]$, $z \in [-12, +12]$, $z \in [+28, +52]$).
-  - An elevated central Decision Node positioned at $z = +45$.
-  - A cubic Bézier curve projecting from background noise through to the decision focal point.
-- **Camera & Perspective Transformation:**
-  - Uses an analytical 3D-to-2D perspective projection model ($x' = x \cdot s + x_0$, $y' = y \cdot s + y_0$, where scale factor $s = d / (d - z)$).
-  - Damped yaw/pitch rotation and viewport-normalized camera offset driven by pointer movement with exponential smoothing ($k = 0.055$).
-- **Visual Depth Cues:**
-  - Layer-dependent point alphas, scale, and connection line weights.
-  - Decision node rendering with floor occlusion shadow, lime radiance glow, outer telemetry orbits, and specular core bead.
+- Three depth planes of scattered signal points and an elevated central decision node.
+- A cubic Bézier trajectory projects from background noise through to the decision focal point.
+- Damped yaw/pitch rotation and viewport-normalized pointer parallax provide restrained interaction.
+- Reduced-motion mode renders a complete static state and disables continuous animation.
 
-### 3.2 Work in Practice Matrix Engine
-Visualizes repository commit activity:
-- **Data Model:** Direct public commit history on `datawarsaw/website` grouped by calendar date.
-- **Geometry:** 7-row by 16-week grid rendered via dynamic SVG with discrete intensity levels (0, 1, 2, 3+ commits/day) in dark graphite and acid-lime.
-- **Interactivity:** Pointer hover, click, and keyboard focus update the live Inspector panel with date, commit count, and commit message.
+### 4.2 Work in Practice Matrix Engine
+The practice section groups public repository commits by calendar date in a responsive SVG matrix. Hover, click, and keyboard focus update the inspector with date, commit count, and message; rate limits and offline states use deterministic fallback content.
 
-### 3.3 Warsaw Data Pulse (Decision Timeline Engine)
-Visualizes atmospheric conditions and derived suitability:
-- **Data Model:** 24-hour continuous temperature (°C), precipitation probability (%), wind speed (km/h), and European AQI series.
-- **Derived Suitability Formula:** Deterministic outdoor score: `clamp(1 - (max(0, rain-35)/65 + max(0, aqi-60)/60 + max(0, wind-30)/40), 0, 1)`.
-- **Best Window Highlight:** Evaluates all 3-consecutive-hour windows (06:00–19:00 daytime) and bounds the optimal window with an animated acid-lime frame.
-- **Interaction:** Scrub tracker calculates active hour index, updates live metric pills, and positions the floating precision tooltip.
+### 4.3 Warsaw Data Pulse
+The weather section renders a 24-hour temperature timeline and derives outdoor suitability from rain, wind, and AQI signals. Forecast timestamps come directly from the returned series, while malformed or unavailable responses use the established fallback dataset.
 
 ---
 
-## 4. External API Integration & Resiliency
+## 5. External API Integration & Resiliency
 
-### Open-Meteo API
-- **Endpoint:** `https://api.open-meteo.com/v1/forecast?latitude=52.2297&longitude=21.0122&hourly=temperature_2m,precipitation&timezone=Europe%2FWarsaw`
-- **Lifecycle & Fallback:**
-  1. Asynchronous fetch executed on page initialization.
-  2. Data parser extracts hourly arrays and derives relative timestamps.
-  3. If network fails, API returns non-200, or payload is malformed, the engine seamlessly activates a built-in deterministic baseline fallback dataset.
-  4. Status indicator reflects live state (`.is-ready`) or fallback state (`.is-fallback`).
-
-### GitHub REST API (Public & Unauthenticated)
-- **Endpoints:**
-  - `https://api.github.com/repos/datawarsaw/website`
-  - `https://api.github.com/repos/datawarsaw/website/commits?per_page=100`
-- **Lifecycle & Cache:**
-  1. Session-cached in `sessionStorage` (10 min TTL) to avoid unauthenticated IP rate limiting (60 req/hr).
-  2. Extracts branch, language, push timestamp, and commit date arrays.
-  3. If rate-limited or offline, gracefully reveals technical facts and static fallback state with zero layout shift or crash.
+- **Open-Meteo:** Forecast data is fetched asynchronously for Warsaw, parsed into the chart's hourly series, and replaced by a deterministic fallback when the request fails or the payload is malformed.
+- **GitHub REST API:** Public repository activity is cached in session storage to reduce unauthenticated rate-limit pressure; the UI preserves useful static facts when the API is unavailable.
+- **Observability telemetry:** The live console reads the sanitized `site/data/current-run.json` export and remains usable when the file is stale or temporarily unavailable.
 
 ---
 
-## 5. Runtime Lifecycle & Performance Strategy
+## 6. Runtime Lifecycle & Performance Strategy
 
-1. **IntersectionObserver Management:**
-   - Both the Hero Canvas and the Weather Pulse canvas are attached to `IntersectionObserver` instances.
-   - When a component scrolls out of the visible viewport, its `requestAnimationFrame` loop and internal timers are paused.
-2. **Page Visibility API:**
-   - Listens for `visibilitychange` events on `document` to halt CPU rendering when the user switches tabs or minimizes the window.
-3. **Zero Per-Frame Allocations:**
-   - Point buffers, projected coordinate structures, and vector arrays are pre-allocated during initialization and window resize events, preventing GC pauses during animation.
-4. **Device Pixel Ratio (DPR) Capping:**
-   - Canvas resolution uses `Math.min(window.devicePixelRatio || 1, 2)` to prevent memory blowup and fill-rate throttling on ultra-high-DPI mobile screens.
-5. **Reduced Motion Compliance:**
-   - Detects `window.matchMedia('(prefers-reduced-motion: reduce)')`.
-   - Halts continuous animation loops, renders static representations of all graphs, and sets CSS transitions to zero duration.
+1. Intersection observers pause canvas and chart work when components leave the viewport.
+2. The Page Visibility API halts rendering while the tab is hidden.
+3. Canvas buffers are reused and device pixel ratio is capped at two to avoid unnecessary mobile memory pressure.
+4. `prefers-reduced-motion` disables continuous loops and collapses transitions.
+5. The experiments gallery uses a local JSON registry and a small progressive-enhancement script; each detail page remains a static route with no private runtime dependency.
+
+---
+
+## 7. Infrastructure Escalation Policy & Hosting Progression
+
+The public site remains deployable as static HTML, CSS, JavaScript, JSON, and assets under `site/`. Use the simplest tier that fits the milestone:
+
+- **Tier 1 — Static hosting:** Portfolio pages, public data files, client-side polling, and file-driven observability.
+- **Tier 2 — Edge serverless and agents:** Lightweight APIs, scheduled agent work, webhooks, and stateful edge execution. Scout uses this tier independently of the local workstation.
+- **Tier 3 — VPS / containers:** Long-running services, WebSockets, relational or vector databases, MCP servers, or workloads unsuitable for serverless execution.
+
+Choose a higher tier only when product requirements justify its operational cost and maintenance burden. Secrets and private environment variables stay outside the public `site/` tree.
+
+---
+
+## 8. Headless CMS & Structured Content Architecture (`cms/`)
+
+DataWarsaw separates application presentation from structured content using a headless CMS pattern:
+
+```text
+AI Agent / Editor (Sanity Studio / MCP)
+      │
+      ▼
+Sanity Content Lake (oxemv355 / production)
+      │ (Build-time Sync: scripts/sync_sanity_experiments.mjs)
+      ▼
+Static Snapshot (site/data/sanity-experiments.json)
+      │ (Client fetch with /experiments/experiments.json fallback)
+      ▼
+DataWarsaw Frontend (/experiments/)
+```
+
+### Content Model & Schemas (`cms/schemaTypes/`)
+1. **Document Types:**
+   - `experiment`: Case study and prototype definitions (title, slug, number, subtitle, summary, narrative body via Portable Text, classification, lifecycle status, metrics, links, hero diagram, screenshots, and SEO).
+   - `technology`: Relational stack library (name, slug, category, official URL, icon).
+   - `tag`: Shared taxonomy tags (name, slug, description).
+2. **Reusable Object Types:**
+   - `seo`: Meta title, description, canonical URL, social share image, and `noIndex` toggle.
+   - `metric`: Quantitative performance dimensions (label, value, unit, description, accent highlight).
+   - `link`: Resource URLs with strict category classifications (repository, live demo, docs, research, external).
+   - `blockContent`: Restrained Portable Text supporting paragraphs, headings (H2–H4), lists, quotes, inline code, callout boxes, code snippets, and diagrams with mandatory alt text.
+
+### Operational & Backup Policy
+- **Backup / Portability:** `npx sanity dataset export production export.ndjson --assets` creates full offline snapshots of documents and assets.
+- **Resilience:** The browser first fetches the static build-time snapshot at `site/data/sanity-experiments.json` and falls back to `site/experiments/experiments.json` only if that local snapshot request fails, cannot be parsed, or has an invalid schema. An authoritative empty array `[]` is valid and does not trigger fallback.
+
+### Automated Deployment Pipeline (Accepted, Pending Manual Wiring)
+The accepted production deployment pipeline is:
+
+```text
+Sanity Content Lake (Publish / Update / Unpublish)
+      │
+      ▼ (Outgoing Sanity Webhook: coalesce(after()._type, before()._type) in ["experiment","technology","tag"])
+Cloudflare Pages Deploy Hook (sanity-content)
+      │
+      ▼ (Build Command: node scripts/sync_sanity_experiments.mjs)
+Deterministic Snapshot (site/data/sanity-experiments.json)
+      │
+      ▼ (Static Edge Output: site/)
+Public Website (datawarsaw.com)
+```
+
+1. **Trigger Scope:** The content filter covers `experiment`, `technology`, and `tag` lifecycle events (`coalesce(after()._type, before()._type) in ["experiment","technology","tag"]`). Drafts and Versions/Releases remain disabled in the Sanity webhook settings, so draft-only edits do not trigger deploys.
+2. **Build Verification:** Build fails with exit code 1 if Sanity sync fails, preserving the live production release.
+3. **Secret Isolation:** The Cloudflare Pages Deploy Hook URL is stored strictly in the Sanity webhook settings and never committed to repository source code.

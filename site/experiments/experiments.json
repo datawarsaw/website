@@ -1,0 +1,100 @@
+[
+  {
+    "id": "scout",
+    "slug": "scout",
+    "number": "01",
+    "title": "Scout — Autonomous Intelligence for X Bookmarks",
+    "subtitle": "X API → Cloudflare Agent → GLM-4.7-Flash → Notion Knowledge Inbox",
+    "summary": "An autonomous edge agent that continuously evaluates, deduplicates, and scores bookmarked technical signals on X, separating evidence from hype before routing structured insights into Notion.",
+    "status": "Production MVP",
+    "statusType": "production",
+    "date": "August 2026",
+    "category": "Edge Agent",
+    "featured": true,
+    "tags": [
+      "Cloudflare Agents",
+      "Workers AI",
+      "Durable Objects",
+      "Notion API",
+      "OAuth 2.0"
+    ],
+    "technologies": [
+      "Cloudflare Workers",
+      "Agents SDK",
+      "SQLite / DO",
+      "@cf/zai-org/glm-4.7-flash",
+      "Notion API"
+    ],
+    "url": "/experiments/scout/",
+    "metrics": {
+      "frequency": "Every 5 min",
+      "runtime": "Cloudflare Global Edge",
+      "model": "GLM-4.7-Flash",
+      "storage": "Durable Objects / SQLite"
+    }
+  },
+  {
+    "id": "antigravity-harness",
+    "slug": "antigravity-harness",
+    "number": "02",
+    "title": "Antigravity Multi-Agent Orchestration & Telemetry",
+    "subtitle": "Coordinator → Parallel Scouts → JOIN → Worker → Verification",
+    "summary": "Multi-agent engineering workstation with real-time lifecycle telemetry, deterministic verification loops, and live mission control observability.",
+    "status": "Active V1.3",
+    "statusType": "active",
+    "date": "August 2026",
+    "category": "Orchestration",
+    "featured": false,
+    "tags": [
+      "Multi-Agent",
+      "Telemetry",
+      "Deterministic Verification",
+      "Observability"
+    ],
+    "technologies": [
+      "Python",
+      "Antigravity Runtime",
+      "SFTP Telemetry",
+      "Vanilla Web"
+    ],
+    "url": "/observability/",
+    "metrics": {
+      "frequency": "Real-Time Event Stream",
+      "runtime": "Local Workstation + Remote Sync",
+      "model": "Gemini 3.7 Flash High / Multi-Model",
+      "storage": "File-Locked Telemetry JSON"
+    }
+  },
+  {
+    "id": "semantic-assistant",
+    "slug": "semantic-assistant",
+    "number": "03",
+    "title": "Power BI + AI Semantic Analyst",
+    "subtitle": "DAX Query Engine → Automated Commentary & Metric Anomaly Detection",
+    "summary": "Automated analytical commentary and DAX optimization pipelines integrating LLM semantic models directly with enterprise Power BI datasets.",
+    "status": "In Design",
+    "statusType": "lab",
+    "date": "Roadmap 2026",
+    "category": "Data Analytics",
+    "featured": false,
+    "tags": [
+      "Power BI",
+      "DAX",
+      "Semantic Modeling",
+      "Automated Commentary"
+    ],
+    "technologies": [
+      "Power BI",
+      "Tabular Model",
+      "Python",
+      "OpenAI / Claude API"
+    ],
+    "url": "#",
+    "metrics": {
+      "frequency": "Scheduled Batch / On-Demand",
+      "runtime": "Cloud / Hybrid",
+      "model": "Specialist Analytical LLM",
+      "storage": "Tabular Semantic Model"
+    }
+  }
+]

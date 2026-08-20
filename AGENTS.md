@@ -87,6 +87,76 @@ Always validate responsive behavior across:
 - **Inspect Diffs:** Check recent diffs and git status when troubleshooting or iterating.
 - **Scope Isolation:** Never modify unrelated sections or rewrite shared styles without necessity.
 
+### Mandatory Repository Preflight
+
+Before any agent edits files, it must establish the real repository state instead of assuming the local checkout is current.
+
+1. Inspect the current branch and working tree.
+2. Fetch remote refs from `origin`.
+3. Confirm the intended branch exists locally or on `origin`.
+4. Switch to the intended branch; if it exists only remotely, create a local tracking branch from that remote branch.
+5. Verify the local branch is tracking the expected remote branch and inspect recent commits.
+6. Verify the working tree is clean, or explicitly preserve and report any pre-existing dirty state before proceeding.
+7. Never create a same-named branch from stale local `main` when `origin/<branch>` already exists.
+8. Never modify `main` unless the task explicitly requires it and the user has approved that scope.
+
+Recommended baseline sequence when remote access is available:
+
+```bash
+git status --short --branch
+git fetch origin
+git branch -a
+git log --oneline --decorate --all -15
+```
+
+Then switch to the intended existing branch and verify:
+
+```bash
+git status --short --branch
+git log --oneline --decorate -10
+```
+
+If the remote cannot be reached, stop and report that repository freshness could not be verified rather than silently assuming local state is authoritative.
+
+### Task Startup & Project Memory
+
+At the beginning of meaningful repository tasks, the Coordinator/agent must establish current context by reading:
+1. `AGENTS.md` (repository constitution & operational rules)
+2. `docs/agent-harness-v1.md` (harness architecture & orchestration rules)
+3. `state/project-state.md` (concise current checkpoint & active constraints)
+
+Consult `state/backlog.md` when the task concerns priorities, roadmap, next work, planning, or project continuation. Do not force reading `backlog.md` for trivial CSS or text changes where it is irrelevant.
+
+### Worker Debug / Retry Budget
+
+Workers must not enter open-ended debugging loops.
+
+For infrastructure, deployment, environment, authentication, networking, or tooling failures:
+
+* Try at most **2 materially different approaches**.
+* Spend at most about **3 minutes** on infrastructure-level debugging unless the Coordinator explicitly authorizes more.
+* Do not keep retrying small variations of the same failing approach.
+* Do not build custom protocol clients or large workarounds unless the task explicitly requires it.
+* If the issue remains unresolved after the retry budget is exhausted:
+
+  1. STOP,
+  2. preserve the current state,
+  3. do not make risky or unrelated changes,
+  4. return `STATUS: BLOCKED`,
+  5. report the exact failure point,
+  6. summarize evidence already collected,
+  7. recommend the simplest next escalation or alternative.
+
+The Coordinator may then decide whether to:
+
+* retry with a different tool,
+* assign a higher-effort/model Worker,
+* ask the user for missing information,
+* or change the implementation approach.
+
+Long execution time is not itself a reason to increase reasoning effort.
+First identify whether the delay comes from tooling, retries, network latency, excessive exploration, or genuine task complexity.
+
 ---
 
 ## 5. Testing & Verification Checklist
@@ -114,10 +184,12 @@ When completing tasks, return a concise structured summary containing:
 
 ## Durable Project Memory
 
-After completing work that creates durable project knowledge, update the relevant documentation file only when necessary.
+After completing work that creates durable project knowledge, update the relevant documentation or state file only when necessary.
 
 Use:
 
+- current project state / active constraints -> state/project-state.md
+- prioritized future work / backlog triage -> state/backlog.md
 - architectural decision -> docs/decisions.md
 - confirmed failure or root cause -> docs/failures-and-lessons.md
 - architecture change -> docs/architecture.md
@@ -125,7 +197,10 @@ Use:
 - data-source change -> docs/data-sources.md
 - completed or planned milestone -> docs/roadmap.md
 
+### State Update Rules
+- Update `state/project-state.md` only when meaningful project state changes (harness architecture, branch/deployment strategy, major component stability, runtime/model behavior, strategic direction). Do not update for routine commits, small CSS tweaks, or typo fixes.
+- Update `state/backlog.md` when a new idea is accepted, priorities shift, an item becomes active, is completed, or is dropped.
 - Do not update documentation for trivial edits.
 - Do not save conversation transcripts, temporary debugging chatter, speculative guesses, credentials, passwords, API keys, tokens.
 - Keep documentation concise.
-- The repository should act as durable project memory for future agents and sessions.
+- The repository and its state files act as durable project memory for future agents and sessions. Git history remains the historical record of changes.

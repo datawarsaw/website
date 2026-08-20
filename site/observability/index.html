@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataWarsaw · AI Workstation Live Observability</title>
+  <meta name="description" content="Live Mission Control for DataWarsaw AI Workstation multi-agent orchestration harness. Real-time telemetry, execution flow graph, and event stream.">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="styles.css">
+  <meta name="theme-color" content="#0b0c0e">
+</head>
+<body class="obs-body">
+  <header class="obs-header">
+    <div class="obs-container obs-header-inner">
+      <div class="obs-brand-wrap">
+        <a href="/" class="obs-brand-link">
+          <span class="obs-brand-dot"></span>
+          <span class="obs-brand-name">DataWarsaw</span>
+        </a>
+        <span class="obs-badge-harness">AI WORKSTATION · LIVE MISSION CONTROL</span>
+      </div>
+
+      <div class="obs-header-controls">
+        <div class="obs-status-pill is-running" data-global-status-pill>
+          <span class="obs-status-dot"></span>
+          <span data-global-status-text>INITIALIZING</span>
+        </div>
+        <a href="/" class="obs-back-btn">
+          <span aria-hidden="true">←</span>
+          <span>Homepage</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="obs-main">
+    <div class="obs-container">
+      <!-- Live Run Metadata Header -->
+      <section class="obs-run-header" aria-labelledby="obs-run-title">
+        <div class="obs-run-meta-grid">
+          <div class="obs-meta-card">
+            <span class="obs-meta-label">Current Task</span>
+            <strong class="obs-meta-val" id="obs-run-title" data-run-task>Connecting to runtime telemetry...</strong>
+          </div>
+          <div class="obs-meta-card">
+            <span class="obs-meta-label">Run Status</span>
+            <div class="obs-meta-status-wrap">
+              <span class="obs-meta-status-badge" data-run-status-badge>STANDBY</span>
+            </div>
+          </div>
+          <div class="obs-meta-card">
+            <span class="obs-meta-label">Elapsed Time</span>
+            <strong class="obs-meta-val is-mono" data-run-elapsed>00:00:00</strong>
+          </div>
+          <div class="obs-meta-card">
+            <span class="obs-meta-label">Branch &amp; Harness</span>
+            <strong class="obs-meta-val is-mono" data-run-harness-info>agent-harness-v1 · Antigravity V1.1</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Offline / Error Notice (shown only when telemetry fetch fails) -->
+      <div class="obs-alert-box is-hidden" data-obs-alert role="alert">
+        <span class="alert-icon">⚠</span>
+        <div class="alert-content">
+          <strong>Telemetry Link Offline</strong>
+          <p>Could not fetch <code>/data/current-run.json</code>. Retrying in background...</p>
+        </div>
+      </div>
+
+      <!-- Main Live Dashboard Grid -->
+      <div class="obs-dashboard-grid">
+        <!-- Left Stage: Execution Flow Graph -->
+        <section class="obs-flow-stage" aria-labelledby="flow-stage-title">
+          <div class="obs-stage-topbar">
+            <div>
+              <h2 id="flow-stage-title" class="obs-stage-heading">Orchestration Execution Flow</h2>
+              <p class="obs-stage-sub">Antigravity multi-agent lifecycle progression across Coordinator, parallel Scouts, JOIN, Worker, and Verification.</p>
+            </div>
+            <span class="obs-poll-indicator" title="Telemetry polled every 1000ms">
+              <span class="poll-pulse"></span>
+              LIVE SYNC
+            </span>
+          </div>
+
+          <div class="obs-flow-container" data-flow-container role="region" aria-label="Execution Flow Tree" tabindex="0">
+            <!-- Dynamically generated flow nodes & connectors -->
+            <div class="obs-loading-state">
+              <span class="obs-spinner"></span>
+              <span>Loading live execution tree...</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Stage: Current Activity & Event Stream -->
+        <aside class="obs-sidebar">
+          <!-- Current Live Activity Card -->
+          <div class="obs-panel obs-panel-activity" aria-labelledby="activity-heading">
+            <div class="obs-panel-header">
+              <h3 id="activity-heading">Current Agent Activity</h3>
+              <span class="obs-activity-indicator" data-activity-indicator>ACTIVE</span>
+            </div>
+
+            <div class="obs-activity-body" data-activity-body>
+              <div class="obs-activity-role-row">
+                <span class="obs-role-pill" data-act-role>Worker</span>
+                <span class="obs-model-pill" data-act-model>gemini-3.7-flash-high</span>
+              </div>
+              <p class="obs-activity-desc" data-act-desc>Listening for active runtime execution...</p>
+              
+              <div class="obs-activity-meta-strip">
+                <div>
+                  <span>Step Started</span>
+                  <strong class="is-mono" data-act-started>&mdash;</strong>
+                </div>
+                <div>
+                  <span>Step Elapsed</span>
+                  <strong class="is-mono" data-act-elapsed>&mdash;</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chronological Event Stream -->
+          <div class="obs-panel obs-panel-events" aria-labelledby="events-heading">
+            <div class="obs-panel-header">
+              <h3 id="events-heading">Lifecycle Event Stream</h3>
+              <span class="obs-event-count" data-event-count>0 events</span>
+            </div>
+
+            <div class="obs-events-body" tabindex="0" role="region" aria-label="Chronological Event Stream">
+              <ul class="obs-event-list" data-event-list>
+                <!-- Populated dynamically -->
+                <li class="event-empty">No events recorded yet.</li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Inspector Modal / Drawer for Node Details -->
+      <div class="obs-node-inspector is-hidden" data-node-inspector aria-modal="true" role="dialog" aria-labelledby="inspector-title">
+        <div class="inspector-backdrop" data-inspector-close></div>
+        <div class="inspector-card">
+          <div class="inspector-top">
+            <div>
+              <span class="inspector-tag" data-ins-role>AGENT ROLE</span>
+              <h3 id="inspector-title" data-ins-title>Step Details</h3>
+            </div>
+            <button type="button" class="inspector-close-btn" data-inspector-close aria-label="Close details">✕</button>
+          </div>
+          <div class="inspector-body">
+            <div class="inspector-grid">
+              <div><span>Model:</span> <strong data-ins-model>&mdash;</strong></div>
+              <div><span>Status:</span> <strong data-ins-status>&mdash;</strong></div>
+              <div><span>Duration:</span> <strong data-ins-duration>&mdash;</strong></div>
+            </div>
+            <div class="inspector-desc-wrap">
+              <span>Activity / Summary:</span>
+              <p data-ins-summary>&mdash;</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer & Privacy Disclosures -->
+      <footer class="obs-footer">
+        <div class="obs-footer-content">
+          <p><strong>Architecture &amp; Integrity:</strong> Real-time telemetry is published by the Coordinator according to contracts in <a href="https://github.com/datawarsaw/website/blob/agent-harness-v1/docs/agent-harness-v1.md" target="_blank" rel="noopener noreferrer">docs/agent-harness-v1.md &nearr;</a> and <a href="https://github.com/datawarsaw/website/blob/agent-harness-v1/AGENTS.md" target="_blank" rel="noopener noreferrer">AGENTS.md &nearr;</a>.</p>
+          <p><strong>Privacy Boundary:</strong> Public telemetry is sanitized to exclude credentials, internal prompts, or private filesystem paths.</p>
+        </div>
+      </footer>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
