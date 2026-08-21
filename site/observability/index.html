@@ -3,12 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0c0e">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Michał Domaradzki">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://datawarsaw.com/observability/">
+  <meta property="og:title" content="DataWarsaw · AI Workstation Live Observability">
+  <meta property="og:description" content="Live Mission Control for DataWarsaw AI Workstation multi-agent orchestration harness. Real-time telemetry, execution flow graph, and event stream.">
+  <meta property="og:site_name" content="DataWarsaw">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="DataWarsaw · AI Workstation Live Observability">
+  <meta name="twitter:description" content="Live Mission Control for DataWarsaw AI Workstation multi-agent orchestration harness. Real-time telemetry, execution flow graph, and event stream.">
   <title>DataWarsaw · AI Workstation Live Observability</title>
   <meta name="description" content="Live Mission Control for DataWarsaw AI Workstation multi-agent orchestration harness. Real-time telemetry, execution flow graph, and event stream.">
+  <link rel="canonical" href="https://datawarsaw.com/observability/">
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
   <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="styles.css">
-  <meta name="theme-color" content="#0b0c0e">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "DataWarsaw · AI Workstation Live Observability",
+    "description": "Live Mission Control for DataWarsaw AI Workstation multi-agent orchestration harness. Real-time telemetry, execution flow graph, and event stream.",
+    "url": "https://datawarsaw.com/observability/",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "DataWarsaw",
+      "url": "https://datawarsaw.com/"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Michał Domaradzki",
+      "url": "https://datawarsaw.com/"
+    }
+  }
+  </script>
 </head>
 <body class="obs-body">
   <header class="obs-header">
@@ -21,15 +52,16 @@
         <span class="obs-badge-harness">AI WORKSTATION · LIVE MISSION CONTROL</span>
       </div>
 
+      <nav class="obs-nav" aria-label="Observability navigation">
+        <a href="/" class="obs-nav-link">Homepage</a>
+        <a href="/experiments/" class="obs-nav-link">AI Experiments</a>
+        <a href="/observability/" class="obs-nav-link is-active" aria-current="page">Observability</a>
+      </nav>
       <div class="obs-header-controls">
         <div class="obs-status-pill is-running" data-global-status-pill>
           <span class="obs-status-dot"></span>
           <span data-global-status-text>INITIALIZING</span>
         </div>
-        <a href="/" class="obs-back-btn">
-          <span aria-hidden="true">←</span>
-          <span>Homepage</span>
-        </a>
       </div>
     </div>
   </header>

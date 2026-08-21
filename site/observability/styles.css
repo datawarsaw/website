@@ -953,3 +953,35 @@ body.obs-body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Top Navigation Bar */
+.obs-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-family: var(--obs-mono);
+  font-size: 0.78rem;
+}
+.obs-nav-link {
+  color: rgba(247, 246, 241, 0.65);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  padding: 0.25rem 0;
+}
+.obs-nav-link:hover {
+  color: var(--obs-paper);
+}
+.obs-nav-link.is-active {
+  color: var(--obs-lime);
+  border-bottom: 1px solid var(--obs-lime);
+}
+@media (max-width: 768px) {
+  .obs-nav {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 1.2rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--obs-border-subtle);
+  }
+}
