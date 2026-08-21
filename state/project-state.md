@@ -1,14 +1,14 @@
 # DataWarsaw Project State
 
-## Current Working Branch
+## Current Production Source of Truth
 
-`agent-harness-v1`
+Branch: `main`
+Platform: **Cloudflare Pages** (`datawarsaw-site`)
+Canonical Domain: `https://datawarsaw.com`
 
 ## Public Site Root
 
-`site/`
-
-Only content inside `site/` is production-deployable.
+`site/` (static assets) + `functions/` (Cloudflare Pages Functions)
 
 ## Current Harness
 
@@ -36,25 +36,18 @@ The harness previously intended Claude Sonnet 4.6 for Worker tasks, but runtime 
 
 Treat this as an observed runtime behavior, not a resolved architectural guarantee.
 
-## Current Website State
+## Current Website & Infrastructure State
 
 Main completed recent improvements:
-- Weather chart simplified to temperature-only visualization.
-- Recommendation logic continues to use comprehensive weather signals.
-- GitHub activity component aggregates the public `datawarsaw` owner profile.
-- GitHub contribution layout is responsive and container-driven.
-- Analytical Expertise radar has differentiated integer 1–10 scores.
-- Weather recommendation Polish character encoding issue fixed (clean UTF-8).
-- Model Benchmark Dashboard removed from public website (retained internally under `evals/`, `docs/`, `state/`, and `benchmark-comparison.html`).
-- Dedicated live Agent Observability subpage created at `/observability/` (`site/observability/index.html`) featuring live mission control, flow graph, active agent activity, and chronological event stream.
-- Live V1.1 file-driven observability architecture established: runtime updates `state/current-run.json` and sanitizes public export to `site/data/current-run.json`.
-- Coordinator lifecycle telemetry interface added to `scripts/update_current_run.py`: fresh run initialization, step start/complete/fail/block events, automatic durations, run completion/failure/block state, and activity cleanup.
-- Provider-neutral Coordinator contract now requires lifecycle telemetry for meaningful repository work and requires observed runtime model attribution.
-- `/observability/` flow rendering now follows the actual published step list, so simple runs no longer fabricate Scout/JOIN nodes and complex runs can surface dynamic `scout-*` branches.
-- Homepage Section 06 (`#harness`) streamlined to an editorial compact teaser linking directly to `/observability/`.
-- Observability telemetry hardened with cross-platform file locking (`msvcrt`/`fcntl` on `state/current-run.lock`), atomic writes with filesystem contention retries, `MAX_EVENTS = 200` bounding, hardened path/secret sanitization, and client-side stale-run detection.
-- Observability V1.3 remote live publishing implemented: dedicated `scripts/publish_current_run.py` with WinSCP/OpenSSH SFTP transport, `--doctor`, `--dry-run`, `--deploy-static` commands, remote atomic replacement, credential masking, and complete failure isolation in `scripts/update_current_run.py`.
-- Observability V1.2 automatic Coordinator telemetry SDK (`scripts/telemetry.py`) established with real-time progressive state updates, parallel Scout lifecycle tracking, step context managers, and non-blocking failure isolation.
+- **Cloudflare-Native Production Architecture:** Entire site runs on Cloudflare Pages with automatic GitHub `main` deployments and Sanity CMS build-time synchronization (`node scripts/sync_sanity_experiments.mjs`).
+- **Cloudflare Edge Normalization:** `www.datawarsaw.com` and `datawarsaw-site.pages.dev` redirect to apex `https://datawarsaw.com` with full path and query preservation (HTTP 301).
+- **Cloudflare D1 & Pages Functions Observability (V2.0):** Live Agent Observability runs on `functions/api/telemetry.ts` backed by Cloudflare D1 database (`datawarsaw-telemetry-db`, table `telemetry_state`, singleton row `id=1`).
+- **HTTPS Telemetry Publishing:** `scripts/publish_current_run.py` rewritten to use Python standard library HTTPS POST with Bearer token authentication, bounded retries, and failure isolation.
+- **Adaptive Frontend Telemetry Client:** `site/observability/script.js` polls `/api/telemetry` adaptively (2s active, 10s idle), pauses when `document.hidden`, suppresses unchanged render cycles via hash checks, and falls back cleanly to static `site/data/current-run.json`.
+- **cyber_Folks Hosting RETIRED:** Legacy cPanel hosting and SFTP/WinSCP transport are decommissioned. The DNS record `ftp.datawarsaw.com` was deleted. DNS audit confirmed zero remaining MX/mail or legacy dependencies. Legacy SFTP publisher functions remain strictly as deprecated rollback-only code.
+- **Headless Sanity CMS Integration:** AI Experiments gallery backed by Sanity Content Lake (`oxemv355`, dataset `production`), synced deterministically at build time to `site/data/sanity-experiments.json` with static fallback to `site/experiments/experiments.json`.
+- **Weather Timeline & Analytical Radar:** 24h Warsaw weather pulse and 8-axis differentiated expertise radar.
+- **GitHub Commit Activity:** Public DataWarsaw commit ledger and responsive activity matrix.
 
 ## Current Strategic Direction
 
@@ -75,33 +68,18 @@ Active themes & experiments:
 - Future MCP research
 - Future multi-provider routing
 
-## Deployment
+## Production Deployment & Hosting Policy
 
-Current policy:
-- Active feature work on `agent-harness-v1`.
-- Do not merge to `main` automatically.
-- Do not deploy unless explicitly requested.
-- Only `site/` may be deployed.
-- `main` will eventually act as production source of truth.
-
-## Infrastructure Escalation Policy
-
-The project follows a lightweight infrastructure escalation rule:
-- **Core Rule:** Use the simplest infrastructure that fits the current milestone. Upgrade hosting only when product requirements justify it.
-- **Tier 1 (Current Static / cyber_Folks `/public_html/`):** Portfolio, static assets, client-side polling, and file-driven telemetry (`current-run.json`). Keep it simple; do not add infrastructure without concrete need.
-- **Tier 2 (Cloudflare Workers / Agents):** Evaluate when milestones require lightweight public APIs, webhooks, serverless execution, or edge agent routing without managing a server.
-- **Tier 3 (VPS / Docker):** Evaluate when milestones require long-running processes, WebSockets, background workers, databases, MCP servers, or custom backend services.
-- **Decision Rule:** Evaluate Tier 1 → Tier 2 → Tier 3 based on requirements, maintenance burden, reliability, and cost. The project is explicitly allowed to adopt external infrastructure when justified; current hosting is a baseline, not a permanent constraint.
+- **Production Branch:** `main` deploys automatically to Cloudflare Pages (`datawarsaw-site`).
+- **Edge Routing:** Managed via Cloudflare Rulesets and Custom Domains on the `datawarsaw.com` zone.
+- **Secrets Management:** `TELEMETRY_SECRET_TOKEN` is configured strictly as a Cloudflare Pages Production Environment Variable / Secret. `DATAWARSAW_TELEMETRY_TOKEN` is stored in the local workstation environment. No secrets exist in git or public client code.
+- **Zero-Cost Operation:** Entire stack operates securely within Cloudflare Pages Free, Cloudflare D1 Free, and Sanity Free tiers.
 
 ## Project Memory Rule
 
 - Chat/model memory may contain user preferences.
 - Repository state files contain project truth.
 - Agents should never trust stale chat history over current repository state.
-
-## Local Runtime Caveat
-
-The repository documents native Antigravity configuration under `.agents/`, but that directory is not currently present on the GitHub `agent-harness-v1` branch. Repository-level telemetry hooks are therefore ready, while actual automatic invocation still depends on the local Antigravity Coordinator configuration using the updated contract or equivalent lifecycle calls.
 
 ## Update Policy
 
