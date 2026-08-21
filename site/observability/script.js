@@ -1,14 +1,18 @@
 /**
- * DataWarsaw · AI Workstation Live Observability Console
- * Vanilla JS client with ~1000ms polling, state diffing, and dynamic elapsed timers.
+ * DataWarsaw · AI Workstation Live Observability Console (V2.0 - Cloudflare Native)
+ * Vanilla JS client with Cloudflare API endpoint, static fallback, adaptive polling,
+ * visibility change detection, state diffing, and dynamic elapsed timers.
  */
 
 (function () {
   'use strict';
 
-  const DATA_URL = '../data/current-run.json';
-  const FALLBACK_DATA_URL = '/data/current-run.json';
-  const POLL_INTERVAL_MS = 1000;
+  const PRIMARY_DATA_URL = '/api/telemetry';
+  const FALLBACK_DATA_URL = '../data/current-run.json';
+  const ROOT_FALLBACK_DATA_URL = '/data/current-run.json';
+
+  const POLL_INTERVAL_ACTIVE_MS = 2000;  // ~2s while running
+  const POLL_INTERVAL_IDLE_MS = 10000;   // ~10s while idle / complete / failed
 
   // DOM Cache
   const globalStatusPill = document.querySelector('[data-global-status-pill]');
@@ -44,6 +48,7 @@
   let currentRunData = null;
   let activeStepStartedAt = null;
   let runStartedAt = null;
+  let pollTimeoutId = null;
 
   // --------------------------------------------------------------------------
   // Helpers
@@ -355,33 +360,93 @@
   setInterval(tickTimer, 1000);
 
   // --------------------------------------------------------------------------
-  // Polling Loop
+  // Adaptive Polling & Fallback Loop
   // --------------------------------------------------------------------------
-  async function fetchTelemetry() {
-    try {
-      let res = await fetch(DATA_URL + '?t=' + Date.now());
-      if (!res.ok) {
-        res = await fetch(FALLBACK_DATA_URL + '?t=' + Date.now());
-      }
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-
-      const text = await res.text();
-      if (text !== lastPayloadHash) {
-        lastPayloadHash = text;
-        const data = JSON.parse(text);
-        renderDashboard(data);
-      }
-
-      if (alertBox) alertBox.classList.add('is-hidden');
-    } catch (err) {
-      if (alertBox) alertBox.classList.remove('is-hidden');
-      if (globalStatusText && (!currentRunData || currentRunData.status === 'IDLE')) {
-        globalStatusText.textContent = 'OFFLINE';
-      }
-    } finally {
-      setTimeout(fetchTelemetry, POLL_INTERVAL_MS);
+  function scheduleNextPoll(delayMs) {
+    if (pollTimeoutId) clearTimeout(pollTimeoutId);
+    if (!document.hidden) {
+      pollTimeoutId = setTimeout(fetchTelemetry, delayMs);
     }
   }
 
-  fetchTelemetry();
+  async function fetchTelemetry(immediate) {
+    if (document.hidden && !immediate) return;
+
+    let nextInterval = POLL_INTERVAL_IDLE_MS;
+
+    try {
+      let data = null;
+      let rawText = '';
+
+      // 1. Try Primary Cloudflare API endpoint
+      try {
+        const res = await fetch(PRIMARY_DATA_URL, { cache: 'no-store' });
+        if (res.ok) {
+          rawText = await res.text();
+          if (rawText && rawText.trim()) {
+            const parsed = JSON.parse(rawText);
+            if (parsed && typeof parsed === 'object' && parsed.taskId && !parsed.fallback) {
+              data = parsed;
+            }
+          }
+        }
+      } catch {
+        // API unreachable, fall through to static snapshot
+      }
+
+      // 2. If API has no data or failed, try static snapshot fallback
+      if (!data) {
+        try {
+          let fbRes = await fetch(FALLBACK_DATA_URL, { cache: 'no-store' });
+          if (!fbRes.ok) {
+            fbRes = await fetch(ROOT_FALLBACK_DATA_URL, { cache: 'no-store' });
+          }
+          if (fbRes.ok) {
+            rawText = await fbRes.text();
+            if (rawText && rawText.trim()) {
+              data = JSON.parse(rawText);
+            }
+          }
+        } catch {
+          // Static fallback failed as well
+        }
+      }
+
+      // 3. Render or suppress based on payload hash
+      if (data) {
+        if (rawText !== lastPayloadHash) {
+          lastPayloadHash = rawText;
+          renderDashboard(data);
+        }
+        if (alertBox) alertBox.classList.add('is-hidden');
+
+        // Adaptive interval: 2s while running, 10s when idle/complete/failed
+        const status = (data.status || '').toUpperCase();
+        nextInterval = (status === 'RUNNING') ? POLL_INTERVAL_ACTIVE_MS : POLL_INTERVAL_IDLE_MS;
+      } else {
+        if (alertBox) alertBox.classList.remove('is-hidden');
+        if (globalStatusText && (!currentRunData || currentRunData.status === 'IDLE')) {
+          globalStatusText.textContent = 'STANDBY';
+        }
+        nextInterval = POLL_INTERVAL_IDLE_MS;
+      }
+    } catch {
+      if (alertBox) alertBox.classList.remove('is-hidden');
+      nextInterval = POLL_INTERVAL_IDLE_MS;
+    } finally {
+      scheduleNextPoll(nextInterval);
+    }
+  }
+
+  // Handle visibility changes to pause/resume polling
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (pollTimeoutId) clearTimeout(pollTimeoutId);
+    } else {
+      fetchTelemetry(true);
+    }
+  });
+
+  // Start polling
+  fetchTelemetry(true);
 })();
