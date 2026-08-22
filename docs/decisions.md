@@ -147,3 +147,29 @@ A decision-making dashboard should answer immediately: "What are conditions doin
 - Deterministic suitability formula: `suitability = clamp(1 - (rainPenalty + aqiPenalty + windPenalty), 0, 1)` documented and exposed.
 - Single unified SVG timeline with glowing lime suitability area curve, dotted temperature context line, bounding best-window highlight, and a 24-column raw-signal strip under the chart for precipitation probability, wind speed, and European AQI.
 - Interactive scrubbing, keyboard arrow navigation, and responsive tick reduction across all viewports.
+
+---
+
+## ADR 009: AI Workstation Benchmark, Explorer and Lab as Decision Surfaces
+
+- **Date:** 2026-08-18
+- **Status:** Accepted
+- **Branch:** benchmark/grok-4.6
+
+### Decision
+Add three sequential decision surfaces instead of a gallery of equal cards:
+
+1. **AI Workstation Benchmark** compares the five models on coding, reasoning, UX and speed, with a signal view and a rank table.
+2. **Model Comparison Explorer** recommends one model per task category and ranks the rest as trade-offs or weak fits.
+3. **My AI Lab** simulates a routing rule between cloud models and the local Ternary-Bonsai-27B runtime.
+
+### Product reasoning
+The site already treats data as a path to a decision. The new sections should do the same: highlight a leader, explain the metric, and refuse the polite lie that every model is equally suitable. Ternary-Bonsai-27B is framed as a privacy boundary, not a hidden coding champion. The lab is explicitly a simulation; no request leaves the browser and no live inference is implied.
+
+### UI reasoning
+Reuse the existing graphite / paper / acid-lime language, editorial headings, mono annotations and fine 1px frames. Mobile navigation becomes a right-hand drawer with a backdrop, focus trap, Escape-to-close and inert page content, because simply hiding desktop links would fail the brief and the existing drawer already matched the visual system. New sections reflow to a single column at 900px and wrap metric controls at 640px instead of shrinking the desktop composition.
+
+### Accessibility priorities fixed in this pass
+1. Mobile menu state was only a CSS class; it now exposes expanded/closed labels, traps focus, restores focus, and locks background interaction.
+2. Benchmark views are real tabs with arrow-key movement; the selected metric is announced in the live leader region and marked in the table.
+3. New controls inherit the site focus ring and keep 44px touch targets so the added density does not become unusable on 375-430px screens.

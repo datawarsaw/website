@@ -9,21 +9,86 @@
   const motionAllowed = () => hasGSAP && !motionReduced();
   const toggle = document.querySelector('[data-menu-toggle]');
   const nav = document.querySelector('[data-nav]');
+  const navBackdrop = document.querySelector('[data-nav-backdrop]');
+  const menuLabel = document.querySelector('[data-menu-label]');
+  const mobileNavQuery = window.matchMedia('(max-width: 900px)');
+  const pageLocks = [document.getElementById('main'), document.querySelector('.site-footer')].filter(Boolean);
+  let lastMenuFocus = null;
+
+  const getFocusable = (root) => [...root.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+    .filter((el) => !el.hasAttribute('hidden') && el.getAttribute('aria-hidden') !== 'true');
+
+  const setPageInert = (inert) => {
+    pageLocks.forEach((el) => {
+      el.toggleAttribute('inert', inert);
+      if (inert) el.setAttribute('aria-hidden', 'true');
+      else el.removeAttribute('aria-hidden');
+    });
+  };
+
+  const closeMenu = () => {
+    if (!toggle || !nav) return;
+    const wasOpen = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', 'false');
+    nav.classList.remove('is-open');
+    nav.removeAttribute('aria-modal');
+    navBackdrop?.classList.remove('is-open');
+    if (navBackdrop) navBackdrop.hidden = true;
+    document.body.classList.remove('menu-open');
+    if (menuLabel) menuLabel.textContent = 'Open menu';
+    setPageInert(false);
+    if (wasOpen && lastMenuFocus && typeof lastMenuFocus.focus === 'function') lastMenuFocus.focus();
+  };
+
+  const openMenu = () => {
+    if (!toggle || !nav || !mobileNavQuery.matches) return;
+    lastMenuFocus = document.activeElement;
+    toggle.setAttribute('aria-expanded', 'true');
+    nav.classList.add('is-open');
+    nav.setAttribute('aria-modal', 'true');
+    nav.removeAttribute('aria-hidden');
+    if (navBackdrop) {
+      navBackdrop.hidden = false;
+      navBackdrop.classList.add('is-open');
+    }
+    document.body.classList.add('menu-open');
+    if (menuLabel) menuLabel.textContent = 'Close menu';
+    setPageInert(true);
+    const firstLink = nav.querySelector('a');
+    window.requestAnimationFrame(() => firstLink?.focus());
+  };
 
   if (toggle && nav) {
-    const closeMenu = () => {
-      toggle.setAttribute('aria-expanded', 'false');
-      nav.classList.remove('is-open');
-      document.body.classList.remove('menu-open');
-    };
     toggle.addEventListener('click', () => {
       const open = toggle.getAttribute('aria-expanded') !== 'true';
-      toggle.setAttribute('aria-expanded', String(open));
-      nav.classList.toggle('is-open', open);
-      document.body.classList.toggle('menu-open', open);
+      if (open) openMenu();
+      else closeMenu();
     });
-    nav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
-    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
+    nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+    navBackdrop?.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', (event) => {
+      if (toggle.getAttribute('aria-expanded') !== 'true') return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeMenu();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const focusable = [toggle, ...getFocusable(nav)];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+    const handleNavBreakpoint = () => { if (!mobileNavQuery.matches) closeMenu(); };
+    if (typeof mobileNavQuery.addEventListener === 'function') mobileNavQuery.addEventListener('change', handleNavBreakpoint);
+    else mobileNavQuery.addListener(handleNavBreakpoint);
   }
 
   const reveals = [...document.querySelectorAll('.reveal')];
@@ -1169,6 +1234,233 @@
       reduceMotionQuery.removeEventListener('change', handlePulseMotionPreference);
     }, { once: true });
   }
+  const benchmarkRoot = document.querySelector('[data-benchmark]');
+  if (benchmarkRoot) {
+    const models = [
+      { name: 'GPT-5.6 Luna', coding: 94, reasoning: 96, ux: 92, speed: 78, note: 'Best default when the work is implementation or multi-step reasoning.' },
+      { name: 'Grok 4.5', coding: 88, reasoning: 84, ux: 90, speed: 91, note: 'Strong when a second opinion or faster iteration matters more than peak depth.' },
+      { name: 'Grok 4.6', coding: 92, reasoning: 91, ux: 93, speed: 85, note: 'Balanced front-end judgment: high coding and UX without giving up much speed.' },
+      { name: 'Gemini Flash', coding: 89, reasoning: 86, ux: 94, speed: 98, note: 'Wins on interface feel and raw speed; the everyday default.' },
+      { name: 'Ternary-Bonsai-27B', coding: 76, reasoning: 74, ux: 78, speed: 83, note: 'Local-only option. Weaker scores, but the only model that stays on-device.' }
+    ];
+    const metricCopy = {
+      coding: ['Coding', 'Coding favours models that can inspect a codebase, keep constraints, and ship a working change without drifting into adjacent work.'],
+      reasoning: ['Reasoning', 'Reasoning favours models that hold a long chain of constraints and still reach a defensible conclusion.'],
+      ux: ['UX', 'UX favours models that make the next action obvious, especially on a narrow screen, without decorating the page.'],
+      speed: ['Speed', 'Speed favours models that return a usable first answer quickly. Useful for triage, not for every hard decision.']
+    };
+    const bars = benchmarkRoot.querySelector('[data-benchmark-bars]');
+    const tableBody = benchmarkRoot.querySelector('[data-benchmark-table]');
+    const lead = benchmarkRoot.querySelector('[data-benchmark-lead]');
+    const leaderEl = benchmarkRoot.querySelector('[data-benchmark-leader]');
+    const leaderNote = benchmarkRoot.querySelector('[data-benchmark-leader-note]');
+    const metricLabel = benchmarkRoot.querySelector('[data-benchmark-metric-label]');
+    const tabs = [...benchmarkRoot.querySelectorAll('[data-benchmark-view]')];
+    const panels = [...benchmarkRoot.querySelectorAll('[data-benchmark-panel]')];
+    let activeMetric = 'coding';
+    let activeView = 'bars';
+    const leaderFor = (metric) => models.reduce((best, model) => model[metric] > best[metric] ? model : best);
+    const render = () => {
+      const [label, explanation] = metricCopy[activeMetric];
+      const leader = leaderFor(activeMetric);
+      if (lead) lead.textContent = explanation;
+      if (metricLabel) metricLabel.textContent = label;
+      if (leaderEl) leaderEl.textContent = leader.name;
+      if (leaderNote) leaderNote.textContent = leader.name + ' leads ' + label.toLowerCase() + ' at ' + leader[activeMetric] + '. ' + leader.note;
+      if (bars) {
+        bars.replaceChildren(...models.map((model) => {
+          const item = document.createElement('li');
+          item.className = model.name === leader.name ? 'is-leader' : '';
+          item.innerHTML = '<span class="bar-name">' + model.name + '</span><span class="bar-track"><span class="bar-fill" style="width:' + model[activeMetric] + '%"></span></span><span class="bar-score">' + model[activeMetric] + '</span>';
+          return item;
+        }));
+      }
+      if (tableBody) {
+        tableBody.replaceChildren(...models.map((model) => {
+          const row = document.createElement('tr');
+          if (model.name === leader.name) row.className = 'is-leader';
+          row.innerHTML = '<th scope="row">' + model.name + '</th>' + ['coding', 'reasoning', 'ux', 'speed'].map((key) => {
+            const active = key === activeMetric ? ' is-active' : '';
+            return '<td class="' + active.trim() + '" data-metric-col="' + key + '">' + model[key] + '</td>';
+          }).join('');
+          return row;
+        }));
+      }
+      benchmarkRoot.querySelectorAll('[data-metric-col]').forEach((cell) => {
+        cell.classList.toggle('is-active', cell.getAttribute('data-metric-col') === activeMetric);
+      });
+    };
+    const setView = (view, options) => {
+      const focusTab = Boolean(options && options.focusTab);
+      activeView = view;
+      tabs.forEach((tab) => {
+        const selected = tab.dataset.benchmarkView === view;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        if (selected && focusTab) tab.focus();
+      });
+      panels.forEach((panel) => {
+        panel.hidden = panel.dataset.benchmarkPanel !== view;
+      });
+    };
+    benchmarkRoot.querySelectorAll('input[name="benchmark-metric"]').forEach((input) => {
+      input.addEventListener('change', () => {
+        if (!input.checked) return;
+        activeMetric = input.value;
+        render();
+      });
+    });
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => setView(tab.dataset.benchmarkView));
+      tab.addEventListener('keydown', (event) => {
+        if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : event.key === 'ArrowRight' ? (index + 1) % tabs.length : (index - 1 + tabs.length) % tabs.length;
+        setView(tabs[next].dataset.benchmarkView, { focusTab: true });
+      });
+    });
+    setView(activeView);
+    render();
+  }
+
+  const explorerRoot = document.querySelector('[data-explorer]');
+  if (explorerRoot) {
+    const profiles = {
+      coding: {
+        kicker: 'Recommended for coding',
+        order: ['GPT-5.6 Luna', 'Grok 4.6', 'Gemini Flash', 'Grok 4.5', 'Ternary-Bonsai-27B'],
+        scores: { 'GPT-5.6 Luna': 96, 'Grok 4.6': 93, 'Gemini Flash': 88, 'Grok 4.5': 86, 'Ternary-Bonsai-27B': 68 },
+        why: 'Luna stays ahead when the job is to read an existing codebase, keep the visual language, and actually ship the change.',
+        trade: 'If the task is a tiny UI tweak and you care more about turnaround than depth, Gemini Flash is the cheaper default.',
+        notes: {
+          'GPT-5.6 Luna': 'Best at holding constraints across a multi-file change.',
+          'Grok 4.6': 'Close second when the work is interface-heavy and needs taste.',
+          'Gemini Flash': 'Fast implementer; more likely to skip an awkward edge case.',
+          'Grok 4.5': 'Useful reviewer, weaker as the first implementer.',
+          'Ternary-Bonsai-27B': 'Keep it for private snippets, not a full site pass.'
+        }
+      },
+      analysis: {
+        kicker: 'Recommended for data analysis',
+        order: ['GPT-5.6 Luna', 'Grok 4.6', 'Gemini Flash', 'Grok 4.5', 'Ternary-Bonsai-27B'],
+        scores: { 'GPT-5.6 Luna': 95, 'Grok 4.6': 90, 'Gemini Flash': 84, 'Grok 4.5': 83, 'Ternary-Bonsai-27B': 70 },
+        why: 'Analysis needs a model that can keep definitions stable and still explain the result in business language. Luna is the least likely to invent a tidy number.',
+        trade: 'Grok 4.6 is the better pair-analyst when you already know the shape of the answer and want a sceptical read.',
+        notes: {
+          'GPT-5.6 Luna': 'Strongest at connecting a metric to a decision.',
+          'Grok 4.6': 'Good at spotting a shaky assumption in the write-up.',
+          'Gemini Flash': 'Fine for first-pass charts, weaker on methodology.',
+          'Grok 4.5': 'Useful second pass, not the owner of the model.',
+          'Ternary-Bonsai-27B': 'Acceptable for local CSV triage only.'
+        }
+      },
+      research: {
+        kicker: 'Recommended for research',
+        order: ['GPT-5.6 Luna', 'Grok 4.6', 'Grok 4.5', 'Gemini Flash', 'Ternary-Bonsai-27B'],
+        scores: { 'GPT-5.6 Luna': 94, 'Grok 4.6': 91, 'Grok 4.5': 87, 'Gemini Flash': 82, 'Ternary-Bonsai-27B': 66 },
+        why: 'Research rewards a model that can hold conflicting sources and still say what is known versus guessed. Luna is the most disciplined here.',
+        trade: 'Use Grok when you want an adversarial read of the same brief rather than a single synthesised answer.',
+        notes: {
+          'GPT-5.6 Luna': 'Best at separating evidence from inference.',
+          'Grok 4.6': 'Strong challenger; good at finding the hole in a claim.',
+          'Grok 4.5': 'Useful for a second opinion, thinner synthesis.',
+          'Gemini Flash': 'Fast skim, not a source-of-record write-up.',
+          'Ternary-Bonsai-27B': 'No live web access in this lab; local notes only.'
+        }
+      },
+      everyday: {
+        kicker: 'Recommended for fast everyday tasks',
+        order: ['Gemini Flash', 'Grok 4.5', 'Grok 4.6', 'GPT-5.6 Luna', 'Ternary-Bonsai-27B'],
+        scores: { 'Gemini Flash': 98, 'Grok 4.5': 91, 'Grok 4.6': 86, 'GPT-5.6 Luna': 80, 'Ternary-Bonsai-27B': 72 },
+        why: 'Everyday work should be cheap and immediate. Gemini Flash is the clearest speed winner and still good enough on small UX tasks.',
+        trade: 'Promote the job to Luna or Grok 4.6 the moment the request grows a constraint list or a visual system to protect.',
+        notes: {
+          'Gemini Flash': 'Fastest usable answer for short, low-risk work.',
+          'Grok 4.5': 'Almost as quick, with a more sceptical tone.',
+          'Grok 4.6': 'Overkill unless the everyday task is actually a UI decision.',
+          'GPT-5.6 Luna': 'Spend this on work that can fail expensively.',
+          'Ternary-Bonsai-27B': 'Use only if the prompt itself is private.'
+        }
+      },
+      local: {
+        kicker: 'Recommended for private / local workloads',
+        order: ['Ternary-Bonsai-27B', 'GPT-5.6 Luna', 'Grok 4.6', 'Grok 4.5', 'Gemini Flash'],
+        scores: { 'Ternary-Bonsai-27B': 92, 'GPT-5.6 Luna': 54, 'Grok 4.6': 50, 'Grok 4.5': 48, 'Gemini Flash': 42 },
+        why: 'If the material cannot leave the machine, capability is secondary. Ternary-Bonsai-27B is the only local model in this set.',
+        trade: 'If the file can be redacted or synthesised, send the hard part to Luna and keep the raw source local.',
+        notes: {
+          'Ternary-Bonsai-27B': 'Runs on-device. Weaker, but the privacy boundary is real.',
+          'GPT-5.6 Luna': 'Strongest cloud option if the data can be sanitised.',
+          'Grok 4.6': 'Cloud runtime; do not use on raw private files.',
+          'Grok 4.5': 'Same constraint: remote inference.',
+          'Gemini Flash': 'Fastest cloud path, worst fit for private workloads.'
+        }
+      }
+    };
+    const modelEl = explorerRoot.querySelector('[data-explorer-model]');
+    const whyEl = explorerRoot.querySelector('[data-explorer-why]');
+    const tradeEl = explorerRoot.querySelector('[data-explorer-trade]');
+    const kickerEl = explorerRoot.querySelector('[data-explorer-kicker]');
+    const listEl = explorerRoot.querySelector('[data-explorer-list]');
+    const labels = [...explorerRoot.querySelectorAll('.explorer-task-grid label')];
+    const renderTask = (key) => {
+      const profile = profiles[key];
+      const winner = profile.order[0];
+      labels.forEach((label) => label.classList.toggle('is-active', label.querySelector('input')?.value === key));
+      if (kickerEl) kickerEl.textContent = profile.kicker;
+      if (modelEl) modelEl.textContent = winner;
+      if (whyEl) whyEl.textContent = profile.why;
+      if (tradeEl) tradeEl.textContent = profile.trade;
+      if (!listEl) return;
+      listEl.replaceChildren(...profile.order.map((name, index) => {
+        const item = document.createElement('li');
+        item.className = index === 0 ? 'is-recommended' : '';
+        const fit = index === 0 ? 'Recommended' : index === profile.order.length - 1 ? 'Weak fit' : 'Trade-off';
+        item.innerHTML = '<div><span class="model-fit">' + fit + '</span><strong class="model-name">' + name + '</strong><p>' + profile.notes[name] + '</p></div><span class="model-score">' + profile.scores[name] + '</span>';
+        return item;
+      }));
+    };
+    explorerRoot.querySelectorAll('input[name="explorer-task"]').forEach((input) => {
+      input.addEventListener('change', () => { if (input.checked) renderTask(input.value); });
+    });
+    renderTask(explorerRoot.querySelector('input[name="explorer-task"]:checked')?.value || 'coding');
+  }
+
+  const labRoot = document.querySelector('[data-lab]');
+  if (labRoot) {
+    const form = labRoot.querySelector('[data-lab-form]');
+    const runtimeEl = labRoot.querySelector('[data-lab-runtime]');
+    const reasonEl = labRoot.querySelector('[data-lab-reason]');
+    const statusEl = labRoot.querySelector('[data-lab-status]');
+    const keywords = {
+      local: ['private', 'local', 'on-device', 'on device', 'csv', 'client', 'secret', 'confidential', 'notes', 'machine'],
+      coding: ['refactor', 'code', 'script', 'component', 'css', 'html', 'bug', 'implement'],
+      everyday: ['summarise', 'summarize', 'email', 'rewrite', 'translate', 'short']
+    };
+    const decide = (task, privacy) => {
+      const textValue = task.toLowerCase();
+      const wantsLocal = privacy === 'private' || keywords.local.some((word) => textValue.includes(word));
+      if (wantsLocal) {
+        return { runtime: 'Local · Ternary-Bonsai-27B', reason: 'The task mentions private or on-machine material. The lab therefore keeps it on Ternary-Bonsai-27B rather than calling a cloud API.' };
+      }
+      if (keywords.everyday.some((word) => textValue.includes(word)) && !keywords.coding.some((word) => textValue.includes(word))) {
+        return { runtime: 'Cloud · Gemini Flash', reason: 'This looks like a short everyday request. Flash is the simulated default because speed matters more than depth here.' };
+      }
+      return { runtime: 'Cloud · GPT-5.6 Luna', reason: 'No privacy constraint is set, and the work looks like implementation or analysis. Luna is the simulated owner of that job.' };
+    };
+    const paint = (result) => {
+      if (runtimeEl) runtimeEl.textContent = result.runtime;
+      if (reasonEl) reasonEl.textContent = result.reason;
+      if (statusEl) statusEl.textContent = 'Simulation only · no model was called';
+    };
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      paint(decide(String(data.get('task') || ''), String(data.get('privacy') || 'open')));
+    });
+    paint({ runtime: 'Cloud · GPT-5.6 Luna', reason: 'A local-only simulation of the routing rule. Submit to see which runtime would be chosen and why.' });
+  }
+
   const canvas = document.querySelector('[data-signal-canvas]');
   if (!canvas) {
     window.__heroGraphAnimation = null;

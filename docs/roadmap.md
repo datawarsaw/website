@@ -12,6 +12,8 @@ This roadmap tracks the development lifecycle of Data Warsaw, categorizing compl
 - **Methodology & Process Flow:** Structured narrative walkthrough of the analytical engagement cycle (Understand → Explore → Explain → Decide).
 - **Work in Practice Showcase:** Public GitHub integration with custom commit activity matrix, real-time metadata, and recent commit ledger (replacing fabricated case studies).
 - **Warsaw Data Pulse Decision Timeline:** 24-hour composite analytical timeline simultaneously visualizing conditions, derived outdoor suitability, and optimal 3-hour window.
+
+- **AI Workstation surfaces (benchmark/grok-4.6):** Interactive benchmark, model explorer and local/cloud lab added as public decision tools rather than decorative sections.
 - **Project Documentation & Agent Memory:** Comprehensive project documentation suite (`docs/`, `evals/`, `AGENTS.md`).
 
 ---

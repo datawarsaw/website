@@ -20,17 +20,30 @@
   <link rel="canonical" href="https://datawarsaw.com/">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
  <script>document.documentElement.classList.add('js');</script>
-  <link rel="stylesheet" href="styles.css?v=20260818m">
+  <link rel="stylesheet" href="styles.css?v=20260818-g46">
   <script src="assets/vendor/gsap/gsap.min.js?v=3.13.0" defer></script>
   <script src="assets/vendor/gsap/ScrollTrigger.min.js?v=3.13.0" defer></script>
-  <script src="script.js?v=20260818m" defer></script>
+  <script src="script.js?v=20260818-g46" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" data-header>
     <a class="brand" href="#top" aria-label="Warsaw Analytica, home"><span class="brand-name">Warsaw Analytica</span><span class="brand-by">by Michał Domaradzki</span></a>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span class="sr-only">Toggle navigation</span><span></span><span></span></button>
-    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav><a href="#about">About</a><a href="#practice">Practice</a><a href="#approach">Approach</a><a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a></nav>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>
+      <span class="sr-only" data-menu-label>Open menu</span>
+      <span class="menu-toggle-bars" aria-hidden="true"><span></span><span></span></span>
+    </button>
+    <div class="nav-backdrop" data-nav-backdrop hidden></div>
+    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav>
+      <p class="nav-drawer-kicker">Navigate</p>
+      <a href="#about">About</a>
+      <a href="#practice">Practice</a>
+      <a href="#approach">Approach</a>
+      <a href="#benchmark">Benchmark</a>
+      <a href="#explorer">Models</a>
+      <a href="#lab">Lab</a>
+      <a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a>
+    </nav>
   </header>
 
   <main id="main">
@@ -304,6 +317,153 @@
       </div>
     </section>
 
+
+    <section class="benchmark section-dark" id="benchmark" aria-labelledby="benchmark-title">
+      <div class="container">
+        <div class="section-index reveal"><span>06</span> AI Workstation Benchmark</div>
+        <div class="benchmark-heading reveal">
+          <div>
+            <p class="kicker">Comparative signal, not a league table</p>
+            <h2 id="benchmark-title">How five models<br><em>handle the work.</em></h2>
+          </div>
+          <p>These scores describe relative strength across coding, reasoning, interface judgment and response speed. They are a decision aid for routing work, not a claim that one model replaces the others.</p>
+        </div>
+
+        <div class="benchmark-module reveal" data-benchmark>
+          <div class="benchmark-toolbar">
+            <div class="benchmark-view-switch" role="tablist" aria-label="Benchmark views">
+              <button type="button" role="tab" id="benchmark-tab-bars" aria-selected="true" aria-controls="benchmark-panel-bars" data-benchmark-view="bars">Signal view</button>
+              <button type="button" role="tab" id="benchmark-tab-table" aria-selected="false" aria-controls="benchmark-panel-table" data-benchmark-view="table" tabindex="-1">Rank table</button>
+            </div>
+            <fieldset class="benchmark-metrics">
+              <legend>Compare by metric</legend>
+              <div class="benchmark-metric-row" role="radiogroup" aria-label="Benchmark metric">
+                <label><input type="radio" name="benchmark-metric" value="coding" checked> Coding</label>
+                <label><input type="radio" name="benchmark-metric" value="reasoning"> Reasoning</label>
+                <label><input type="radio" name="benchmark-metric" value="ux"> UX</label>
+                <label><input type="radio" name="benchmark-metric" value="speed"> Speed</label>
+              </div>
+            </fieldset>
+          </div>
+
+          <p class="benchmark-lead" data-benchmark-lead>Coding favours models that can inspect a codebase, keep constraints, and ship a working change without drifting into adjacent work.</p>
+
+          <div class="benchmark-highlight" aria-live="polite">
+            <span>Strongest on <b data-benchmark-metric-label>Coding</b></span>
+            <strong data-benchmark-leader>GPT-5.6 Luna</strong>
+            <small data-benchmark-leader-note>Highest coding score in this set. Best default when the task is implementation.</small>
+          </div>
+
+          <div class="benchmark-panels">
+            <div class="benchmark-panel" id="benchmark-panel-bars" role="tabpanel" aria-labelledby="benchmark-tab-bars" data-benchmark-panel="bars">
+              <ol class="benchmark-bars" data-benchmark-bars></ol>
+            </div>
+            <div class="benchmark-panel" id="benchmark-panel-table" role="tabpanel" aria-labelledby="benchmark-tab-table" data-benchmark-panel="table" hidden>
+              <div class="benchmark-table-wrap">
+                <table class="benchmark-table">
+                  <caption class="sr-only">Model scores by coding, reasoning, UX and speed</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Model</th>
+                      <th scope="col" data-metric-col="coding">Coding</th>
+                      <th scope="col" data-metric-col="reasoning">Reasoning</th>
+                      <th scope="col" data-metric-col="ux">UX</th>
+                      <th scope="col" data-metric-col="speed">Speed</th>
+                    </tr>
+                  </thead>
+                  <tbody data-benchmark-table></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="explorer section-light" id="explorer" aria-labelledby="explorer-title">
+      <div class="container">
+        <div class="section-index reveal"><span>07</span> Model Comparison Explorer</div>
+        <div class="explorer-heading reveal">
+          <div>
+            <p class="kicker">Choose the runtime, not the brand</p>
+            <h2 id="explorer-title">Which model<br><em>fits this job?</em></h2>
+          </div>
+          <p>Pick the kind of work you need done. The explorer recommends one model, then shows why the others fall behind on that job rather than treating every option as interchangeable.</p>
+        </div>
+
+        <div class="explorer-module reveal" data-explorer>
+          <fieldset class="explorer-tasks">
+            <legend>Task category</legend>
+            <div class="explorer-task-grid" role="radiogroup" aria-label="Task category">
+              <label class="is-active"><input type="radio" name="explorer-task" value="coding" checked><span>01</span> Coding</label>
+              <label><input type="radio" name="explorer-task" value="analysis"><span>02</span> Data Analysis</label>
+              <label><input type="radio" name="explorer-task" value="research"><span>03</span> Research</label>
+              <label><input type="radio" name="explorer-task" value="everyday"><span>04</span> Fast everyday tasks</label>
+              <label><input type="radio" name="explorer-task" value="local"><span>05</span> Private / local workloads</label>
+            </div>
+          </fieldset>
+
+          <div class="explorer-result" aria-live="polite">
+            <p class="explorer-rec-kicker" data-explorer-kicker>Recommended for coding</p>
+            <h3 data-explorer-model>GPT-5.6 Luna</h3>
+            <p data-explorer-why></p>
+            <p class="explorer-tradeoff" data-explorer-trade></p>
+          </div>
+
+          <div class="explorer-compare">
+            <h3>All five models on this job</h3>
+            <ul class="explorer-list" data-explorer-list></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lab section-warm" id="lab" aria-labelledby="lab-title">
+      <div class="container">
+        <div class="section-index reveal"><span>08</span> My AI Lab</div>
+        <div class="lab-heading reveal">
+          <div>
+            <p class="kicker">A public bench for agents and local models</p>
+            <h2 id="lab-title">Experiment in the open.<br><em>Keep the runtime honest.</em></h2>
+          </div>
+          <p>This site is also a workshop: cloud coding agents, local inference, and the boring glue that decides which one should touch a file. Nothing here pretends a model is running on the page.</p>
+        </div>
+
+        <div class="lab-module reveal" data-lab>
+          <div class="lab-copy">
+            <p class="lead">Cloud models are useful when the work needs a large context window, current knowledge, or a fast first draft. A local model is useful when the notes, code, or client data should never leave the machine.</p>
+            <p>Ternary-Bonsai-27B is the local option in this lab. It runs on this workstation, not in a remote API. That means weaker coding and reasoning scores, but a hard privacy boundary and no per-token bill.</p>
+            <dl class="lab-glossary">
+              <div><dt>Cloud model</dt><dd>A remote system you call over the network. Stronger on hard tasks, weaker on privacy.</dd></div>
+              <div><dt>Local model</dt><dd>Software that answers on your own computer. Slower and less capable, but the files stay here.</dd></div>
+              <div><dt>Routing</dt><dd>The rule that picks a runtime before any generation starts. This page only simulates that choice.</dd></div>
+            </dl>
+          </div>
+
+          <form class="lab-console" data-lab-form>
+            <div class="lab-console-head">
+              <span>Routing bench</span>
+              <strong data-lab-status>Simulation only · no model is live</strong>
+            </div>
+            <label class="lab-field">
+              <span>What are you trying to do?</span>
+              <textarea name="task" rows="4" maxlength="280" placeholder="Example: summarise private meeting notes without sending them to a vendor.">Refactor a local analytics script, but keep the client CSV on this machine.</textarea>
+            </label>
+            <fieldset class="lab-sensitivity">
+              <legend>Does the material need to stay private?</legend>
+              <label><input type="radio" name="privacy" value="open" checked> No · public or synthetic</label>
+              <label><input type="radio" name="privacy" value="private"> Yes · keep it on this machine</label>
+            </fieldset>
+            <button class="button button-primary" type="submit">Route the task <span aria-hidden="true">↗</span></button>
+            <div class="lab-output" aria-live="polite">
+              <span data-lab-runtime>Cloud · GPT-5.6 Luna</span>
+              <p data-lab-reason>A local-only simulation of the routing rule. Submit to see which runtime would be chosen and why.</p>
+              <small>No request leaves the browser. Ternary-Bonsai-27B is named here as the local model, not executed.</small>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
     <section class="contact section-accent" id="contact" aria-labelledby="contact-title">
       <div class="container contact-grid">
         <div class="contact-label reveal"><span class="status-dot"></span> Available for selected projects</div>
