@@ -92,3 +92,11 @@ Update `state/project-state.md` only when meaningful project state changes, such
 - Strategic project direction changes
 
 Do not update for routine commits, small CSS tweaks, or typo fixes.
+
+## White Gull Closeout Contract
+
+Meaningful tasks follow `docs/white-gull-closeout-contract.md`.
+
+The key operating rule is: once the agreed outcome is implemented, verified, persisted and reflected in the appropriate durable project state, close the task. New improvements become new Notion backlog items rather than extending the current task indefinitely.
+
+Notion is the project-management/backlog source of truth; this repository and verified production state are the technical source of truth.
