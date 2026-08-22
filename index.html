@@ -29,8 +29,8 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" data-header>
     <a class="brand" href="#top" aria-label="Warsaw Analytica, home"><span class="brand-name">Warsaw Analytica</span><span class="brand-by">by Michał Domaradzki</span></a>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span class="sr-only">Toggle navigation</span><span></span><span></span></button>
-    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav><a href="#about">About</a><a href="#practice">Practice</a><a href="#approach">Approach</a><a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a></nav>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation menu" data-menu-toggle><span class="sr-only">Toggle navigation menu</span><span></span><span></span></button>
+    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav><a href="#about">About</a><a href="#experience">Experience</a><a href="#approach">Process</a><a href="#benchmark">Benchmark</a><a href="#explorer">Explorer</a><a href="#ai-lab">AI Lab</a><a href="#practice">Practice</a><a href="#pulse">Data Pulse</a><a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a></nav>
   </header>
 
   <main id="main">
@@ -122,9 +122,302 @@
       </div>
     </section>
 
+    <section class="benchmark section-dark" id="benchmark" aria-labelledby="benchmark-title">
+      <div class="container">
+        <div class="section-index reveal"><span>04</span> AI Workstation Benchmark</div>
+        <div class="benchmark-heading reveal">
+          <div>
+            <p class="kicker">Frontier &amp; Specialized Models</p>
+            <h2 id="benchmark-title">Empirical capability.<br><em>Measurable signals.</em></h2>
+          </div>
+          <p>Standardized comparative benchmark evaluating five models across core workstation disciplines: code generation correctness, mathematical and analytical reasoning, UI precision, and real-time execution speed.</p>
+        </div>
+
+        <div class="benchmark-module reveal" data-benchmark-module>
+          <div class="benchmark-controls">
+            <div class="control-group">
+              <span class="control-label">Evaluation Metric</span>
+              <div class="metric-tabs" role="tablist" aria-label="Select benchmark metric">
+                <button type="button" class="metric-tab is-active" role="tab" aria-selected="true" data-metric="all">Composite Index</button>
+                <button type="button" class="metric-tab" role="tab" aria-selected="false" data-metric="coding">Coding (40%)</button>
+                <button type="button" class="metric-tab" role="tab" aria-selected="false" data-metric="reasoning">Reasoning (30%)</button>
+                <button type="button" class="metric-tab" role="tab" aria-selected="false" data-metric="ux">UX Precision (20%)</button>
+                <button type="button" class="metric-tab" role="tab" aria-selected="false" data-metric="speed">Execution Speed (10%)</button>
+              </div>
+            </div>
+            <div class="control-group">
+              <span class="control-label">Presentation View</span>
+              <div class="view-tabs" role="tablist" aria-label="Select presentation view">
+                <button type="button" class="view-tab is-active" role="tab" aria-selected="true" data-view="ranked">Ranked Bars</button>
+                <button type="button" class="view-tab" role="tab" aria-selected="false" data-view="radar">Signal Radar</button>
+                <button type="button" class="view-tab" role="tab" aria-selected="false" data-view="matrix">Detailed Matrix</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="benchmark-leader-callout" data-benchmark-leader aria-live="polite">
+            <span class="leader-badge">Top Performer</span>
+            <strong data-leader-name>GPT-5.6 Luna</strong>
+            <span data-leader-score class="leader-score">90.0 / 100</span>
+            <p data-leader-desc>Leading frontier model for complex multi-step reasoning, zero-shot code generation, and deep analytical synthesis.</p>
+          </div>
+
+          <div class="benchmark-display-area" data-benchmark-display>
+            <!-- View 1: Ranked Bars -->
+            <div class="benchmark-view benchmark-view-ranked is-active" data-view-content="ranked" role="tabpanel" aria-label="Ranked models view">
+              <div class="ranked-bars-list" data-ranked-list>
+                <!-- Populated via script.js -->
+              </div>
+            </div>
+
+            <!-- View 2: Signal Radar -->
+            <div class="benchmark-view benchmark-view-radar" data-view-content="radar" role="tabpanel" aria-label="Multi-dimensional signal radar view" hidden>
+              <div class="radar-container">
+                <div class="radar-visual-wrap">
+                  <svg class="benchmark-radar-svg" viewBox="0 0 500 500" role="img" aria-label="Benchmark radar comparison">
+                    <circle cx="250" cy="250" r="180" class="b-radar-ring"></circle>
+                    <circle cx="250" cy="250" r="135" class="b-radar-ring"></circle>
+                    <circle cx="250" cy="250" r="90" class="b-radar-ring"></circle>
+                    <circle cx="250" cy="250" r="45" class="b-radar-ring"></circle>
+                    <line x1="250" y1="70" x2="250" y2="430" class="b-radar-axis"></line>
+                    <line x1="70" y1="250" x2="430" y2="250" class="b-radar-axis"></line>
+                    <text x="250" y="52" text-anchor="middle" class="b-radar-label">CODING</text>
+                    <text x="445" y="254" text-anchor="start" class="b-radar-label">REASONING</text>
+                    <text x="250" y="456" text-anchor="middle" class="b-radar-label">UX PRECISION</text>
+                    <text x="55" y="254" text-anchor="end" class="b-radar-label">SPEED</text>
+                    <g data-benchmark-radar-polygons></g>
+                  </svg>
+                </div>
+                <div class="radar-legend-list" data-radar-legend>
+                  <!-- Dynamic legend -->
+                </div>
+              </div>
+            </div>
+
+            <!-- View 3: Detailed Matrix -->
+            <div class="benchmark-view benchmark-view-matrix" data-view-content="matrix" role="tabpanel" aria-label="Detailed benchmark matrix" hidden>
+              <div class="matrix-table-wrap">
+                <table class="benchmark-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Model</th>
+                      <th scope="col">Architecture &amp; Tier</th>
+                      <th scope="col" class="num-col">Coding</th>
+                      <th scope="col" class="num-col">Reasoning</th>
+                      <th scope="col" class="num-col">UX</th>
+                      <th scope="col" class="num-col">Speed</th>
+                      <th scope="col" class="num-col">Composite</th>
+                    </tr>
+                  </thead>
+                  <tbody data-matrix-tbody>
+                    <!-- Populated via script.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="benchmark-footnote">
+            <span>Methodology note: Evaluation comprises 120 standardized unit tasks across algorithm implementation, layout fidelity, mathematical deduction, and end-to-end latency. Local model Ternary-Bonsai-27B runs quantized on a single workstation without network access.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="explorer section-warm" id="explorer" aria-labelledby="explorer-title">
+      <div class="container">
+        <div class="section-index reveal"><span>05</span> Model Selection Explorer</div>
+        <div class="explorer-heading reveal">
+          <div>
+            <p class="kicker">Task-Driven Routing Engine</p>
+            <h2 id="explorer-title">Right model for<br><em>the analytical task.</em></h2>
+          </div>
+          <p>Different tasks demand different cognitive and latency architectures. Select your operational domain to see evidence-backed recommendations and trade-offs.</p>
+        </div>
+
+        <div class="explorer-module reveal" data-explorer-module>
+          <div class="explorer-category-bar" role="group" aria-label="Select workload category">
+            <button type="button" class="cat-pill is-active" data-cat="coding" aria-pressed="true">
+              <span class="cat-num">01</span>
+              <span class="cat-name">Coding</span>
+            </button>
+            <button type="button" class="cat-pill" data-cat="analysis" aria-pressed="false">
+              <span class="cat-num">02</span>
+              <span class="cat-name">Data Analysis</span>
+            </button>
+            <button type="button" class="cat-pill" data-cat="research" aria-pressed="false">
+              <span class="cat-num">03</span>
+              <span class="cat-name">Research</span>
+            </button>
+            <button type="button" class="cat-pill" data-cat="fast-tasks" aria-pressed="false">
+              <span class="cat-num">04</span>
+              <span class="cat-name">Fast Everyday Tasks</span>
+            </button>
+            <button type="button" class="cat-pill" data-cat="private" aria-pressed="false">
+              <span class="cat-num">05</span>
+              <span class="cat-name">Private / Local Workloads</span>
+            </button>
+          </div>
+
+          <div class="explorer-recommendation-card" data-explorer-recommendation aria-live="polite">
+            <div class="rec-header">
+              <div class="rec-tag">Recommended Routing Choice</div>
+              <h3 data-rec-model-name class="rec-model-name">GPT-5.6 Luna</h3>
+              <span data-rec-model-tier class="rec-model-tier">Cloud Frontier · Deep Reasoning</span>
+            </div>
+            <div class="rec-body">
+              <div class="rec-section">
+                <h4>Why this model is recommended</h4>
+                <p data-rec-rationale>Highest coding accuracy (94) and deep structural reasoning (96) required for multi-file refactoring, strict test-driven workflows, and complex API orchestrations.</p>
+              </div>
+              <div class="rec-section">
+                <h4>Architectural Trade-offs</h4>
+                <ul class="rec-tradeoffs" data-rec-tradeoffs>
+                  <li><strong>Latency:</strong> Moderate (78/100) — deeper reasoning takes slightly more tokens/sec.</li>
+                  <li><strong>Deployment:</strong> Cloud API dependency (requires egress for non-sensitive data).</li>
+                  <li><strong>Alternative:</strong> Grok 4.6 (92 Coding) if real-time architectural validation is preferred.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="explorer-comparison-grid">
+            <div class="comparison-head">
+              <h4>All Models Ranked for This Category</h4>
+              <span>Suitability &amp; Key Trade-offs</span>
+            </div>
+            <div class="comparison-cards" data-comparison-cards>
+              <!-- Cards rendered dynamically based on selected category -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ai-lab section-dark" id="ai-lab" aria-labelledby="ai-lab-title">
+      <div class="container">
+        <div class="section-index reveal"><span>06</span> My AI Lab</div>
+        <div class="ai-lab-heading reveal">
+          <div>
+            <p class="kicker">Interactive Workstation Sandbox</p>
+            <h2 id="ai-lab-title">Autonomous workflows.<br><em>Local &amp; cloud orchestration.</em></h2>
+          </div>
+          <p>An interactive technical sandbox testing hybrid agentic pipelines, real-time telemetry streaming, and zero-egress local quantized inference.</p>
+        </div>
+
+        <div class="ai-lab-sandbox reveal" data-ai-lab-sandbox>
+          <div class="sandbox-config-panel">
+            <div class="sandbox-field">
+              <label for="lab-task-select" class="sandbox-label">1. Analytical Task Domain</label>
+              <select id="lab-task-select" class="sandbox-select" data-lab-task>
+                <option value="sql">Real-time SQL Query Optimization &amp; Schema Indexing</option>
+                <option value="variance">Financial Revenue Variance &amp; Margin Decomposition</option>
+                <option value="weather">Copernicus Environmental Heuristic Forecast</option>
+                <option value="cohort">Confidential Customer Cohort Clustering (Zero-Egress)</option>
+              </select>
+            </div>
+
+            <div class="sandbox-field">
+              <label for="lab-engine-select" class="sandbox-label">2. Execution Engine &amp; Routing Architecture</label>
+              <select id="lab-engine-select" class="sandbox-select" data-lab-engine>
+                <option value="hybrid">Cloud Hybrid Orchestration (Gemini Flash Triage + GPT-5.6 Luna Solver)</option>
+                <option value="local">Local Air-Gapped Workstation (Ternary-Bonsai-27B On-Device)</option>
+                <option value="flash">Ultra-Fast Standalone Worker (Gemini Flash 98 Speed)</option>
+              </select>
+            </div>
+
+            <div class="sandbox-action">
+              <button type="button" class="button button-primary sandbox-run-btn" data-lab-run>
+                <span>Run Execution Simulation</span>
+                <span aria-hidden="true">▶</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="sandbox-telemetry-strip" data-lab-telemetry>
+            <div class="telemetry-item">
+              <span>Time to First Token</span>
+              <strong data-telemetry-ttft>140 ms</strong>
+            </div>
+            <div class="telemetry-item">
+              <span>Generation Speed</span>
+              <strong data-telemetry-speed>128 tok/s</strong>
+            </div>
+            <div class="telemetry-item">
+              <span>Cloud Egress</span>
+              <strong data-telemetry-egress>2.4 KB</strong>
+            </div>
+            <div class="telemetry-item">
+              <span>Local VRAM Allocation</span>
+              <strong data-telemetry-vram>0.0 GB</strong>
+            </div>
+            <div class="telemetry-item">
+              <span>Privacy Guarantee</span>
+              <strong data-telemetry-privacy class="privacy-high">TLS Encrypted</strong>
+            </div>
+          </div>
+
+          <div class="sandbox-pipeline-visualizer">
+            <div class="pipeline-flow-nodes" data-pipeline-nodes>
+              <div class="pipeline-node is-active" data-step="1">
+                <span class="node-idx">01</span>
+                <span class="node-title">Prompt Parse</span>
+                <span class="node-status">Ready</span>
+              </div>
+              <div class="pipeline-connector"></div>
+              <div class="pipeline-node" data-step="2">
+                <span class="node-idx">02</span>
+                <span class="node-title">Model Dispatch</span>
+                <span class="node-status">Pending</span>
+              </div>
+              <div class="pipeline-connector"></div>
+              <div class="pipeline-node" data-step="3">
+                <span class="node-idx">03</span>
+                <span class="node-title">Inference &amp; Refine</span>
+                <span class="node-status">Pending</span>
+              </div>
+              <div class="pipeline-connector"></div>
+              <div class="pipeline-node" data-step="4">
+                <span class="node-idx">04</span>
+                <span class="node-title">Verification</span>
+                <span class="node-status">Pending</span>
+              </div>
+            </div>
+
+            <div class="sandbox-terminal" role="region" aria-label="Simulated execution telemetry output" tabindex="0">
+              <div class="terminal-header">
+                <span class="terminal-dot"></span>
+                <span class="terminal-title" data-terminal-title>telemetry://workstation-session-01.trace</span>
+                <span class="terminal-badge" data-terminal-badge>IDLE</span>
+              </div>
+              <pre class="terminal-log" data-terminal-log><code>[SYSTEM READY] Workstation engine initialized. Select an analytical task and execution architecture, then click 'Run Execution Simulation'.</code></pre>
+            </div>
+          </div>
+
+          <div class="sandbox-concepts-grid">
+            <div class="concept-card">
+              <div class="concept-num">01</div>
+              <h4>Local Air-Gapped Inference</h4>
+              <p>Ternary-Bonsai-27B executes locally on workstation VRAM via quantized ternary weights. No prompts or data leave the local machine, providing mathematical privacy for proprietary data.</p>
+            </div>
+            <div class="concept-card">
+              <div class="concept-num">02</div>
+              <h4>Hybrid Multi-Model Routing</h4>
+              <p>Ultra-low-latency models (Gemini Flash at 98 speed) handle intent parsing and data normalization, while heavy frontier reasoning models (GPT-5.6 Luna) solve complex algorithmic constraints.</p>
+            </div>
+            <div class="concept-card">
+              <div class="concept-num">03</div>
+              <h4>Deterministic Verification</h4>
+              <p>AI outputs are passed to automated linters, SQL parsers, and schema validators. The agentic loop auto-corrects syntax errors before delivering final decisions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="practice section-light" id="practice" aria-labelledby="practice-title">
       <div class="container">
-        <div class="section-index reveal"><span>04</span> Work in practice</div>
+        <div class="section-index reveal"><span>07</span> Work in practice</div>
         <div class="practice-heading reveal">
           <div>
             <p class="kicker">Public repository, not a claim</p>
@@ -213,7 +506,7 @@
 
     <section class="pulse section-dark" id="pulse" aria-labelledby="pulse-title">
       <div class="container">
-        <div class="section-index reveal"><span>05</span> Warsaw Data Pulse</div>
+        <div class="section-index reveal"><span>08</span> Warsaw Data Pulse</div>
         <div class="pulse-heading reveal">
           <div><p class="kicker">Live data, made useful</p><h2 id="pulse-title">Warsaw conditions.<br><em>One clear decision.</em></h2></div>
           <p>Twenty-four hours of public data, translated into a practical window for being outside.</p>

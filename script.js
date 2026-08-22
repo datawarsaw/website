@@ -11,19 +11,65 @@
   const nav = document.querySelector('[data-nav]');
 
   if (toggle && nav) {
-    const closeMenu = () => {
+    const navLinks = [...nav.querySelectorAll('a')];
+    const closeMenu = (returnFocus = false) => {
       toggle.setAttribute('aria-expanded', 'false');
       nav.classList.remove('is-open');
       document.body.classList.remove('menu-open');
+      if (window.innerWidth <= 900) nav.setAttribute('aria-hidden', 'true');
+      if (returnFocus) toggle.focus();
     };
+
+    const openMenu = () => {
+      toggle.setAttribute('aria-expanded', 'true');
+      nav.classList.add('is-open');
+      document.body.classList.add('menu-open');
+      nav.setAttribute('aria-hidden', 'false');
+      if (navLinks.length > 0) navLinks[0].focus();
+    };
+
     toggle.addEventListener('click', () => {
-      const open = toggle.getAttribute('aria-expanded') !== 'true';
-      toggle.setAttribute('aria-expanded', String(open));
-      nav.classList.toggle('is-open', open);
-      document.body.classList.toggle('menu-open', open);
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      if (isOpen) closeMenu();
+      else openMenu();
     });
-    nav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
-    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
+
+    navLinks.forEach(link => link.addEventListener('click', () => closeMenu(false)));
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        closeMenu(true);
+      }
+      if (event.key === 'Tab' && nav.classList.contains('is-open')) {
+        const focusable = [toggle, ...navLinks];
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          last.focus();
+          event.preventDefault();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          first.focus();
+          event.preventDefault();
+        }
+      }
+    });
+
+    document.addEventListener('click', event => {
+      if (nav.classList.contains('is-open') && !nav.contains(event.target) && !toggle.contains(event.target)) {
+        closeMenu(false);
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900) {
+        closeMenu(false);
+        nav.removeAttribute('aria-hidden');
+      } else if (!nav.classList.contains('is-open')) {
+        nav.setAttribute('aria-hidden', 'true');
+      }
+    }, { passive: true });
+
+    if (window.innerWidth <= 900) nav.setAttribute('aria-hidden', 'true');
   }
 
   const reveals = [...document.querySelectorAll('.reveal')];
@@ -1166,9 +1212,581 @@
     window.addEventListener('pagehide', () => {
       entranceTimeline?.kill();
       window.ScrollTrigger?.getById('datawarsaw-pulse-narrative')?.kill();
-      reduceMotionQuery.removeEventListener('change', handlePulseMotionPreference);
-    }, { once: true });
-  }
+    reduceMotionQuery.removeEventListener('change', handlePulseMotionPreference);
+  }, { once: true });
+}
+
+  // ==========================================================================
+  // SCENARIO 1: AI Workstation Benchmark
+  // ==========================================================================
+  const initAiBenchmark = () => {
+    const benchmarkEl = document.querySelector('[data-benchmark-module]');
+    if (!benchmarkEl) return;
+
+    const BENCHMARK_MODELS = [
+      {
+        id: 'gpt-5-6-luna',
+        name: 'GPT-5.6 Luna',
+        tier: 'Cloud Frontier · OpenAI',
+        color: '#c6ff3e',
+        coding: 94,
+        reasoning: 96,
+        ux: 92,
+        speed: 78,
+        composite: 90.0,
+        strengths: 'Deep multi-step reasoning, zero-shot code correctness, complex architectural synthesis'
+      },
+      {
+        id: 'grok-4-5',
+        name: 'Grok 4.5',
+        tier: 'Cloud High-Throughput · xAI',
+        color: '#76d8ff',
+        coding: 88,
+        reasoning: 84,
+        ux: 90,
+        speed: 91,
+        composite: 87.5,
+        strengths: 'Adversarial debugging, high throughput, direct technical answers'
+      },
+      {
+        id: 'grok-4-6',
+        name: 'Grok 4.6',
+        tier: 'Cloud Frontier · xAI',
+        color: '#ffaa40',
+        coding: 92,
+        reasoning: 91,
+        ux: 93,
+        speed: 85,
+        composite: 91.2,
+        strengths: 'Advanced reasoning, responsive frontend design, architectural validation'
+      },
+      {
+        id: 'gemini-flash',
+        name: 'Gemini Flash',
+        tier: 'Cloud Ultra-Speed · Google',
+        color: '#40ffb0',
+        coding: 89,
+        reasoning: 86,
+        ux: 94,
+        speed: 98,
+        composite: 90.0,
+        strengths: 'Ultra-fast execution loop, high UI implementation fidelity, responsive precision'
+      },
+      {
+        id: 'ternary-bonsai-27b',
+        name: 'Ternary-Bonsai-27B',
+        tier: 'Local Workstation · Air-Gapped',
+        color: '#d488ff',
+        coding: 76,
+        reasoning: 74,
+        ux: 78,
+        speed: 83,
+        composite: 76.5,
+        strengths: '100% private zero-cloud egress, local workstation VRAM deployment, air-gapped security'
+      }
+    ];
+
+    const metricTabs = [...benchmarkEl.querySelectorAll('.metric-tab')];
+    const viewTabs = [...benchmarkEl.querySelectorAll('.view-tab')];
+    const viewPanels = [...benchmarkEl.querySelectorAll('[data-view-content]')];
+    const leaderName = benchmarkEl.querySelector('[data-leader-name]');
+    const leaderScore = benchmarkEl.querySelector('[data-leader-score]');
+    const leaderDesc = benchmarkEl.querySelector('[data-leader-desc]');
+    const rankedList = benchmarkEl.querySelector('[data-ranked-list]');
+    const matrixTbody = benchmarkEl.querySelector('[data-matrix-tbody]');
+    const radarPolygonsGroup = benchmarkEl.querySelector('[data-benchmark-radar-polygons]');
+    const radarLegendList = benchmarkEl.querySelector('[data-radar-legend]');
+
+    let currentMetric = 'all';
+    let currentView = 'ranked';
+
+    const getScore = (m, metric) => {
+      if (metric === 'all') return m.composite;
+      return m[metric] || 0;
+    };
+
+    const renderRankedView = () => {
+      if (!rankedList) return;
+      const sorted = [...BENCHMARK_MODELS].sort((a, b) => getScore(b, currentMetric) - getScore(a, currentMetric));
+      const maxScore = getScore(sorted[0], currentMetric);
+
+      rankedList.innerHTML = sorted.map((model, idx) => {
+        const score = getScore(model, currentMetric);
+        const isLeader = score === maxScore;
+        const widthPct = Math.round((score / 100) * 100);
+
+        return `
+          <div class="ranked-model-card${isLeader ? ' is-leader' : ''}" data-model-id="${model.id}">
+            <div class="model-rank">0${idx + 1}</div>
+            <div class="model-info">
+              <strong>${model.name}</strong>
+              <span class="model-tier-tag">${model.tier}</span>
+            </div>
+            <div class="model-bar-track" aria-hidden="true">
+              <div class="model-bar-fill" style="width: ${widthPct}%"></div>
+            </div>
+            <div class="model-score-badge">${score.toFixed(currentMetric === 'all' ? 1 : 0)}<small>/100</small></div>
+            <div class="model-metrics-mini">
+              <span>Coding: <b>${model.coding}</b></span>
+              <span>Reasoning: <b>${model.reasoning}</b></span>
+              <span>UX: <b>${model.ux}</b></span>
+              <span>Speed: <b>${model.speed}</b></span>
+              <span>Strengths: ${model.strengths}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    const renderRadarView = () => {
+      if (!radarPolygonsGroup) return;
+      const cx = 250, cy = 250, maxR = 180;
+      const getCoord = (val, axis) => {
+        const r = (val / 100) * maxR;
+        if (axis === 'coding') return { x: cx, y: cy - r };
+        if (axis === 'reasoning') return { x: cx + r, y: cy };
+        if (axis === 'ux') return { x: cx, y: cy + r };
+        if (axis === 'speed') return { x: cx - r, y: cy };
+        return { x: cx, y: cy };
+      };
+
+      radarPolygonsGroup.innerHTML = BENCHMARK_MODELS.map(model => {
+        const p1 = getCoord(model.coding, 'coding');
+        const p2 = getCoord(model.reasoning, 'reasoning');
+        const p3 = getCoord(model.ux, 'ux');
+        const p4 = getCoord(model.speed, 'speed');
+        const pointsStr = `${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`;
+
+        return `
+          <polygon class="b-radar-polygon" data-model="${model.id}" points="${pointsStr}"
+            stroke="${model.color}" fill="${model.color}" style="stroke: ${model.color}; fill: ${model.color}">
+            <title>${model.name}: Coding ${model.coding}, Reasoning ${model.reasoning}, UX ${model.ux}, Speed ${model.speed}</title>
+          </polygon>
+        `;
+      }).join('');
+
+      if (radarLegendList) {
+        radarLegendList.innerHTML = BENCHMARK_MODELS.map(model => `
+          <div class="radar-legend-item" data-radar-target="${model.id}">
+            <div>
+              <span class="legend-color-dot" style="background: ${model.color}"></span>
+              <strong>${model.name}</strong>
+              <small style="color: rgba(255,255,255,0.5); margin-left: 0.5rem">(${model.tier.split('·')[0].trim()})</small>
+            </div>
+            <span style="font-family: var(--mono); color: var(--paper); font-size: 0.85rem">Composite: ${model.composite}</span>
+          </div>
+        `).join('');
+
+        radarLegendList.querySelectorAll('.radar-legend-item').forEach(item => {
+          const id = item.getAttribute('data-radar-target');
+          item.addEventListener('mouseenter', () => {
+            radarPolygonsGroup.querySelectorAll('.b-radar-polygon').forEach(poly => {
+              if (poly.getAttribute('data-model') === id) {
+                poly.style.strokeWidth = '4px';
+                poly.style.fillOpacity = '0.55';
+              } else {
+                poly.style.strokeWidth = '1px';
+                poly.style.fillOpacity = '0.05';
+              }
+            });
+          });
+          item.addEventListener('mouseleave', () => {
+            radarPolygonsGroup.querySelectorAll('.b-radar-polygon').forEach(poly => {
+              poly.style.strokeWidth = '';
+              poly.style.fillOpacity = '';
+            });
+          });
+        });
+      }
+    };
+
+    const renderMatrixView = () => {
+      if (!matrixTbody) return;
+      const sorted = [...BENCHMARK_MODELS].sort((a, b) => b.composite - a.composite);
+      const maxCoding = Math.max(...BENCHMARK_MODELS.map(m => m.coding));
+      const maxReasoning = Math.max(...BENCHMARK_MODELS.map(m => m.reasoning));
+      const maxUX = Math.max(...BENCHMARK_MODELS.map(m => m.ux));
+      const maxSpeed = Math.max(...BENCHMARK_MODELS.map(m => m.speed));
+      const maxComp = Math.max(...BENCHMARK_MODELS.map(m => m.composite));
+
+      matrixTbody.innerHTML = sorted.map(m => {
+        const isCompLeader = m.composite === maxComp;
+        return `
+          <tr class="${isCompLeader ? 'is-leader-row' : ''}">
+            <th scope="row"><strong>${m.name}</strong></th>
+            <td>${m.tier}</td>
+            <td class="num-col${m.coding === maxCoding ? ' is-leader-cell' : ''}">${m.coding}${m.coding === maxCoding ? ' ★' : ''}</td>
+            <td class="num-col${m.reasoning === maxReasoning ? ' is-leader-cell' : ''}">${m.reasoning}${m.reasoning === maxReasoning ? ' ★' : ''}</td>
+            <td class="num-col${m.ux === maxUX ? ' is-leader-cell' : ''}">${m.ux}${m.ux === maxUX ? ' ★' : ''}</td>
+            <td class="num-col${m.speed === maxSpeed ? ' is-leader-cell' : ''}">${m.speed}${m.speed === maxSpeed ? ' ★' : ''}</td>
+            <td class="num-col" style="font-weight: 600; color: ${isCompLeader ? 'var(--lime)' : 'inherit'}">${m.composite.toFixed(1)}</td>
+          </tr>
+        `;
+      }).join('');
+    };
+
+    const updateLeaderCallout = () => {
+      const sorted = [...BENCHMARK_MODELS].sort((a, b) => getScore(b, currentMetric) - getScore(a, currentMetric));
+      const leader = sorted[0];
+      const score = getScore(leader, currentMetric);
+
+      if (leaderName) leaderName.textContent = leader.name;
+      if (leaderScore) leaderScore.textContent = `${score.toFixed(currentMetric === 'all' ? 1 : 0)} / 100`;
+      if (leaderDesc) {
+        if (currentMetric === 'all') {
+          leaderDesc.textContent = `Leader in Overall Composite: ${leader.name} achieves the highest weighted balance of deep reasoning, precise coding, and responsive UI delivery.`;
+        } else if (currentMetric === 'coding') {
+          leaderDesc.textContent = `Leader in Coding Accuracy (94/100): ${leader.name} excels at zero-shot syntax correctness, complex AST refactoring, and multi-file coherence.`;
+        } else if (currentMetric === 'reasoning') {
+          leaderDesc.textContent = `Leader in Analytical Reasoning (96/100): ${leader.name} demonstrates superior multi-step logic, statistical deductions, and architectural planning.`;
+        } else if (currentMetric === 'ux') {
+          leaderDesc.textContent = `Leader in UX Precision (94/100): ${leader.name} provides highest visual fidelity, responsive layout stability, and strict design-token consistency.`;
+        } else if (currentMetric === 'speed') {
+          leaderDesc.textContent = `Leader in Execution Speed (98/100): ${leader.name} delivers sub-second time-to-first-token and ultra-high generation throughput for fast iteration loops.`;
+        }
+      }
+    };
+
+    metricTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        metricTabs.forEach(t => {
+          t.classList.remove('is-active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('is-active');
+        tab.setAttribute('aria-selected', 'true');
+        currentMetric = tab.getAttribute('data-metric') || 'all';
+        updateLeaderCallout();
+        renderRankedView();
+      });
+    });
+
+    viewTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        viewTabs.forEach(t => {
+          t.classList.remove('is-active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('is-active');
+        tab.setAttribute('aria-selected', 'true');
+        currentView = tab.getAttribute('data-view') || 'ranked';
+
+        viewPanels.forEach(panel => {
+          const isMatch = panel.getAttribute('data-view-content') === currentView;
+          panel.classList.toggle('is-active', isMatch);
+          panel.hidden = !isMatch;
+        });
+
+        if (currentView === 'radar') renderRadarView();
+        if (currentView === 'matrix') renderMatrixView();
+      });
+    });
+
+    updateLeaderCallout();
+    renderRankedView();
+    renderRadarView();
+    renderMatrixView();
+  };
+
+  // ==========================================================================
+  // SCENARIO 3: Model Selection Explorer
+  // ==========================================================================
+  const initModelExplorer = () => {
+    const explorerEl = document.querySelector('[data-explorer-module]');
+    if (!explorerEl) return;
+
+    const CATEGORY_DATA = {
+      coding: {
+        recModel: 'GPT-5.6 Luna',
+        recTier: 'Cloud Frontier · Deep Reasoning',
+        rationale: 'Highest coding accuracy (94) and deep structural reasoning (96) required for multi-file refactoring, strict test-driven workflows, and complex API orchestrations.',
+        tradeoffs: [
+          { label: 'Latency', text: 'Moderate (78/100) — deeper reasoning takes slightly more tokens/sec.' },
+          { label: 'Deployment', text: 'Cloud API dependency (requires internet egress for non-sensitive data).' },
+          { label: 'Alternative', text: 'Grok 4.6 (92 Coding) if real-time architectural validation is preferred.' }
+        ],
+        models: [
+          { name: 'GPT-5.6 Luna', fit: '98% Optimal Fit', desc: 'Flawless syntax and zero-shot test generation.', tags: ['Top Coding', 'Architecture', 'Refactoring'] },
+          { name: 'Grok 4.6', fit: '94% Excellent', desc: 'Fast full-repo scanning and adversarial code review.', tags: ['Adversarial QA', 'Fast Sync'] },
+          { name: 'Gemini Flash', fit: '89% High-Speed', desc: 'Instant single-file edits and frontend markup tweaks.', tags: ['Rapid Iteration', 'Low Latency'] },
+          { name: 'Grok 4.5', fit: '85% Solid', desc: 'Direct algorithmic solutions and regex parsing.', tags: ['Direct Answers'] },
+          { name: 'Ternary-Bonsai-27B', fit: '72% Air-Gapped', desc: 'Private local code assistant for confidential repos.', tags: ['Zero Egress', 'Offline'] }
+        ]
+      },
+      analysis: {
+        recModel: 'GPT-5.6 Luna',
+        recTier: 'Cloud Frontier · Analytical Reasoning',
+        rationale: 'Unrivaled mathematical logic (96 Reasoning) and data modeling acumen. Synthesizes multi-table schemas, complex variance drivers, and financial cohorts with zero hallucinations.',
+        tradeoffs: [
+          { label: 'Cost/Tokens', text: 'Prompt ingestion token cost on 100k+ row datasets; batching recommended.' },
+          { label: 'Throughput', text: 'Optimized for reasoning depth over raw stream velocity.' },
+          { label: 'Alternative', text: 'Gemini Flash for rapid exploratory statistical slicing.' }
+        ],
+        models: [
+          { name: 'GPT-5.6 Luna', fit: '99% Optimal Fit', desc: 'Mathematical synthesis, SQL schema modeling, and causal deduction.', tags: ['Math Logic', 'SQL Modeling'] },
+          { name: 'Grok 4.6', fit: '91% High Fit', desc: 'Multi-dimensional correlation and trend extraction.', tags: ['Correlation', 'Trends'] },
+          { name: 'Gemini Flash', fit: '88% Fast Slice', desc: 'Quick exploratory dataframe queries and visualizations.', tags: ['Fast Parsing', 'Visuals'] },
+          { name: 'Grok 4.5', fit: '84% Capable', desc: 'Direct formula generation and metric conversion.', tags: ['Formulas'] },
+          { name: 'Ternary-Bonsai-27B', fit: '74% Air-Gapped', desc: 'Confidential corporate financial ledger analysis on local workstation.', tags: ['Private VRAM', 'Offline'] }
+        ]
+      },
+      research: {
+        recModel: 'Grok 4.6',
+        recTier: 'Cloud Frontier · Real-time Knowledge',
+        rationale: 'Exceptional reasoning depth (91) paired with broad multi-perspective synthesis and real-time technical literature exploration.',
+        tradeoffs: [
+          { label: 'Egress', text: 'Cloud-based synthesis; not suitable for air-gapped proprietary labs.' },
+          { label: 'Latency', text: '85/100 speed — comprehensive deep answers take deliberate time.' },
+          { label: 'Alternative', text: 'GPT-5.6 Luna for deeply formal academic math papers.' }
+        ],
+        models: [
+          { name: 'Grok 4.6', fit: '97% Optimal Fit', desc: 'Multi-source synthesis, nuance detection, and technical debate.', tags: ['Deep Research', 'Broad Synthesis'] },
+          { name: 'GPT-5.6 Luna', fit: '95% Rigorous', desc: 'Formal mathematical literature and algorithmic theorems.', tags: ['Academic Math', 'Proofs'] },
+          { name: 'Gemini Flash', fit: '86% Fast Digest', desc: 'Quick executive abstract generation and bulleted summaries.', tags: ['Fast Digest', 'Summaries'] },
+          { name: 'Grok 4.5', fit: '85% Solid', desc: 'Concise background briefings and terminology definition.', tags: ['Briefings'] },
+          { name: 'Ternary-Bonsai-27B', fit: '70% Air-Gapped', desc: 'Local private document Q&A over unredacted internal records.', tags: ['Local Docs', 'Zero Leakage'] }
+        ]
+      },
+      'fast-tasks': {
+        recModel: 'Gemini Flash',
+        recTier: 'Cloud Ultra-Speed · 98 Latency Index',
+        rationale: 'Near-instantaneous time-to-first-token (98 Speed) and crisp UX formatting (94 UX). The ultimate worker for rapid interactive loops, prompt scaffolding, and mechanical conversions.',
+        tradeoffs: [
+          { label: 'Reasoning Ceiling', text: 'Slightly lower on 10,000-line cross-repo architecture proofs than Luna.' },
+          { label: 'Context Horizon', text: 'Best utilized in rapid focused execution units.' },
+          { label: 'Alternative', text: 'Grok 4.5 (91 Speed) for punchy direct command-line answers.' }
+        ],
+        models: [
+          { name: 'Gemini Flash', fit: '99% Optimal Fit', desc: 'Lightning-fast responses (98 Speed), ideal for interactive coding flow.', tags: ['Ultra Fast', 'High UX Fidelity'] },
+          { name: 'Grok 4.5', fit: '92% High Speed', desc: 'Rapid response turnaround and concise terminal-style outputs.', tags: ['Fast Stream', 'Punchy'] },
+          { name: 'Grok 4.6', fit: '87% Balanced', desc: 'Balanced speed with high reasoning for moderate workflows.', tags: ['Balanced'] },
+          { name: 'GPT-5.6 Luna', fit: '80% Heavyweight', desc: 'Powerful but over-parameterized for trivial formatting scripts.', tags: ['Deep Solver'] },
+          { name: 'Ternary-Bonsai-27B', fit: '82% Local Speed', desc: 'Fast on-device execution without network roundtrips.', tags: ['Zero Network Lag', 'On-Device'] }
+        ]
+      },
+      private: {
+        recModel: 'Ternary-Bonsai-27B',
+        recTier: 'Local Workstation · Air-Gapped VRAM',
+        rationale: 'Absolute zero cloud egress. Runs 100% locally on workstation GPU/RAM using ternary quantization. Mathematical guarantee that proprietary customer data never touches external networks.',
+        tradeoffs: [
+          { label: 'Hardware Demand', text: 'Requires 8GB+ workstation VRAM for local execution.' },
+          { label: 'Model Capacity', text: '76 Coding score — suitable for structured scripts and parsing, but lower than 90+ cloud giants.' },
+          { label: 'Alternative', text: 'None — cloud models cannot provide air-gapped data sovereignty.' }
+        ],
+        models: [
+          { name: 'Ternary-Bonsai-27B', fit: '100% Complete Privacy', desc: '100% local on-device VRAM execution. Zero cloud telemetry.', tags: ['Air-Gapped', 'Zero Egress', 'GDPR/HIPAA'] },
+          { name: 'GPT-5.6 Luna', fit: '30% Cloud Egress', desc: 'Cloud model requires external network transmission.', tags: ['Cloud Only'] },
+          { name: 'Grok 4.6', fit: '30% Cloud Egress', desc: 'Cloud model requires external network transmission.', tags: ['Cloud Only'] },
+          { name: 'Gemini Flash', fit: '30% Cloud Egress', desc: 'Cloud model requires external network transmission.', tags: ['Cloud Only'] },
+          { name: 'Grok 4.5', fit: '30% Cloud Egress', desc: 'Cloud model requires external network transmission.', tags: ['Cloud Only'] }
+        ]
+      }
+    };
+
+    const catButtons = [...explorerEl.querySelectorAll('.cat-pill')];
+    const recModelName = explorerEl.querySelector('[data-rec-model-name]');
+    const recModelTier = explorerEl.querySelector('[data-rec-model-tier]');
+    const recRationale = explorerEl.querySelector('[data-rec-rationale]');
+    const recTradeoffs = explorerEl.querySelector('[data-rec-tradeoffs]');
+    const comparisonCards = explorerEl.querySelector('[data-comparison-cards]');
+
+    const updateCategory = (catKey) => {
+      const data = CATEGORY_DATA[catKey] || CATEGORY_DATA.coding;
+      if (recModelName) recModelName.textContent = data.recModel;
+      if (recModelTier) recModelTier.textContent = data.recTier;
+      if (recRationale) recRationale.textContent = data.rationale;
+
+      if (recTradeoffs) {
+        recTradeoffs.innerHTML = data.tradeoffs.map(t => `
+          <li><strong>${t.label}:</strong> ${t.text}</li>
+        `).join('');
+      }
+
+      if (comparisonCards) {
+        comparisonCards.innerHTML = data.models.map((m, idx) => `
+          <div class="model-comp-card${idx === 0 ? ' is-top-choice' : ''}">
+            <div class="comp-card-head">
+              <strong>${m.name}</strong>
+              <span class="fit-score">${m.fit}</span>
+            </div>
+            <p class="comp-card-desc">${m.desc}</p>
+            <div class="comp-card-tags">
+              ${m.tags.map(t => `<span class="comp-tag">${t}</span>`).join('')}
+            </div>
+          </div>
+        `).join('');
+      }
+    };
+
+    catButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        catButtons.forEach(b => {
+          b.classList.remove('is-active');
+          b.setAttribute('aria-pressed', 'false');
+        });
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-pressed', 'true');
+        const cat = btn.getAttribute('data-cat') || 'coding';
+        updateCategory(cat);
+      });
+    });
+
+    updateCategory('coding');
+  };
+
+  // ==========================================================================
+  // SCENARIO 5: My AI Lab Sandbox
+  // ==========================================================================
+  const initAiLab = () => {
+    const labEl = document.querySelector('[data-ai-lab-sandbox]');
+    if (!labEl) return;
+
+    const taskSelect = labEl.querySelector('[data-lab-task]');
+    const engineSelect = labEl.querySelector('[data-lab-engine]');
+    const runBtn = labEl.querySelector('[data-lab-run]');
+    const telemetryTtft = labEl.querySelector('[data-telemetry-ttft]');
+    const telemetrySpeed = labEl.querySelector('[data-telemetry-speed]');
+    const telemetryEgress = labEl.querySelector('[data-telemetry-egress]');
+    const telemetryVram = labEl.querySelector('[data-telemetry-vram]');
+    const telemetryPrivacy = labEl.querySelector('[data-telemetry-privacy]');
+    const nodes = [...labEl.querySelectorAll('.pipeline-node')];
+    const terminalLog = labEl.querySelector('[data-terminal-log]');
+    const terminalBadge = labEl.querySelector('[data-terminal-badge]');
+
+    let isRunning = false;
+
+    const SIMULATION_PRESETS = {
+      hybrid: {
+        ttft: '140 ms',
+        speed: '128 tok/s',
+        egress: '2.8 KB',
+        vram: '0.0 GB',
+        privacy: 'TLS Cloud Egress',
+        isLocal: false,
+        steps: [
+          'Parsing natural language analytical intent via Gemini Flash...',
+          'Dispatching heavy algorithmic constraints to GPT-5.6 Luna solver...',
+          'Luna generating optimized execution plan with AST validation...',
+          'Verification passed: 0 syntax errors, deterministic output validated.'
+        ]
+      },
+      local: {
+        ttft: '420 ms',
+        speed: '54 tok/s',
+        egress: '0.0 KB (Air-Gapped)',
+        vram: '6.8 GB (Dedicated VRAM)',
+        privacy: '100% On-Device Air-Gapped',
+        isLocal: true,
+        steps: [
+          'Ingesting local schema directly from workstation memory...',
+          'Loading Ternary-Bonsai-27B quantized weights into VRAM...',
+          'Executing local zero-egress inference (zero network packets)...',
+          'Verification passed: Output compiled locally with 100% privacy guarantee.'
+        ]
+      },
+      flash: {
+        ttft: '95 ms',
+        speed: '165 tok/s',
+        egress: '1.2 KB',
+        vram: '0.0 GB',
+        privacy: 'TLS Cloud Egress',
+        isLocal: false,
+        steps: [
+          'Rapid tokenization and instant single-pass parsing...',
+          'Direct stream generation on high-speed Gemini Flash engine...',
+          'Output streaming complete in 210ms total latency...',
+          'Verification passed: Response verified and delivered.'
+        ]
+      }
+    };
+
+    const updateTelemetryUI = (preset) => {
+      if (telemetryTtft) telemetryTtft.textContent = preset.ttft;
+      if (telemetrySpeed) telemetrySpeed.textContent = preset.speed;
+      if (telemetryEgress) telemetryEgress.textContent = preset.egress;
+      if (telemetryVram) telemetryVram.textContent = preset.vram;
+      if (telemetryPrivacy) {
+        telemetryPrivacy.textContent = preset.privacy;
+        telemetryPrivacy.className = preset.isLocal ? 'privacy-high' : '';
+      }
+    };
+
+    if (engineSelect) {
+      engineSelect.addEventListener('change', () => {
+        const engine = engineSelect.value;
+        const preset = SIMULATION_PRESETS[engine] || SIMULATION_PRESETS.hybrid;
+        updateTelemetryUI(preset);
+      });
+    }
+
+    if (runBtn) {
+      runBtn.addEventListener('click', async () => {
+        if (isRunning) return;
+        isRunning = true;
+        runBtn.disabled = true;
+        if (terminalBadge) {
+          terminalBadge.textContent = 'RUNNING';
+          terminalBadge.classList.add('is-running');
+        }
+
+        const engine = engineSelect ? engineSelect.value : 'hybrid';
+        const task = taskSelect ? taskSelect.value : 'sql';
+        const preset = SIMULATION_PRESETS[engine] || SIMULATION_PRESETS.hybrid;
+
+        updateTelemetryUI(preset);
+
+        if (terminalLog) {
+          terminalLog.innerHTML = `<code>[STARTING PIPELINE] Task: ${task.toUpperCase()} | Engine: ${engine.toUpperCase()}\nInitializing execution telemetry trace...</code>`;
+        }
+
+        for (let i = 0; i < nodes.length; i++) {
+          nodes.forEach((n, idx) => {
+            n.classList.toggle('is-active', idx === i);
+            n.classList.toggle('is-complete', idx < i);
+            const st = n.querySelector('.node-status');
+            if (st) {
+              if (idx < i) st.textContent = 'Done ✓';
+              else if (idx === i) st.textContent = 'Executing...';
+              else st.textContent = 'Pending';
+            }
+          });
+
+          if (terminalLog) {
+            const timeStr = new Date().toISOString().split('T')[1].slice(0, 8);
+            terminalLog.innerHTML += `\n<code>[${timeStr}] Step 0${i + 1}: ${preset.steps[i]}</code>`;
+            terminalLog.scrollTop = terminalLog.scrollHeight;
+          }
+
+          await new Promise(r => setTimeout(r, motionReduced() ? 80 : 380));
+        }
+
+        nodes.forEach(n => {
+          n.classList.remove('is-active');
+          n.classList.add('is-complete');
+          const st = n.querySelector('.node-status');
+          if (st) st.textContent = 'Done ✓';
+        });
+
+        if (terminalLog) {
+          terminalLog.innerHTML += `\n<code>[COMPLETED] Pipeline execution finished in ${engine === 'flash' ? '210ms' : engine === 'hybrid' ? '620ms' : '980ms'}. Result verified and cached.</code>`;
+          terminalLog.scrollTop = terminalLog.scrollHeight;
+        }
+
+        if (terminalBadge) {
+          terminalBadge.textContent = 'COMPLETE';
+          terminalBadge.classList.remove('is-running');
+        }
+
+        isRunning = false;
+        runBtn.disabled = false;
+      });
+    }
+  };
+
+  initAiBenchmark();
+  initModelExplorer();
+  initAiLab();
+
   const canvas = document.querySelector('[data-signal-canvas]');
   if (!canvas) {
     window.__heroGraphAnimation = null;
