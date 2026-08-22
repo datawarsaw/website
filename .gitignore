@@ -48,3 +48,8 @@ build/
 
 # Sanity Studio public configuration template
 !cms/.env.example
+
+# Local benchmark / QA artifacts
+.benchmark-worktrees/
+benchmark-output/
+evals/test_results.json
