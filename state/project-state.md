@@ -45,7 +45,7 @@ Main completed recent improvements:
 - GitHub contribution layout is responsive and container-driven.
 - Analytical Expertise radar has differentiated integer 1–10 scores.
 - Weather recommendation Polish character encoding fixed (clean UTF-8).
-- Model Benchmark Dashboard removed from public website (retained internally under `evals/`, `docs/`, `state/`, and `benchmark-comparison.html`).
+- Model Benchmark Dashboard was retired from the public website; historical benchmark implementations and decision records are preserved on dedicated `benchmark/*` branches, while local comparison dashboards and generated outputs have been retired.
 - Dedicated live Agent Observability subpage created at `/observability/` (`site/observability/index.html`) featuring live mission control, flow graph, active agent activity, and chronological event stream.
 - Live V1.1 file-driven observability architecture established: runtime updates `state/current-run.json` and sanitizes public export to `site/data/current-run.json`.
 - Coordinator lifecycle telemetry interface added to `scripts/update_current_run.py`: fresh run initialization, step start/complete/fail/block events, automatic durations, run completion/failure/block state, and activity cleanup.
