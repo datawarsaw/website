@@ -20,17 +20,30 @@
   <link rel="canonical" href="https://datawarsaw.com/">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
  <script>document.documentElement.classList.add('js');</script>
-  <link rel="stylesheet" href="styles.css?v=20260818m">
+  <link rel="stylesheet" href="styles.css?v=20260818-grok45">
   <script src="assets/vendor/gsap/gsap.min.js?v=3.13.0" defer></script>
   <script src="assets/vendor/gsap/ScrollTrigger.min.js?v=3.13.0" defer></script>
-  <script src="script.js?v=20260818m" defer></script>
+  <script src="script.js?v=20260818-grok45" defer></script>
+  <script src="assets/benchmark-widgets.js?v=20260818-grok45" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" data-header>
     <a class="brand" href="#top" aria-label="Warsaw Analytica, home"><span class="brand-name">Warsaw Analytica</span><span class="brand-by">by Michał Domaradzki</span></a>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span class="sr-only">Toggle navigation</span><span></span><span></span></button>
-    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav><a href="#about">About</a><a href="#practice">Practice</a><a href="#approach">Approach</a><a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a></nav>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu" data-menu-toggle><span class="menu-toggle-label" data-menu-label>Menu</span><span class="menu-toggle-bars" aria-hidden="true"><span></span><span></span></span></button>
+    <div class="nav-backdrop" data-nav-backdrop hidden></div>
+    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav>
+      <div class="nav-panel">
+        <p class="nav-kicker" id="nav-status" data-nav-status>Menu closed</p>
+        <a href="#about">About</a>
+        <a href="#benchmark">Benchmark</a>
+        <a href="#model-explorer">Model Explorer</a>
+        <a href="#ai-lab">AI Lab</a>
+        <a href="#practice">Practice</a>
+        <a href="#approach">Approach</a>
+        <a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
   </header>
 
   <main id="main">
@@ -300,6 +313,146 @@
             <p>This is a transparent portfolio heuristic, not a scientific model.</p>
           </div>
           <div class="pulse-meta"><span data-pulse-updated>Awaiting source data</span><span>Weather: <a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · Air quality: <a href="https://ads.atmosphere.copernicus.eu/datasets/cams-europe-air-quality-forecasts" target="_blank" rel="noopener noreferrer">CAMS ENSEMBLE</a> via Open-Meteo</span></div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="benchmark section-dark" id="benchmark" aria-labelledby="benchmark-title" data-benchmark>
+      <div class="container benchmark-shell">
+        <div class="section-index reveal"><span>06</span> AI Workstation Benchmark</div>
+        <div class="benchmark-heading reveal">
+          <p class="kicker">Interactive analytics</p>
+          <h2 id="benchmark-title">Compare how five models <em>actually trade off.</em></h2>
+          <p class="benchmark-lede">This dashboard scores coding, reasoning, UX judgment and speed for five models in the same frontend benchmark. Switch views, change the ranking metric, and see which model leads under the current priority.</p>
+        </div>
+
+        <div class="benchmark-controls reveal" role="group" aria-label="Benchmark controls">
+          <div class="control-block">
+            <span class="control-label" id="benchmark-view-label">View</span>
+            <div class="segmented" role="tablist" aria-labelledby="benchmark-view-label" data-benchmark-views>
+              <button type="button" role="tab" id="view-rank" aria-selected="true" aria-controls="benchmark-rank-panel" data-view="rank">Ranked bars</button>
+              <button type="button" role="tab" id="view-matrix" aria-selected="false" aria-controls="benchmark-matrix-panel" data-view="matrix" tabindex="-1">Score matrix</button>
+            </div>
+          </div>
+          <div class="control-block">
+            <label class="control-label" for="benchmark-metric">Rank by metric</label>
+            <select id="benchmark-metric" data-benchmark-metric>
+              <option value="coding">Coding</option>
+              <option value="reasoning">Reasoning</option>
+              <option value="ux">UX</option>
+              <option value="speed" selected>Speed</option>
+            </select>
+          </div>
+          <p class="benchmark-leader" aria-live="polite" data-benchmark-leader>Leader: Gemini Flash on Speed (98)</p>
+        </div>
+
+        <div class="benchmark-panels">
+          <div class="benchmark-panel is-active reveal" id="benchmark-rank-panel" role="tabpanel" aria-labelledby="view-rank" data-panel="rank">
+            <ol class="benchmark-ranks" data-benchmark-ranks></ol>
+          </div>
+          <div class="benchmark-panel reveal" id="benchmark-matrix-panel" role="tabpanel" aria-labelledby="view-matrix" data-panel="matrix" hidden>
+            <div class="benchmark-matrix" data-benchmark-matrix role="table" aria-label="Model score matrix"></div>
+          </div>
+        </div>
+
+        <aside class="benchmark-note reveal">
+          <p><strong>What this represents.</strong> Scores are comparative product judgments for a shared frontend task set — not marketing claims. A high speed score can still lose if the selected priority is reasoning or coding depth.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="model-explorer section-light" id="model-explorer" aria-labelledby="model-explorer-title" data-model-explorer>
+      <div class="container explorer-shell">
+        <div class="section-index reveal"><span>07</span> Model Comparison Explorer</div>
+        <div class="explorer-heading reveal">
+          <p class="kicker">Decision support</p>
+          <h2 id="model-explorer-title">Pick a workload.<br>Get a <em>clear recommendation.</em></h2>
+          <p>Choose the kind of work you need done. The explorer recommends one model, explains why, and surfaces the trade-offs against the rest — without pretending every option is equally good.</p>
+        </div>
+
+        <div class="explorer-layout">
+          <fieldset class="explorer-tasks reveal">
+            <legend>Task category</legend>
+            <div class="task-grid" role="radiogroup" aria-label="Task categories" data-task-group>
+              <label class="task-option"><input type="radio" name="task-category" value="coding" checked> Coding</label>
+              <label class="task-option"><input type="radio" name="task-category" value="data"> Data Analysis</label>
+              <label class="task-option"><input type="radio" name="task-category" value="research"> Research</label>
+              <label class="task-option"><input type="radio" name="task-category" value="fast"> Fast everyday tasks</label>
+              <label class="task-option"><input type="radio" name="task-category" value="private"> Private / local workloads</label>
+            </div>
+          </fieldset>
+
+          <article class="explorer-result reveal" aria-live="polite" data-explorer-result>
+            <p class="kicker" data-explorer-kicker>Recommended</p>
+            <h3 data-explorer-model>GPT-5.6 Luna</h3>
+            <p data-explorer-why>Strongest coding and reasoning balance for multi-step implementation work.</p>
+            <ul class="tradeoff-list" data-explorer-tradeoffs></ul>
+            <button type="button" class="button button-secondary" data-explorer-compare>Compare all models</button>
+          </article>
+        </div>
+
+        <div class="explorer-compare reveal" data-explorer-compare-panel hidden>
+          <h3>All-model trade-off board</h3>
+          <div class="compare-board" data-compare-board></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ai-lab section-warm" id="ai-lab" aria-labelledby="ai-lab-title" data-ai-lab>
+      <div class="container lab-shell">
+        <div class="section-index reveal"><span>08</span> My AI Lab</div>
+        <div class="lab-heading reveal">
+          <p class="kicker">Experiments in public</p>
+          <h2 id="ai-lab-title">A working bench for cloud agents <em>and local models.</em></h2>
+          <p>This site is also a lab notebook: cloud coding agents for fast iteration, and Ternary-Bonsai-27B for private local runs that never leave the machine. Nothing here pretends a backend is live when it is not.</p>
+        </div>
+
+        <div class="lab-grid">
+          <article class="lab-card reveal">
+            <p class="mini-index">Cloud lane</p>
+            <h3>Remote coding agents</h3>
+            <p>Useful when you want broader context, parallel workers, and quick browser validation. Latency and provider policy travel with the request.</p>
+            <ul>
+              <li>Best for: exploratory builds and comparative reviews</li>
+              <li>Constraint: data leaves the workstation</li>
+            </ul>
+          </article>
+          <article class="lab-card lab-card-local reveal">
+            <p class="mini-index">Local lane</p>
+            <h3>Ternary-Bonsai-27B</h3>
+            <p>Positioned as the on-device model. It is slower and narrower than the strongest cloud options, but it keeps sensitive prompts local and is useful for offline drafting and constrained coding loops.</p>
+            <ul>
+              <li>Best for: private notes, offline scaffolding, safe experimentation</li>
+              <li>Constraint: no implied live inference endpoint on this page</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="lab-console reveal" data-lab-console>
+          <div class="lab-console-head">
+            <h3 id="lab-console-title">Routing playground</h3>
+            <p>Choose a prompt type and destination. This is a client-side decision aid — it does not call a model API.</p>
+          </div>
+          <form class="lab-form" data-lab-form aria-labelledby="lab-console-title">
+            <label>
+              <span>Prompt type</span>
+              <select name="prompt-type" data-lab-type>
+                <option value="refactor">Refactor existing UI</option>
+                <option value="private">Private customer notes</option>
+                <option value="research">Long research synthesis</option>
+                <option value="offline">Offline coding while travelling</option>
+              </select>
+            </label>
+            <fieldset>
+              <legend>Preferred destination</legend>
+              <label class="inline-choice"><input type="radio" name="destination" value="cloud" checked> Cloud agent</label>
+              <label class="inline-choice"><input type="radio" name="destination" value="local"> Local Ternary-Bonsai-27B</label>
+              <label class="inline-choice"><input type="radio" name="destination" value="auto"> Auto-route</label>
+            </fieldset>
+            <button type="submit" class="button button-primary">Simulate route</button>
+          </form>
+          <output class="lab-output" data-lab-output for="lab-console-title">Ready. Pick a prompt type and destination to see a transparent routing decision.</output>
         </div>
       </div>
     </section>

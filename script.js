@@ -10,21 +10,9 @@
   const toggle = document.querySelector('[data-menu-toggle]');
   const nav = document.querySelector('[data-nav]');
 
-  if (toggle && nav) {
-    const closeMenu = () => {
-      toggle.setAttribute('aria-expanded', 'false');
-      nav.classList.remove('is-open');
-      document.body.classList.remove('menu-open');
-    };
-    toggle.addEventListener('click', () => {
-      const open = toggle.getAttribute('aria-expanded') !== 'true';
-      toggle.setAttribute('aria-expanded', String(open));
-      nav.classList.toggle('is-open', open);
-      document.body.classList.toggle('menu-open', open);
-    });
-    nav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
-    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
-  }
+  // Mobile menu interactions are handled by assets/benchmark-widgets.js
+  // to provide backdrop dismissal, focus management, and clearer state labels.
+
 
   const reveals = [...document.querySelectorAll('.reveal')];
   let motionMedia = null;
