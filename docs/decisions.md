@@ -147,3 +147,22 @@ A decision-making dashboard should answer immediately: "What are conditions doin
 - Deterministic suitability formula: `suitability = clamp(1 - (rainPenalty + aqiPenalty + windPenalty), 0, 1)` documented and exposed.
 - Single unified SVG timeline with glowing lime suitability area curve, dotted temperature context line, bounding best-window highlight, and a 24-column raw-signal strip under the chart for precipitation probability, wind speed, and European AQI.
 - Interactive scrubbing, keyboard arrow navigation, and responsive tick reduction across all viewports.
+
+---
+
+## ADR 009: AI Workstation Benchmark, Explorer and Lab
+
+- **Date:** 2026-08-18
+- **Status:** Accepted
+
+### Decision
+Add three connected, client-only sections: a metric-switching benchmark, a task-based model explorer, and a cloud/local AI lab.
+
+### Reason
+The benchmark needs to communicate model differences through interaction rather than a static score dump. The explorer turns those signals into a practical recommendation with an explicit trade-off, while the lab explains cloud versus local experimentation without implying that an unavailable backend is live.
+
+### Consequence
+- The benchmark supports signal-bar and table views, metric selection, and strongest-model highlighting.
+- Recommendations are deterministic and transparent: each task maps to a model and a stated trade-off.
+- Ternary-Bonsai-27B is explicitly positioned as the local option; all lab states are labelled conceptual and send no requests.
+- Mobile navigation traps focus while open, closes on Escape or navigation, and marks the main content inert to prevent background interaction.

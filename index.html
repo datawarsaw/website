@@ -29,8 +29,8 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" data-header>
     <a class="brand" href="#top" aria-label="Warsaw Analytica, home"><span class="brand-name">Warsaw Analytica</span><span class="brand-by">by Michał Domaradzki</span></a>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span class="sr-only">Toggle navigation</span><span></span><span></span></button>
-    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav><a href="#about">About</a><a href="#practice">Practice</a><a href="#approach">Approach</a><a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a></nav>
+    <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span class="sr-only">Toggle navigation</span><span></span><span></span></button>
+    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-nav><a href="#about">About</a><a href="#practice">Practice</a><a href="#approach">Approach</a><a href="#benchmark">Benchmark</a><a href="#lab">AI Lab</a><a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a></nav>
   </header>
 
   <main id="main">
@@ -48,6 +48,23 @@
         </div>
       </div>
       <div class="hero-foot container reveal"><div class="identity-mark"><span>MD</span></div><p><strong>Michał Domaradzki</strong><br>Independent data &amp; business intelligence expert</p><p class="hero-location">Warsaw, Poland<br>Working across business functions</p></div>
+    </section>
+
+    <section class="featured-insight section-dark" id="featured-insight" aria-labelledby="featured-insight-title">
+      <div class="container featured-insight-grid">
+        <div class="section-index reveal"><span>Insight</span> Featured Insight</div>
+        <div class="featured-insight-content reveal">
+          <p class="kicker">Featured Insight</p>
+          <h2 id="featured-insight-title">Signals worth <em>noticing.</em></h2>
+          <p class="featured-insight-copy">Small shifts in traffic, conversion, and channel mix often reveal bigger structural changes. The goal is to surface what matters early, before it becomes obvious in monthly reporting.</p>
+          <a class="featured-insight-cta" href="#approach">View the approach <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="featured-insight-signal reveal" aria-hidden="true">
+          <span class="featured-insight-line"></span>
+          <span class="featured-insight-node"></span>
+          <span class="featured-insight-note">EARLY SIGNAL / 01</span>
+        </div>
+      </div>
     </section>
 
     <section class="about section-light" id="about" aria-labelledby="about-title">
@@ -300,6 +317,50 @@
             <p>This is a transparent portfolio heuristic, not a scientific model.</p>
           </div>
           <div class="pulse-meta"><span data-pulse-updated>Awaiting source data</span><span>Weather: <a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · Air quality: <a href="https://ads.atmosphere.copernicus.eu/datasets/cams-europe-air-quality-forecasts" target="_blank" rel="noopener noreferrer">CAMS ENSEMBLE</a> via Open-Meteo</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark section-light" id="benchmark" aria-labelledby="benchmark-title">
+      <div class="container">
+        <div class="section-index reveal"><span>06</span> AI Workstation Benchmark</div>
+        <div class="benchmark-heading reveal">
+          <div><p class="kicker">Five models. Four signals.</p><h2 id="benchmark-title">Choose by the <em>work.</em></h2></div>
+          <p>A compact, illustrative benchmark of coding, reasoning, UX judgement and speed. It is a comparison aid—not a universal leaderboard.</p>
+        </div>
+        <div class="benchmark-module reveal" data-benchmark>
+          <div class="benchmark-controls" role="group" aria-label="Benchmark controls">
+            <div class="benchmark-control"><span>View</span><div class="segmented-control"><button type="button" class="is-active" aria-pressed="true" data-benchmark-view="bars">Signal bars</button><button type="button" aria-pressed="false" data-benchmark-view="table">Data table</button></div></div>
+            <div class="benchmark-control"><label for="benchmark-metric">Highlight metric</label><select id="benchmark-metric" data-benchmark-metric><option value="coding">Coding</option><option value="reasoning">Reasoning</option><option value="ux">UX</option><option value="speed">Speed</option></select></div>
+          </div>
+          <div class="benchmark-caption" aria-live="polite"><span data-benchmark-leader-label>Strongest coding signal</span><strong data-benchmark-leader>GPT-5.6 Luna · 94</strong></div>
+          <div class="benchmark-chart" data-benchmark-chart aria-label="Benchmark scores"></div>
+          <div class="benchmark-table-wrap" data-benchmark-table hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="explorer section-warm" id="explorer" aria-labelledby="explorer-title">
+      <div class="container">
+        <div class="section-index reveal"><span>07</span> Model comparison explorer</div>
+        <div class="explorer-heading reveal"><div><p class="kicker">A practical starting point</p><h2 id="explorer-title">Match the model to the <em>task.</em></h2></div><p>Recommendations use the benchmark signals plus a simple workload fit. Change the task to see the trade-off, then compare every candidate below.</p></div>
+        <div class="explorer-module reveal" data-explorer>
+          <div class="explorer-picker"><label for="task-category">I need help with</label><select id="task-category" data-task-select><option value="coding">Coding</option><option value="analysis">Data Analysis</option><option value="research">Research</option><option value="fast">Fast everyday tasks</option><option value="private">Private / local workloads</option></select></div>
+          <div class="recommendation" aria-live="polite"><span class="mini-index">Recommended route</span><h3 data-recommendation-name>GPT-5.6 Luna</h3><p data-recommendation-reason>Strongest reasoning and coding scores make it a balanced choice for complex implementation work.</p><div class="recommendation-tradeoff"><span>Trade-off</span><strong data-recommendation-tradeoff>Slower than Gemini Flash for quick turnarounds.</strong></div></div>
+          <div class="comparison-list" data-comparison-list></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lab section-dark" id="lab" aria-labelledby="lab-title">
+      <div class="container">
+        <div class="section-index reveal"><span>08</span> My AI Lab</div>
+        <div class="lab-heading reveal"><div><p class="kicker">A working playground</p><h2 id="lab-title">Where models become <em>methods.</em></h2></div><p>Cloud models bring breadth and speed. Local models bring control. This lab makes the difference legible without pretending a demo is a production service.</p></div>
+        <div class="lab-module reveal" data-lab>
+          <div class="lab-tabs" role="tablist" aria-label="AI lab experiments"><button type="button" class="is-active" role="tab" aria-selected="true" data-lab-tab="cloud">Cloud route</button><button type="button" role="tab" aria-selected="false" data-lab-tab="local">Local route</button></div>
+          <div class="lab-panel" data-lab-panel="cloud" role="tabpanel"><div class="lab-panel-copy"><span class="mini-index">Experiment 01 / hosted</span><h3>Fast synthesis loop</h3><p>A cloud model can summarize a messy question, draft a direction, and return a useful first pass quickly. Think of it as a flexible research partner—powerful, but dependent on an external service.</p><span class="lab-status"><i></i> Conceptual workflow · no request sent</span></div><ol class="lab-steps"><li class="is-done"><span>01</span>Prompt</li><li class="is-done"><span>02</span>Reason</li><li><span>03</span>Review</li><li><span>04</span>Decide</li></ol></div>
+          <div class="lab-panel" data-lab-panel="local" role="tabpanel" hidden><div class="lab-panel-copy"><span class="mini-index">Experiment 02 / on device</span><h3>Ternary-Bonsai-27B</h3><p>This is the local lane: a model that can run inside a controlled environment. It is slower and more resource-bound, but sensitive material can stay closer to the workstation.</p><span class="lab-status"><i></i> Local model concept · no inference running</span></div><ol class="lab-steps"><li class="is-done"><span>01</span>Private data</li><li class="is-done"><span>02</span>Local model</li><li><span>03</span>Check output</li><li><span>04</span>Keep control</li></ol></div>
+          <div class="lab-note"><span>Working principle</span><strong>Use the smallest capable system for the decision at hand.</strong></div>
         </div>
       </div>
     </section>

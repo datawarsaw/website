@@ -11,19 +11,110 @@
   const nav = document.querySelector('[data-nav]');
 
   if (toggle && nav) {
+    const main = document.querySelector('main');
+    let lastFocused = null;
     const closeMenu = () => {
       toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open navigation');
       nav.classList.remove('is-open');
       document.body.classList.remove('menu-open');
+      main?.removeAttribute('inert');
+      lastFocused?.focus?.();
     };
     toggle.addEventListener('click', () => {
       const open = toggle.getAttribute('aria-expanded') !== 'true';
+      lastFocused = document.activeElement;
       toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
       nav.classList.toggle('is-open', open);
       document.body.classList.toggle('menu-open', open);
+      main?.toggleAttribute('inert', open);
+      if (open) nav.querySelector('a')?.focus();
     });
     nav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
-    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') closeMenu();
+      if (event.key !== 'Tab' || toggle.getAttribute('aria-expanded') !== 'true') return;
+      const focusables = [...nav.querySelectorAll('a')];
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+    window.addEventListener('resize', () => { if (window.innerWidth > 900) closeMenu(); }, { passive: true });
+  }
+
+  const benchmarkData = [
+    { name: 'GPT-5.6 Luna', coding: 94, reasoning: 96, ux: 92, speed: 78 },
+    { name: 'Grok 4.5', coding: 88, reasoning: 84, ux: 90, speed: 91 },
+    { name: 'Grok 4.6', coding: 92, reasoning: 91, ux: 93, speed: 85 },
+    { name: 'Gemini Flash', coding: 89, reasoning: 86, ux: 94, speed: 98 },
+    { name: 'Ternary-Bonsai-27B', coding: 76, reasoning: 74, ux: 78, speed: 83 }
+  ];
+  const metricLabels = { coding: 'Coding', reasoning: 'Reasoning', ux: 'UX', speed: 'Speed' };
+
+  const benchmark = document.querySelector('[data-benchmark]');
+  if (benchmark) {
+    const chart = benchmark.querySelector('[data-benchmark-chart]');
+    const table = benchmark.querySelector('[data-benchmark-table]');
+    const metricSelect = benchmark.querySelector('[data-benchmark-metric]');
+    const leaderLabel = benchmark.querySelector('[data-benchmark-leader-label]');
+    const leader = benchmark.querySelector('[data-benchmark-leader]');
+    let activeMetric = 'coding';
+    let activeView = 'bars';
+    const getLeader = () => benchmarkData.reduce((best, item) => item[activeMetric] > best[activeMetric] ? item : best, benchmarkData[0]);
+    const renderBenchmark = () => {
+      const strongest = getLeader();
+      leaderLabel.textContent = `Strongest ${metricLabels[activeMetric].toLowerCase()} signal`;
+      leader.textContent = `${strongest.name} · ${strongest[activeMetric]}`;
+      chart.hidden = activeView !== 'bars';
+      table.hidden = activeView !== 'table';
+      const sorted = [...benchmarkData].sort((a, b) => b[activeMetric] - a[activeMetric]);
+      chart.innerHTML = sorted.map(item => {
+        const isStrongest = item.name === strongest.name;
+        return `<div class="benchmark-row${isStrongest ? ' is-strongest' : ''}"><div class="benchmark-row-label"><span>${item.name}</span><strong>${item[activeMetric]}</strong></div><div class="benchmark-bar-track"><span style="width:${item[activeMetric]}%"></span></div><small>${isStrongest ? 'strongest for this metric' : `${metricLabels[activeMetric]} signal`}</small></div>`;
+      }).join('');
+      table.innerHTML = `<table><caption>${metricLabels[activeMetric]} comparison</caption><thead><tr><th scope="col">Model</th><th scope="col">Coding</th><th scope="col">Reasoning</th><th scope="col">UX</th><th scope="col">Speed</th></tr></thead><tbody>${sorted.map(item => `<tr class="${item.name === strongest.name ? 'is-strongest' : ''}"><th scope="row">${item.name}</th><td>${item.coding}</td><td>${item.reasoning}</td><td>${item.ux}</td><td>${item.speed}</td></tr>`).join('')}</tbody></table>`;
+    };
+    metricSelect.addEventListener('change', () => { activeMetric = metricSelect.value; renderBenchmark(); });
+    benchmark.querySelectorAll('[data-benchmark-view]').forEach(button => button.addEventListener('click', () => {
+      activeView = button.dataset.benchmarkView;
+      benchmark.querySelectorAll('[data-benchmark-view]').forEach(item => { const active = item === button; item.classList.toggle('is-active', active); item.setAttribute('aria-pressed', String(active)); });
+      renderBenchmark();
+    }));
+    renderBenchmark();
+  }
+
+  const explorer = document.querySelector('[data-explorer]');
+  if (explorer) {
+    const profiles = {
+      coding: { model: 'GPT-5.6 Luna', reason: 'Strongest reasoning and coding scores make it a balanced choice for complex implementation work.', tradeoff: 'Slower than Gemini Flash for quick turnarounds.' },
+      analysis: { model: 'GPT-5.6 Luna', reason: 'Reasoning depth and strong UX help turn analysis into a decision someone can explain.', tradeoff: 'A more deliberate route than a speed-first model.' },
+      research: { model: 'Grok 4.6', reason: 'A high reasoning and UX combination is useful when a research trail needs synthesis and clear framing.', tradeoff: 'Not the fastest option for repetitive everyday tasks.' },
+      fast: { model: 'Gemini Flash', reason: 'The highest speed score makes it the practical first pass when latency matters most.', tradeoff: 'Trade some reasoning depth for turnaround time.' },
+      private: { model: 'Ternary-Bonsai-27B', reason: 'It is the explicitly local option, keeping the workload closer to a controlled environment.', tradeoff: 'Lower benchmark scores and local resource needs mean slower, narrower work.' }
+    };
+    const select = explorer.querySelector('[data-task-select]');
+    const renderExplorer = () => {
+      const profile = profiles[select.value];
+      explorer.querySelector('[data-recommendation-name]').textContent = profile.model;
+      explorer.querySelector('[data-recommendation-reason]').textContent = profile.reason;
+      explorer.querySelector('[data-recommendation-tradeoff]').textContent = profile.tradeoff;
+      const metric = select.value === 'fast' ? 'speed' : select.value === 'private' ? 'ux' : select.value === 'research' ? 'reasoning' : 'coding';
+      explorer.querySelector('[data-comparison-list]').innerHTML = benchmarkData.map(item => `<div class="comparison-item${item.name === profile.model ? ' is-recommended' : ''}"><span>${item.name}</span><strong>${item[metric]}</strong><small>${metricLabels[metric]} fit</small></div>`).join('');
+    };
+    select.addEventListener('change', renderExplorer);
+    renderExplorer();
+  }
+
+  const lab = document.querySelector('[data-lab]');
+  if (lab) {
+    lab.querySelectorAll('[data-lab-tab]').forEach(tab => tab.addEventListener('click', () => {
+      const target = tab.dataset.labTab;
+      lab.querySelectorAll('[data-lab-tab]').forEach(item => { const active = item === tab; item.classList.toggle('is-active', active); item.setAttribute('aria-selected', String(active)); });
+      lab.querySelectorAll('[data-lab-panel]').forEach(panel => { panel.hidden = panel.dataset.labPanel !== target; });
+    }));
   }
 
   const reveals = [...document.querySelectorAll('.reveal')];
