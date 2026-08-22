@@ -304,6 +304,73 @@
       </div>
     </section>
 
+    <section class="ai-timeline section-dark" id="ai-experiments" aria-labelledby="ai-timeline-title">
+      <div class="container">
+        <div class="section-index reveal"><span>06</span> AI experiments</div>
+        <div class="ai-timeline-heading reveal">
+          <div>
+            <p class="kicker">A working notebook in public</p>
+            <h2 id="ai-timeline-title">Questions worth <em>testing.</em></h2>
+          </div>
+          <p>Small, practical experiments around local models, automation and the craft of building with AI. Open a row to read what changed, not just what shipped.</p>
+        </div>
+
+        <div class="ai-timeline-toolbar reveal" data-ai-toolbar>
+          <div class="ai-filter-group" role="group" aria-label="Filter experiments by theme">
+            <button class="ai-filter is-active" type="button" data-ai-filter="all" aria-pressed="true">All experiments</button>
+            <button class="ai-filter" type="button" data-ai-filter="local-ai" aria-pressed="false">Local AI</button>
+            <button class="ai-filter" type="button" data-ai-filter="cloud-ai" aria-pressed="false">Cloud AI</button>
+            <button class="ai-filter" type="button" data-ai-filter="automation" aria-pressed="false">Automation</button>
+            <button class="ai-filter" type="button" data-ai-filter="coding" aria-pressed="false">Coding</button>
+          </div>
+          <p class="ai-filter-count" role="status" aria-live="polite" data-ai-count>6 experiments</p>
+        </div>
+
+        <div class="ai-timeline-list" data-ai-list>
+          <article class="ai-experiment is-open reveal" data-ai-item data-ai-themes="local-ai coding" data-ai-status="working">
+            <button class="ai-experiment-toggle" type="button" aria-expanded="true" aria-controls="ai-detail-workstation" data-ai-toggle>
+              <span class="ai-experiment-date">2026 <b>01</b></span><span class="ai-experiment-title">Local LLM workstation</span><span class="ai-status ai-status-working">Working</span><span class="ai-toggle-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="ai-experiment-detail" id="ai-detail-workstation" data-ai-detail>
+              <div><p class="ai-detail-lead">Can a quiet local setup handle the daily questions that normally leave the desk?</p><p>Testing small instruct models on a compact workstation for research notes, structured extraction and private drafts.</p></div>
+              <aside><span>Lesson so far</span><strong>Latency is a product decision.</strong><p>Fast enough and private beats clever but fragile.</p></aside>
+            </div>
+          </article>
+          <article class="ai-experiment reveal" data-ai-item data-ai-themes="cloud-ai automation" data-ai-status="archived">
+            <button class="ai-experiment-toggle" type="button" aria-expanded="false" aria-controls="ai-detail-youtube" data-ai-toggle>
+              <span class="ai-experiment-date">2025 <b>11</b></span><span class="ai-experiment-title">YouTube transcription</span><span class="ai-status ai-status-archived">Archived</span><span class="ai-toggle-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="ai-experiment-detail" id="ai-detail-youtube" data-ai-detail hidden><div><p class="ai-detail-lead">Turn long-form audio into a searchable working document.</p><p>A lightweight transcription loop for interviews and talks, with timestamps kept close to the source.</p></div><aside><span>Lesson so far</span><strong>Structure beats volume.</strong><p>Good sectioning makes a transcript useful.</p></aside></div>
+          </article>
+          <article class="ai-experiment reveal" data-ai-item data-ai-themes="cloud-ai automation" data-ai-status="working">
+            <button class="ai-experiment-toggle" type="button" aria-expanded="false" aria-controls="ai-detail-x" data-ai-toggle>
+              <span class="ai-experiment-date">2025 <b>09</b></span><span class="ai-experiment-title">X post reader</span><span class="ai-status ai-status-working">Working</span><span class="ai-toggle-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="ai-experiment-detail" id="ai-detail-x" data-ai-detail hidden><div><p class="ai-detail-lead">What is the smallest useful reading layer for a noisy feed?</p><p>Exploring a focused reader that extracts claims, links and recurring themes without pretending to replace judgment.</p></div><aside><span>Lesson so far</span><strong>Summaries need receipts.</strong><p>Keep the source and the uncertainty visible.</p></aside></div>
+          </article>
+          <article class="ai-experiment reveal" data-ai-item data-ai-themes="cloud-ai coding" data-ai-status="testing">
+            <button class="ai-experiment-toggle" type="button" aria-expanded="false" aria-controls="ai-detail-benchmark" data-ai-toggle>
+              <span class="ai-experiment-date">2025 <b>06</b></span><span class="ai-experiment-title">Model coding benchmark</span><span class="ai-status ai-status-testing">Testing</span><span class="ai-toggle-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="ai-experiment-detail" id="ai-detail-benchmark" data-ai-detail hidden><div><p class="ai-detail-lead">Which model produces code that stays legible after the first pass?</p><p>Comparing implementation quality, test discipline and the cost of correcting confident mistakes.</p></div><aside><span>Lesson so far</span><strong>Benchmark the edit loop.</strong><p>First-pass speed is only one line on the scorecard.</p></aside></div>
+          </article>
+          <article class="ai-experiment reveal" data-ai-item data-ai-themes="automation local-ai" data-ai-status="testing">
+            <button class="ai-experiment-toggle" type="button" aria-expanded="false" aria-controls="ai-detail-agents" data-ai-toggle>
+              <span class="ai-experiment-date">2025 <b>03</b></span><span class="ai-experiment-title">AI agent experiments</span><span class="ai-status ai-status-testing">Testing</span><span class="ai-toggle-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="ai-experiment-detail" id="ai-detail-agents" data-ai-detail hidden><div><p class="ai-detail-lead">Where does delegation improve the work, and where does it add ceremony?</p><p>Small agent loops for inspection, critique and bounded execution with explicit stopping points.</p></div><aside><span>Lesson so far</span><strong>Boundaries create trust.</strong><p>Every loop needs a clear handoff and a way to stop.</p></aside></div>
+          </article>
+          <article class="ai-experiment reveal" data-ai-item data-ai-themes="local-ai cloud-ai" data-ai-status="archived">
+            <button class="ai-experiment-toggle" type="button" aria-expanded="false" aria-controls="ai-detail-comparison" data-ai-toggle>
+              <span class="ai-experiment-date">2024 <b>10</b></span><span class="ai-experiment-title">Local vs cloud comparison</span><span class="ai-status ai-status-archived">Archived</span><span class="ai-toggle-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="ai-experiment-detail" id="ai-detail-comparison" data-ai-detail hidden><div><p class="ai-detail-lead">When is a smaller model the more responsible choice?</p><p>A practical comparison of privacy, cost, latency and output quality across everyday analytical tasks.</p></div><aside><span>Lesson so far</span><strong>Context sets the winner.</strong><p>The best model depends on what cannot leave the room.</p></aside></div>
+          </article>
+        </div>
+        <p class="ai-empty" data-ai-empty hidden>No experiments match this filter yet.</p>
+      </div>
+    </section>
+
     <section class="contact section-accent" id="contact" aria-labelledby="contact-title">
       <div class="container contact-grid">
         <div class="contact-label reveal"><span class="status-dot"></span> Available for selected projects</div>
