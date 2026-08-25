@@ -39,13 +39,16 @@ At the beginning of meaningful repository tasks, the Coordinator must read:
 1. `AGENTS.md` — Repository constitution and operational constraints.
 2. `docs/agent-harness-v1.md` — Harness architecture and multi-model routing.
 3. `state/project-state.md` — Concise current project checkpoint and runtime state.
+4. `docs/architecture.md` — System architecture and component boundaries.
 
-The Coordinator consults:
-- `state/backlog.md` — When the task concerns priorities, roadmap, planning, next work, or project continuation. (Do not force reading for trivial styling/text edits.)
+**Source-of-truth boundaries:**
+- **Git + verified runtime evidence:** Technical source of truth.
+- `state/project-state.md`: Concise snapshot of current technical truth.
+- **Notion / CONTROL:** Portfolio management, task lifecycle, priority, and backlog. Agents do NOT maintain backlog or priority lists in Git; `state/backlog.md` is a migration pointer only.
+- `docs/decisions.md`: Durable architectural decisions (ADRs).
 
-### Memory & State Update Policy
-- `state/project-state.md` is updated only when meaningful project state changes (e.g. harness architecture, active branch strategy, deployment policy, major component stability, runtime/model behavior, or strategic direction). Do not update for routine commits, small CSS tweaks, or typo fixes.
-- `state/backlog.md` is updated when new ideas are accepted, priorities shift, items become active (NOW/NEXT), items complete (DONE), or items are dropped.
+### Project State Update Policy
+- `state/project-state.md` is updated only when meaningful technical project state changes (architecture, runtime requirements, verified capabilities, dependencies, limitations / broken state, deployment state, interfaces / integrations, configuration contracts, operational behavior). Do not update for routine commits, small CSS tweaks, or typo fixes.
 - Git history remains the historical record of changes.
 
 Provider-neutral contract documentation remains preserved under `agents/`:
