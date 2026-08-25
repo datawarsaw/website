@@ -6,17 +6,17 @@ This document describes the software architecture, rendering pipelines, runtime 
 
 ## 1. High-Level Architecture Overview
 
-Data Warsaw is architected as a high-performance, single-page and multi-route vanilla web application with zero runtime framework dependencies (no React, Vue, or build-step bundler).
+Data Warsaw is architected as a high-performance, single-page and multi-route web application hosted natively on **Cloudflare Pages** with zero runtime UI framework dependencies (no React, Vue, or client-side bundler).
 
 The application is structured into core layers:
 1. **Semantic DOM Layer (`site/index.html`, `site/observability/index.html`, `site/experiments/index.html`, `site/experiments/scout/index.html`):** Structured accessible markup with aria roles, metadata, and progressive enhancement anchors.
 2. **Design System & Layout Engine (`site/styles.css`, `site/observability/styles.css`, `site/experiments/styles.css`):** CSS custom properties, grid/flex layouts, responsive stages, and media-query breakpoints.
 3. **Motion & Interaction Orchestrator (`site/script.js` + GSAP):** Timeline sequencing, scroll triggers, active state toggling, and user interaction management.
 4. **Rendering Engines (`site/script.js` Canvas 2D / SVG):** Projective 3D analytical hero graph renderer and responsive time-series weather chart renderer.
-5. **Observability & Telemetry Pipeline (`state/current-run.json` → `site/data/current-run.json` → `site/observability/`):** Real-time execution flow graph and live agent lifecycle streaming.
-6. **Data-Driven AI Experiments Layer (`site/experiments/experiments.json` → `site/experiments/`):** Declarative metadata registry powering modular case studies and prototype listings.
+5. **Observability & Telemetry Pipeline (`functions/api/telemetry.ts` + Cloudflare D1 + `site/observability/`):** Serverless edge API, singleton D1 database state, authenticated HTTPS telemetry ingress, and real-time frontend execution streaming with static fallback.
+6. **Data-Driven AI Experiments Layer (`cms/` → `site/data/sanity-experiments.json` → `site/experiments/`):** Headless Sanity CMS Content Lake synchronized deterministically at build time into static JSON snapshots.
 
-These public website files live only under `site/`. That directory is the deployment source for the server's `/public_html/`; harness, docs, and other repository files stay outside it.
+Public website assets live exclusively under `site/`, and edge functions live under `functions/`.
 
 ---
 
@@ -25,9 +25,10 @@ These public website files live only under `site/`. That directory is the deploy
 | Route | Source Directory | Primary Technology | Key Responsibilities |
 | :--- | :--- | :--- | :--- |
 | `/` | `site/index.html` | HTML5, CSS3, GSAP, Canvas 2D | Main homepage showcasing editorial profile, analytical expertise radar, process narrative, open-source commit matrix, and 24h Warsaw weather pulse. |
-| `/observability/` | `site/observability/` | HTML5, CSS3, Polling, SVG Flow Graph | Live Agent Observability console streaming multi-agent execution trees, active model state, and chronological event logs. |
+| `/observability/` | `site/observability/` | HTML5, CSS3, Adaptive Polling, SVG Flow Graph | Live Agent Observability console streaming multi-agent execution trees, active model state, and chronological event logs. |
 | `/experiments/` | `site/experiments/` | HTML5, CSS3, JSON Registry | AI Experiments gallery indexing deployed agents, orchestration harnesses, and analytical tools with category filtering. |
 | `/experiments/scout/` | `site/experiments/scout/` | HTML5, CSS3, Responsive Diagram | Case study for the Scout autonomous X bookmark ingestion and evaluation pipeline running on Cloudflare Workers & GLM-4.7-Flash. |
+| `/api/telemetry` | `functions/api/telemetry.ts` | Cloudflare Pages Function, D1, TypeScript | Authenticated HTTPS telemetry ingress (`POST`) and public telemetry egress (`GET`) with `no-store` cache headers. |
 
 ---
 
@@ -62,46 +63,120 @@ The weather section renders a 24-hour temperature timeline and derives outdoor s
 
 ---
 
-## 5. External API Integration & Resiliency
+## 5. Live Observability & Telemetry Pipeline
+
+DataWarsaw operates a Cloudflare-native live telemetry pipeline:
+
+```text
+Local AI Workstation (Coordinator / Subagents)
+      │ (save_state lifecycle trigger)
+      ▼
+scripts/publish_current_run.py (Python HTTPS POST with Bearer token)
+      │
+      ▼
+https://datawarsaw.com/api/telemetry (Cloudflare Pages Function: functions/api/telemetry.ts)
+      │ (Authenticates against TELEMETRY_SECRET_TOKEN & validates schema)
+      ▼
+Cloudflare D1 Database (datawarsaw-telemetry-db: table telemetry_state, row id=1)
+      │
+      ▼ (Public GET /api/telemetry with Cache-Control: no-store; fallback to site/data/current-run.json)
+Observability Console (site/observability/script.js)
+      │ (Adaptive polling: ~2s active / ~10s idle; pauses on document.hidden)
+      ▼
+Live Mission Control UI (/observability/)
+```
+
+### Ingress & Egress API (`functions/api/telemetry.ts`)
+- **POST `/api/telemetry`:**
+  - Authenticates requests via `Authorization: Bearer <TELEMETRY_SECRET_TOKEN>`.
+  - Rejects unauthenticated or malformed requests with HTTP 401/415.
+  - Enforces a 128KB payload size limit.
+  - Validates telemetry schema (`taskId`, `status`, `updatedAt`).
+  - Upserts the sanitized payload into D1 table `telemetry_state` at singleton row `id=1`.
+  - Never logs authorization tokens or payload secrets.
+- **GET `/api/telemetry`:**
+  - Publicly accessible edge endpoint.
+  - Queries D1 row `id=1` and returns live JSON with `Cache-Control: no-store, no-cache, must-revalidate` and `X-Content-Type-Options: nosniff`.
+  - If D1 has no telemetry record yet, returns HTTP 404 with structured JSON (`{"fallback": true}`) allowing the frontend to fall back to the static snapshot.
+
+### Storage Engine (Cloudflare D1)
+- **Database:** `datawarsaw-telemetry-db`
+- **Binding Name:** `DB`
+- **Schema:**
+  ```sql
+  CREATE TABLE IF NOT EXISTS telemetry_state (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      payload TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+  );
+  ```
+- Singleton row pattern ensures zero unbounded storage growth, eliminates rate limit bottlenecks, and provides strong edge read-your-writes consistency.
+
+### Local Publisher & Failure Isolation
+- `scripts/publish_current_run.py` uses Python standard library (`urllib.request`) with bounded 5s timeout and 2 retries.
+- Background execution in `scripts/telemetry.py` is fully isolated: remote network or authentication failures never block or fail the local agent task.
+- Error diagnostics automatically redact bearer tokens and local filesystem paths.
+
+### Frontend Client Resilience (`site/observability/script.js`)
+- **Primary Source:** `/api/telemetry` with `cache: 'no-store'`.
+- **Static Fallback:** `../data/current-run.json` (used automatically if the API is empty or unreachable).
+- **Adaptive Polling:** Polls every ~2000ms while a run is active (`RUNNING`) and drops to ~10000ms when idle or completed (`IDLE`, `COMPLETE`, `FAILED`, `BLOCKED`).
+- **Tab Visibility:** Automatically pauses polling when the tab is hidden (`document.hidden`) and resumes immediately on `visibilitychange`.
+- **Render Suppression:** Compares payload hashes to suppress redundant DOM re-renders when data is unchanged.
+
+### Legacy SFTP / WinSCP Retirement Status
+- **Status: RETIRED.**
+- The legacy cyber_Folks cPanel hosting and SFTP transport are decommissioned.
+- The DNS record `ftp.datawarsaw.com` has been permanently deleted.
+- Legacy SFTP functions in `scripts/publish_current_run.py` are retained strictly as deprecated rollback-only code and are not used in active production.
+
+---
+
+## 6. External API Integration & Resiliency
 
 - **Open-Meteo:** Forecast data is fetched asynchronously for Warsaw, parsed into the chart's hourly series, and replaced by a deterministic fallback when the request fails or the payload is malformed.
 - **GitHub REST API:** Public repository activity is cached in session storage to reduce unauthenticated rate-limit pressure; the UI preserves useful static facts when the API is unavailable.
-- **Observability telemetry:** The live console reads the sanitized `site/data/current-run.json` export and remains usable when the file is stale or temporarily unavailable.
+- **Live Observability Telemetry:** The console reads `/api/telemetry` from Cloudflare D1 with automatic fallback to `site/data/current-run.json`.
 
 ---
 
-## 6. Runtime Lifecycle & Performance Strategy
+## 7. Production Hosting & Edge Routing Architecture
 
-1. Intersection observers pause canvas and chart work when components leave the viewport.
-2. The Page Visibility API halts rendering while the tab is hidden.
-3. Canvas buffers are reused and device pixel ratio is capped at two to avoid unnecessary mobile memory pressure.
-4. `prefers-reduced-motion` disables continuous loops and collapses transitions.
-5. The experiments gallery uses a local JSON registry and a small progressive-enhancement script; each detail page remains a static route with no private runtime dependency.
+The entire Data Warsaw web application runs on **Cloudflare**:
 
----
+```text
+User Request
+      │
+      ├─── https://www.datawarsaw.com/* ──────── (Cloudflare Edge Bulk Redirect: 301) ───► https://datawarsaw.com/*
+      │
+      ├─── https://datawarsaw-site.pages.dev/* ─ (Cloudflare Edge Bulk Redirect: 301) ───► https://datawarsaw.com/*
+      │
+      ▼
+https://datawarsaw.com (Canonical Custom Domain)
+      │
+      ├─── Static Assets & Pages (/*) ──────────► Cloudflare Pages (site/)
+      │
+      └─── Edge API (/api/telemetry) ───────────► Cloudflare Pages Functions + D1 (DB)
+```
 
-## 7. Infrastructure Escalation Policy & Hosting Progression
-
-The public site remains deployable as static HTML, CSS, JavaScript, JSON, and assets under `site/`. Use the simplest tier that fits the milestone:
-
-- **Tier 1 — Static hosting:** Portfolio pages, public data files, client-side polling, and file-driven observability.
-- **Tier 2 — Edge serverless and agents:** Lightweight APIs, scheduled agent work, webhooks, and stateful edge execution. Scout uses this tier independently of the local workstation.
-- **Tier 3 — VPS / containers:** Long-running services, WebSockets, relational or vector databases, MCP servers, or workloads unsuitable for serverless execution.
-
-Choose a higher tier only when product requirements justify its operational cost and maintenance burden. Secrets and private environment variables stay outside the public `site/` tree.
+- **Canonical Domain:** `datawarsaw.com` (Proxied / Orange Cloud).
+- **Edge Normalization:**
+  - `www.datawarsaw.com` redirects to apex `https://datawarsaw.com` with full path and query preservation (HTTP 301).
+  - `datawarsaw-site.pages.dev` redirects to apex `https://datawarsaw.com` with full path and query preservation (HTTP 301).
+- **DNS Cleanliness:** Zero legacy records (no MX, SPF, mail hosts, or FTP records exist; the zone is clean and exclusively Cloudflare-managed).
 
 ---
 
 ## 8. Headless CMS & Structured Content Architecture (`cms/`)
 
-DataWarsaw separates application presentation from structured content using a headless CMS pattern:
+DataWarsaw separates presentation from structured content using Sanity:
 
 ```text
 AI Agent / Editor (Sanity Studio / MCP)
       │
       ▼
 Sanity Content Lake (oxemv355 / production)
-      │ (Build-time Sync: scripts/sync_sanity_experiments.mjs)
+      │ (Build-time Sync: node scripts/sync_sanity_experiments.mjs)
       ▼
 Static Snapshot (site/data/sanity-experiments.json)
       │ (Client fetch with /experiments/experiments.json fallback)
@@ -120,26 +195,6 @@ DataWarsaw Frontend (/experiments/)
    - `link`: Resource URLs with strict category classifications (repository, live demo, docs, research, external).
    - `blockContent`: Restrained Portable Text supporting paragraphs, headings (H2–H4), lists, quotes, inline code, callout boxes, code snippets, and diagrams with mandatory alt text.
 
-### Operational & Backup Policy
-- **Backup / Portability:** `npx sanity dataset export production export.ndjson --assets` creates full offline snapshots of documents and assets.
-- **Resilience:** The browser first fetches the static build-time snapshot at `site/data/sanity-experiments.json` and falls back to `site/experiments/experiments.json` only if that local snapshot request fails, cannot be parsed, or has an invalid schema. An authoritative empty array `[]` is valid and does not trigger fallback.
-
-### Automated Deployment Pipeline (Accepted, Pending Manual Wiring)
-The accepted production deployment pipeline is:
-
-```text
-Sanity Content Lake (Publish / Update / Unpublish)
-      │
-      ▼ (Outgoing Sanity Webhook: coalesce(after()._type, before()._type) in ["experiment","technology","tag"])
-Cloudflare Pages Deploy Hook (sanity-content)
-      │
-      ▼ (Build Command: node scripts/sync_sanity_experiments.mjs)
-Deterministic Snapshot (site/data/sanity-experiments.json)
-      │
-      ▼ (Static Edge Output: site/)
-Public Website (datawarsaw.com)
-```
-
-1. **Trigger Scope:** The content filter covers `experiment`, `technology`, and `tag` lifecycle events (`coalesce(after()._type, before()._type) in ["experiment","technology","tag"]`). Drafts and Versions/Releases remain disabled in the Sanity webhook settings, so draft-only edits do not trigger deploys.
-2. **Build Verification:** Build fails with exit code 1 if Sanity sync fails, preserving the live production release.
-3. **Secret Isolation:** The Cloudflare Pages Deploy Hook URL is stored strictly in the Sanity webhook settings and never committed to repository source code.
+### Operational & Deployment Policy
+- **Build Verification:** The Cloudflare Pages build executes `node scripts/sync_sanity_experiments.mjs` before static deployment. If Sanity Content Lake synchronization fails, the build exits non-zero, immediately halting deployment and preserving the live production release.
+- **Client Resilience:** The browser fetches `site/data/sanity-experiments.json` and falls back to `site/experiments/experiments.json` only if the primary snapshot fails or is invalid.

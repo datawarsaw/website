@@ -1,14 +1,14 @@
 # DataWarsaw Project State
 
-## Current Working Branch
+## Current Production Source of Truth
 
-`agent-harness-v1`
+Branch: `main`
+Platform: **Cloudflare Pages** (`datawarsaw-site`)
+Canonical Domain: `https://datawarsaw.com`
 
 ## Public Site Root
 
-`site/`
-
-Only content inside `site/` is production-deployable.
+`site/` (static assets) + `functions/` (Cloudflare Pages Functions)
 
 ## Current Harness
 
@@ -36,7 +36,7 @@ The harness previously intended Claude Sonnet 4.6 for Worker tasks, but runtime 
 
 Treat this as an observed runtime behavior, not a resolved architectural guarantee.
 
-## Current Website State
+## Current Website & Infrastructure State
 
 Main completed recent improvements:
 - Weather chart simplified to temperature-only visualization.
@@ -78,7 +78,7 @@ Active themes & experiments:
 - Future MCP research
 - Future multi-provider routing
 
-## Deployment
+## Production Deployment & Hosting Policy
 
 Current policy:
 - Active feature work on `agent-harness-v1`.
