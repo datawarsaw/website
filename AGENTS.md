@@ -118,14 +118,18 @@ git log --oneline --decorate -10
 
 If the remote cannot be reached, stop and report that repository freshness could not be verified rather than silently assuming local state is authoritative.
 
-### Task Startup & Project Memory
+### Task Startup & Project State Context
 
 At the beginning of meaningful repository tasks, the Coordinator/agent must establish current context by reading:
 1. `AGENTS.md` (repository constitution & operational rules)
-2. `docs/agent-harness-v1.md` (harness architecture & orchestration rules)
-3. `state/project-state.md` (concise current checkpoint & active constraints)
+2. `state/project-state.md` (concise snapshot of current technical truth)
+3. `docs/architecture.md` (system architecture and component boundaries)
 
-Consult `state/backlog.md` when the task concerns priorities, roadmap, next work, planning, or project continuation. Do not force reading `backlog.md` for trivial CSS or text changes where it is irrelevant.
+**Source-of-truth boundaries:**
+- **Git + verified runtime evidence** = technical source of truth.
+- **`state/project-state.md`** = concise snapshot of current technical truth.
+- **Notion / CONTROL** = portfolio management, task lifecycle, priority, and backlog. Agents do NOT maintain backlog or priority lists in Git.
+- **`docs/decisions.md`** = durable architectural decisions (ADRs).
 
 ### Worker Debug / Retry Budget
 
@@ -171,36 +175,29 @@ Before finalizing any task, verify:
 
 ---
 
-## 6. Worker / Subagent Completion Report Format
+## 6. Project State & Notion Reconciliation Contract
 
-When completing tasks, return a concise structured summary containing:
-- **ROOT CAUSE / GOAL:** Concise statement of the problem or task.
-- **FILES CHANGED:** List of modified file paths.
-- **IMPLEMENTATION APPROACH:** Key technical decisions and changes made.
-- **TESTS PERFORMED:** Concrete validation steps and viewports tested.
-- **REMAINING LIMITATIONS:** Any known caveats or follow-up items (or "None").
+Every completed implementation task must reconcile four elements before task closeout:
+1. Actual repository/runtime technical truth.
+2. `state/project-state.md` (Project State Standard v1).
+3. The structured closeout report.
+4. The corresponding Notion task through CONTROL.
 
----
+### Project State Update Rule
+Update `state/project-state.md` whenever an implementation task materially changes:
+- architecture
+- runtime requirements
+- verified capabilities
+- dependencies
+- limitations / broken state
+- deployment state
+- interfaces / integrations
+- configuration contracts
+- operational behavior
 
-## Durable Project Memory
+Do not update it for routine commits, typo fixes, conversational prompts, or transient debugging.
 
-After completing work that creates durable project knowledge, update the relevant documentation or state file only when necessary.
-
-Use:
-
-- current project state / active constraints -> state/project-state.md
-- prioritized future work / backlog triage -> state/backlog.md
-- architectural decision -> docs/decisions.md
-- confirmed failure or root cause -> docs/failures-and-lessons.md
-- architecture change -> docs/architecture.md
-- responsive/design rule -> docs/responsive-guidelines.md or docs/design-system.md
-- data-source change -> docs/data-sources.md
-- completed or planned milestone -> docs/roadmap.md
-
-### State Update Rules
-- Update `state/project-state.md` only when meaningful project state changes (harness architecture, branch/deployment strategy, major component stability, runtime/model behavior, strategic direction). Do not update for routine commits, small CSS tweaks, or typo fixes.
-- Update `state/backlog.md` when a new idea is accepted, priorities shift, an item becomes active, is completed, or is dropped.
-- Do not update documentation for trivial edits.
-- Do not save conversation transcripts, temporary debugging chatter, speculative guesses, credentials, passwords, API keys, tokens.
-- Keep documentation concise.
-- The repository and its state files act as durable project memory for future agents and sessions. Git history remains the historical record of changes.
+### Required Closeout Reporting
+End meaningful tasks following `docs/white-gull-closeout-contract.md`:
+- `PROJECT_STATE_UPDATED: YES` (with file path) or `PROJECT_STATE_UPDATED: NOT_REQUIRED` (with reason). `NO` is prohibited.
+- `NOTION_UPDATED: YES | NO_ACCESS | NOT_REQUIRED`. Never claim `YES` unless the write was executed.

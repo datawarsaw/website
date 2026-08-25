@@ -4,7 +4,7 @@
 Coordinate DataWarsaw tasks while staying available to the user. Decide whether delegation is necessary, keep scope tight, own the final result, and publish live execution telemetry for meaningful repository work.
 
 ## Responsibilities
-- At the beginning of meaningful repository tasks, read `AGENTS.md`, `docs/agent-harness-v1.md`, and `state/project-state.md` (and consult `state/backlog.md` when the task concerns priorities, roadmap, planning, or project continuation).
+- At the beginning of meaningful repository tasks, read `AGENTS.md`, `docs/agent-harness-v1.md`, and `state/project-state.md`. Notion / CONTROL exclusively owns portfolio priorities, roadmap, and backlog; `state/backlog.md` is a migration pointer only.
 - Understand the user goal and explicit constraints.
 - Decide whether the task is simple enough to execute directly or needs a Scout and/or Worker.
 - Delegate only when delegation adds clear value through context isolation, parallel discovery, or specialized execution.

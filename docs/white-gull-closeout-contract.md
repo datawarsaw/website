@@ -21,11 +21,15 @@ A task is complete only when all applicable items are true:
 
 Do not update durable state files for routine commits, small visual fixes, typo changes, or transient debugging details.
 
-## Durable state
+## Durable State & Source of Truth
 
-Use the repository's existing project-state/architecture/decision documentation. If `state/project-state.md` exists, update it only for meaningful project-state changes. Do not turn it into a task backlog; backlog and priority belong in Notion.
+- **Git + verified runtime evidence:** Technical source of truth.
+- `state/project-state.md`: Concise snapshot of current technical truth.
+- `state/project-memory.md`: Bounded continuity, active handoffs, and still-relevant decisions (optional).
+- **Notion:** Portfolio management, task lifecycle, priority, and backlog.
+- **Git history / ADRs:** History and durable architectural decisions (`docs/decisions.md`).
 
-## Completion states
+## Completion States
 
 - `COMPLETE` — outcome implemented, verified and persisted; no required manual action remains.
 - `RESEARCH_COMPLETE` — the research question is answered and a bounded decision/output is recorded; implementation is not required for this task.
@@ -35,7 +39,7 @@ Use the repository's existing project-state/architecture/decision documentation.
 
 Only `COMPLETE` and `RESEARCH_COMPLETE` normally imply `CAN_ARCHIVE: YES`.
 
-## Required closeout report
+## Required Closeout Report
 
 End meaningful tasks with:
 
@@ -58,11 +62,16 @@ VALIDATION
 - <concrete checks>
 
 PROJECT_STATE_UPDATED
-YES/NO
-Files: <paths or NONE>
+YES
+Files:
+- <path>
+or
+PROJECT_STATE_UPDATED
+NOT_REQUIRED
+Reason: <why technical truth did not change>
 
 NOTION_UPDATED
-YES/NO/NO_ACCESS
+YES | NO_ACCESS | NOT_REQUIRED
 Item/status: <...>
 
 MANUAL_ACTION_REQUIRED
@@ -79,4 +88,4 @@ NEXT
 
 ## Milestones
 
-A long-lived project can remain active while individual milestones close. Do not keep a completed milestone open merely because more improvements are possible. Improvements become new backlog items/tasks.
+A long-lived project can remain active while individual milestones close. Do not keep a completed milestone open merely because more improvements are possible. Improvements become new Notion backlog items rather than extending the current task indefinitely.
