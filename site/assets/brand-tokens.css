@@ -1,0 +1,153 @@
+/* =========================================================================
+   Warsaw Analytica - Brand Tokens
+   -------------------------------------------------------------------------
+   Canonical token layer for Warsaw Analytica internal surfaces:
+   Cockpit (cockpit.datawarsaw.com), the connected Wiki, and future
+   internal tools.
+
+   Brand contract:      docs/brand/BRANDBOOK.md
+   Digital UI guidance: docs/brand/DIGITAL_UI.md
+
+   Scope: tokens only. This file defines no component classes and is not a
+   design-system framework.
+
+   Namespace: --wa-*  (the public site keeps its own --it-* namespace)
+
+   Contrast ratios cited in comments are measured WCAG 2.1 ratios against
+   the stated counterpart colour.
+   ========================================================================= */
+
+:root {
+  /* ---------------------------------------------------------------- */
+  /* 1. Canonical brand colours - CONFIRMED FROM BRANDBOARD           */
+  /*    Do not add colours here without an owner decision.            */
+  /* ---------------------------------------------------------------- */
+  --wa-charcoal: #1f2421;
+  --wa-deep-teal: #0f4d4a;
+  --wa-forest-green: #2f5e46;
+  --wa-muted-lime: #c7d39b;
+  --wa-stone-gray: #a7a9a2;
+  --wa-off-white: #f8f7f2;
+
+  /* ---------------------------------------------------------------- */
+  /* 2. Surfaces - DERIVED UI TOKENS, not brand colours               */
+  /* ---------------------------------------------------------------- */
+  --wa-surface: var(--wa-off-white);
+  --wa-surface-raised: #ffffff;
+  --wa-surface-sunken: #f1f0ea;
+  --wa-surface-inverse: var(--wa-charcoal);
+  --wa-surface-selected: #eef1e2;
+  --wa-surface-disabled: #ecebe5;
+
+  /* ---------------------------------------------------------------- */
+  /* 3. Foreground                                                    */
+  /* ---------------------------------------------------------------- */
+  --wa-fg: var(--wa-charcoal);          /* on surface: 14.69:1 */
+  --wa-fg-muted: #6b6e69;               /* derived; on surface: 4.82:1, on sunken: 4.53:1 */
+  --wa-fg-subtle: var(--wa-stone-gray); /* non-text and dark surfaces only; on surface: 2.21:1 */
+  --wa-fg-inverse: var(--wa-off-white); /* on charcoal: 14.69:1 */
+  --wa-fg-on-accent: var(--wa-off-white);              /* on deep teal: 8.98:1 */
+  --wa-fg-on-signal: var(--wa-charcoal);               /* on muted lime: 9.92:1 */
+  --wa-fg-accent: var(--wa-deep-teal);                 /* on surface: 8.98:1 */
+  --wa-fg-accent-secondary: var(--wa-forest-green);    /* on surface: 6.97:1 */
+
+  /* ---------------------------------------------------------------- */
+  /* 4. Borders - hairlines only                                      */
+  /* ---------------------------------------------------------------- */
+  --wa-border: rgba(31, 36, 33, 0.14);        /* decorative separation */
+  --wa-border-interactive: #8d9089;           /* derived; on surface: 3.02:1, clears non-text contrast */
+  --wa-border-strong: var(--wa-charcoal);     /* on surface: 14.69:1 */
+  --wa-border-inverse: rgba(248, 247, 242, 0.18);
+  --wa-hairline: 1px;
+
+  /* ---------------------------------------------------------------- */
+  /* 5. Accent, focus and selection                                   */
+  /*    2 px ring, 2 px offset; never remove the outline.             */
+  /* ---------------------------------------------------------------- */
+  --wa-accent: var(--wa-deep-teal);
+  --wa-accent-quiet: #e7ece9;
+  --wa-signal: var(--wa-muted-lime);
+  --wa-focus-ring: var(--wa-deep-teal);          /* on light surfaces: 8.98:1 */
+  --wa-focus-ring-inverse: var(--wa-muted-lime); /* on charcoal: 9.92:1 */
+  --wa-focus-ring-width: 2px;
+  --wa-focus-ring-offset: 2px;
+
+  /* ---------------------------------------------------------------- */
+  /* 6. Status                                                        */
+  /*    The brandboard defines no warning or critical colour.         */
+  /*    --wa-status-critical is an interim neutral fallback and is    */
+  /*    flagged TBD in BRANDBOOK.md section 8.5. Never signal status  */
+  /*    by colour alone; always pair it with a text label.            */
+  /* ---------------------------------------------------------------- */
+  --wa-status-neutral: var(--wa-stone-gray);
+  --wa-status-positive: var(--wa-forest-green);
+  --wa-status-attention: var(--wa-charcoal);   /* interim, TBD */
+  --wa-status-critical: var(--wa-charcoal);    /* interim, TBD */
+
+  /* ---------------------------------------------------------------- */
+  /* 7. Typography roles                                              */
+  /*    Owner-approved v1 digital stack. Not asserted to be the       */
+  /*    brand's original typeface; exact final brand families         */
+  /*    remain a future refinement (BRANDBOOK.md section 4.3).        */
+  /* ---------------------------------------------------------------- */
+  --wa-font-display: 'Bodoni MT', Didot, 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  --wa-font-ui: 'Avenir Next', Avenir, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --wa-font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Consolas, 'Liberation Mono', monospace;
+
+  --wa-weight-regular: 400;
+  --wa-weight-medium: 500;
+  --wa-weight-semibold: 600;
+
+  --wa-text-display: clamp(2.25rem, 5vw, 3.75rem);
+  --wa-text-title: clamp(1.5rem, 3vw, 2.125rem);
+  --wa-text-heading: 1.25rem;
+  --wa-text-body: 1rem;
+  --wa-text-small: 0.875rem;
+  --wa-text-label: 0.6875rem;
+
+  --wa-label-tracking: 0.18em;
+  --wa-line-height-tight: 1.15;
+  --wa-line-height-ui: 1.55;
+  --wa-line-height-reading: 1.65;
+  --wa-measure-reading: 68ch;
+
+  /* ---------------------------------------------------------------- */
+  /* 8. Spacing - 4px base unit, mirroring the existing repository    */
+  /*    scale in site/styles.css so both surfaces stay compatible.    */
+  /* ---------------------------------------------------------------- */
+  --wa-space-1: 0.25rem;
+  --wa-space-2: 0.5rem;
+  --wa-space-3: 0.75rem;
+  --wa-space-4: 1rem;
+  --wa-space-6: 1.5rem;
+  --wa-space-8: 2rem;
+  --wa-space-12: 3rem;
+  --wa-space-16: 4rem;
+  --wa-gutter: clamp(1.25rem, 4vw, 4.5rem);
+  --wa-content-max: 1400px;
+
+  /* ---------------------------------------------------------------- */
+  /* 9. Radius and elevation - deliberately restrained                */
+  /*    Prefer a hairline border over a shadow.                       */
+  /* ---------------------------------------------------------------- */
+  --wa-radius-none: 0;
+  --wa-radius-control: 2px;
+  --wa-radius-panel: 3px;
+  --wa-shadow-none: none;
+  --wa-shadow-raised: 0 1px 2px rgba(31, 36, 33, 0.06);
+
+  /* ---------------------------------------------------------------- */
+  /* 10. Motion - restrained and functional                           */
+  /* ---------------------------------------------------------------- */
+  --wa-ease: cubic-bezier(0.22, 0.72, 0.18, 1);
+  --wa-duration-fast: 120ms;
+  --wa-duration-base: 200ms;
+}
+
+/* Reduced-motion users get an immediate, static interface. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --wa-duration-fast: 0ms;
+    --wa-duration-base: 0ms;
+  }
+}

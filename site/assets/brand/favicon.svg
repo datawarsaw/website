@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-labelledby="waFaviconTitle" aria-describedby="waFaviconDesc">
+  <title id="waFaviconTitle">Warsaw Analytica</title>
+  <desc id="waFaviconDesc">The WA monogram, centred in a square canvas, derived from the Warsaw Analytica brandboard.</desc>
+
+  <!--
+    Warsaw Analytica - favicon (canonical Brand v1 asset)
+    Owner-approved as canonical Warsaw Analytica Digital Brand v1 (2026-09-15).
+    The WA monogram, uniformly scaled to 31 of 32 units and centred, so the
+    source aspect ratio (233:124) is preserved. Transparent background: no
+    background plate is drawn, so place it on a surface with sufficient
+    contrast. See docs/brand/BRANDBOOK.md for clear-space guidance.
+
+    Note: the hairline details (the muted-lime diagonal and the thin charcoal
+    hairline) fall below one device pixel at 16 px, so at that size the mark
+    reads as its two-tone mass.
+  -->
+
+  <g transform="translate(0.5 7.75) scale(0.133047)">
+    <g fill="#0F4D4A">
+      <path d="M123 24 L113 38 L112 43 L125 76 L136 54 L125 24 Z"/>
+      <path d="M137 62 L128 83 L140 118 L140 122 L137 124 L167 124 L162 122 L160 119 L138 62 Z"/>
+      <path d="M164 12 L161 26 L160 28 L154 30 L154 33 L188 116 L188 120 L186 122 L172 124 L233 124 L217 123 L211 120 L165 12 Z"/>
+    </g>
+    <g fill="#C7D39B">
+      <path d="M151 19 L112 111 L107 121 L103 123 L108 124 L112 123 L114 113 L120 102 L123 92 L127 86 L139 53 L154 22 L152 19 Z"/>
+    </g>
+    <g fill="#1F2421">
+      <path d="M0 0 L17 1 L23 5 L73 123 L75 123 L82 109 L84 99 L46 11 L46 4 L48 2 L65 0 Z"/>
+      <path d="M79 0 L96 3 L111 42 L120 27 L125 23 L120 8 L121 4 L123 2 L141 0 Z"/>
+      <path d="M161 6 L152 25 L153 31 L160 28 L161 26 L162 17 L164 13 L163 6 Z"/>
+    </g>
+  </g>
+</svg>

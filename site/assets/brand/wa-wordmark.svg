@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 152" width="340" height="152" role="img" aria-labelledby="waWordmarkTitle" aria-describedby="waWordmarkDesc">
+  <title id="waWordmarkTitle">Warsaw Analytica wordmark</title>
+  <desc id="waWordmarkDesc">Two-line uppercase serif wordmark, WARSAW above ANALYTICA, with the tracked PEOPLE PLACES PERSPECTIVE tagline beneath.</desc>
+
+  <!--
+    Warsaw Analytica - wordmark (canonical Brand v1 asset)
+    Owner-approved as canonical Warsaw Analytica Digital Brand v1 (2026-09-15).
+    Charcoal #1F2421 is the required brand ink; pure black is not.
+    Measured from the approved brandboard: docs/brand/brand-reference.png
+      WARSAW      cap height 47, ink x 300..609, baseline y 218
+      ANALYTICA   cap height 44, ink x 304..638, baseline y 280
+      tagline     cap height 10, ink x 303..635, baseline y 315
+    Local coordinate system: source pixel minus (300, 170) -> viewBox 0 0 340 152
+
+    These are LIVE TEXT elements, not outlines. Per the Digital UI v1 decision
+    the stacks below are approved for use but are NOT asserted to be the exact
+    typefaces used on the original brandboard. Horizontal metrics therefore
+    depend on the resolved font; the reference sets both lines to a similar
+    measure (310 and 335 units), which the approved serif stack will not
+    reproduce exactly. Convert to outlines once the licensed family is confirmed.
+
+    The tagline is included here because it sits inside the wordmark block on
+    the board. It is excluded from the standard horizontal lockup.
+  -->
+
+  <g fill="#1F2421" font-family="'Bodoni MT', Didot, 'Palatino Linotype', 'Book Antiqua', Georgia, serif">
+    <text x="0" y="48" font-size="68">WARSAW</text>
+    <text x="0" y="110" font-size="64">ANALYTICA</text>
+  </g>
+
+  <text x="0" y="145" fill="#1F2421" font-size="14.5" letter-spacing="3.05" font-family="'Bodoni MT', Didot, 'Palatino Linotype', 'Book Antiqua', Georgia, serif">PEOPLE PLACES PERSPECTIVE</text>
+</svg>
