@@ -1,43 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 598 124" width="598" height="124" role="img" aria-labelledby="waLockupTitle" aria-describedby="waLockupDesc">
-  <title id="waLockupTitle">Warsaw Analytica horizontal lockup</title>
-  <desc id="waLockupDesc">The WA monogram set to the left of the two-line WARSAW ANALYTICA wordmark.</desc>
-
-  <!--
-    Warsaw Analytica - horizontal lockup (canonical Brand v1 asset)
-    Owner-approved as canonical Warsaw Analytica Digital Brand v1 (2026-09-15).
-    The preferred application header asset.
-
-    Composition taken from the approved brandboard: docs/brand/brand-reference.png
-      monogram  x 42..275   (233 wide), y 167.5..291.5
-      wordmark  x 300..638, cap tops y 171 / 237
-    Local coordinate system: source pixel minus (42, 167.5) -> viewBox 0 0 598 124
-    Wordmark offset within the lockup: x 258, baselines y 50.5 and 112.5.
-
-    Per the owner decision the ANALYSIS / STRATEGY / A CLEARER TOMORROW
-    descriptor is NOT part of the standard lockup, and the PEOPLE PLACES
-    PERSPECTIVE tagline is omitted here as well (see wa-wordmark.svg).
-  -->
-
-  <!-- WA monogram -->
-  <g transform="translate(0 0)">
-    <g fill="#0F4D4A">
-      <path d="M123 24 L113 38 L112 43 L125 76 L136 54 L125 24 Z"/>
-      <path d="M137 62 L128 83 L140 118 L140 122 L137 124 L167 124 L162 122 L160 119 L138 62 Z"/>
-      <path d="M164 12 L161 26 L160 28 L154 30 L154 33 L188 116 L188 120 L186 122 L172 124 L233 124 L217 123 L211 120 L165 12 Z"/>
-    </g>
-    <g fill="#C7D39B">
-      <path d="M151 19 L112 111 L107 121 L103 123 L108 124 L112 123 L114 113 L120 102 L123 92 L127 86 L139 53 L154 22 L152 19 Z"/>
-    </g>
-    <g fill="#1F2421">
-      <path d="M0 0 L17 1 L23 5 L73 123 L75 123 L82 109 L84 99 L46 11 L46 4 L48 2 L65 0 Z"/>
-      <path d="M79 0 L96 3 L111 42 L120 27 L125 23 L120 8 L121 4 L123 2 L141 0 Z"/>
-      <path d="M161 6 L152 25 L153 31 L160 28 L161 26 L162 17 L164 13 L163 6 Z"/>
-    </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 516 132" width="516" height="132" role="img" aria-labelledby="title desc">
+  <title id="title">Warsaw Analytica horizontal lockup</title>
+  <desc id="desc">Variant D monogram, vertical divider, and two-line Warsaw Analytica wordmark.</desc>
+  <g transform="translate(8 16) scale(0.416666667)">
+    <path fill="#1F2421" d="M8 8 H120 V9 H106 C88 9 80 13 86 28 L151 188 L227 43 L229 46 L132 232 L46 29 C39 12 36 9 8 9 Z"/>
+    <path fill="#0F4D4A" d="M146 8 H258 V9 H244 C223 9 217 14 223 30 L291 211 C298 229 300 231 316 231 V232 H234 V231 C255 231 259 229 252 211 L180 29 C173 12 171 9 146 9 Z"/>
+    <path fill="#1F2421" d="M146 8 H258 V9 H244 C223 9 217 14 223 30 L229.7 47.8 L205.1 92.1 L180 29 C173 12 171 9 146 9 Z"/>
+    <path fill="#0F4D4A" d="M296 8 L383 211 C391 229 396 231 424 231 V232 H310 V231 C337 231 348 229 341 212 L277 56 Z"/>
+    <path fill="#C7D39B" d="M296 8 L300 18 L203 216 C197 228 204 231 212 231 V232 H170 V231 C185 231 189 227 194 216 Z"/>
   </g>
-
-  <!-- Wordmark (live text; see wa-wordmark.svg for the typeface caveat) -->
-  <g fill="#1F2421" font-family="'Bodoni MT', Didot, 'Palatino Linotype', 'Book Antiqua', Georgia, serif" font-size="68" transform="translate(258 2.5)">
-    <text x="0" y="48">WARSAW</text>
-    <text x="0" y="110" font-size="64">ANALYTICA</text>
+  <path fill="#A7A9A2" d="M202 8 H203 V124 H202 Z"/>
+  <g transform="translate(220 2) scale(0.9)">
+  <g fill="#1F2421" font-family="'Bodoni MT', Didot, 'Palatino Linotype', 'Book Antiqua', Georgia, serif" font-weight="400">
+    <text x="8" y="68" font-size="60" textLength="245" lengthAdjust="spacingAndGlyphs">WARSAW</text>
+    <text x="8" y="122" font-size="58" textLength="294" lengthAdjust="spacingAndGlyphs">ANALYTICA</text>
+  </g>
   </g>
 </svg>

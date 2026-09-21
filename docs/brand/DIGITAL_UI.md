@@ -5,7 +5,7 @@ Interpretation of the Warsaw Analytica brand for internal tools. Guidance only: 
 - Applies to: `cockpit.datawarsaw.com` (Cockpit), the connected Wiki, and future internal Warsaw Analytica tools
 - Brand source: `docs/brand/BRANDBOOK.md`
 - Token layer: `site/assets/brand-tokens.css`
-- Canonical logo assets (Brand v1, owner-approved): `site/assets/brand/wa-monogram.svg`, `site/assets/brand/wa-wordmark.svg`, `site/assets/brand/wa-lockup-horizontal.svg`, `site/assets/brand/favicon.svg`
+- Canonical logo assets (Brand Assets v2, validated production pass of owner-selected Variant D): `site/assets/brand/wa-monogram.svg`, `site/assets/brand/wa-wordmark.svg`, `site/assets/brand/wa-lockup-horizontal.svg`, `site/assets/brand/favicon.svg`
 
 ## 0. Principle
 
@@ -136,8 +136,10 @@ The brand supplies the tone and the constraints; the tool supplies the density. 
 - Scale the assets proportionally and keep clear space; do not redraw, recolour, re-space, or re-export them to fit a header. [CONFIRMED — OWNER DECISION (BRAND V1)]
 - Neither the descriptor nor the tagline belongs in a product header lockup. [CONFIRMED — OWNER DECISION (BRAND V1)]
 - Construction geometry from the brandboard is reference material only and never appears in product surfaces. [CONFIRMED — OWNER DECISION (BRAND V1)]
-- The marks are light-surface preferred and there is no dark colourway in v1. On a dark header, place the standard mark on a solid Off-White panel. [CONFIRMED — OWNER DECISION (BRAND V1) for the light-surface preference; the panel mechanics are INFERRED FOR DIGITAL USE]
-- Known v1 limitation: `site/assets/brand/favicon.svg` reads weakly at 16 px. Do not block header or favicon integration on it; a compact mark may replace it later. [CONFIRMED — OWNER DECISION (BRAND V1)]
+- The marks are light-surface preferred and there is no canonical dark colourway in v2. On a dark header, place the standard mark on a solid Off-White panel. [CONFIRMED — OWNER DECISION (BRAND V1) for the light-surface preference; the panel mechanics are INFERRED FOR DIGITAL USE]
+- V2 `site/assets/brand/favicon.svg` is the optically simplified Variant D derivative for 16–32 px: stronger diagonal/connecting stroke, taller silhouette and simplified terminals. Use `wa-monogram.svg` for the full editorial geometry at larger sizes. [VERIFIED IN REPOSITORY]
+- V2 wordmark and lockup retain live text in the approved v1 serif stack; exact licensed brand family remains TBD. The wordmark now omits the optional tagline. [VERIFIED IN REPOSITORY]
+- V2 construction, tested sizes, surface limitations and review previews are recorded in `docs/brand/brand-assets-v2-validation.md`. [VERIFIED IN REPOSITORY]
 
 ## 17. Source classification
 

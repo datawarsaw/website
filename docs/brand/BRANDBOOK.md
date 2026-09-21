@@ -2,8 +2,9 @@
 
 Canonical brand contract for **Warsaw Analytica**, the shared identity layer for internal Warsaw Analytica surfaces.
 
-- **Status:** Warsaw Analytica Digital Brand **v1** — owner-reviewed and accepted on 2026-09-15.
-- Primary visual source: `docs/brand/brand-reference.png` (the supplied Warsaw Analytica brandboard, 1122 x 1402 px)
+- **Status:** Digital Brand **v1** contract retained; **Brand Assets v2** production pass validated on 2026-09-21. Variant D is owner-selected; this does not claim a separate owner sign-off on the delivered vectors.
+- Supporting visual source: `docs/brand/brand-reference.png` (the supplied Warsaw Analytica brandboard, 1122 x 1402 px)
+- Asset geometry authority: `docs/brand/brand-assets-v2-approved.png` — **Variant D, smoother transitions**. Priority: approved Variant D board, Brand v1 contract, original brandboard. [CONFIRMED — OWNER DECISION]
 - Companion documents: `docs/brand/DIGITAL_UI.md`, `site/assets/brand-tokens.css`
 - Canonical assets: `site/assets/brand/wa-monogram.svg`, `site/assets/brand/wa-wordmark.svg`, `site/assets/brand/wa-lockup-horizontal.svg`, `site/assets/brand/favicon.svg`
 - Task scope: brand contract and canonical asset status only. Cockpit and Wiki are intentionally not redesigned here.
@@ -17,6 +18,7 @@ Every rule carries exactly one label:
 | Label | Meaning |
 | :--- | :--- |
 | CONFIRMED FROM BRANDBOARD | Observable in the supplied brandboard, or stated by the brand owner as brandboard content. Treat as brand fact. |
+| CONFIRMED — OWNER DECISION | Owner-selected Variant D and explicit v2 production requirements. |
 | CONFIRMED — OWNER DECISION (BRAND V1) | Stated by the brand owner in the Brand v1 approval. Binding for v1, and it supersedes a brandboard reading where the two differ. |
 | INFERRED FOR DIGITAL USE | A digital-interface decision derived from the brandboard because the board does not specify UI behaviour. Reviewable, not canonical. |
 | VERIFIED IN REPOSITORY | A measured or inspected property of a file in this repository. Reproducible by re-running the stated check. |
@@ -54,90 +56,70 @@ A quiet institutional publication: the confidence of an architectural drawing sh
 
 ## 2. Logo system
 
-The canonical vector assets exist and are owner-approved for v1. They are the authority for mark geometry; the brandboard is a reference, not production art.
+The owner selected **Variant D — smoother transitions**. The approved Variant D board governs the v2 reconstruction; the old v1 traced paths are implementation history, not v2 geometry authority. [CONFIRMED — OWNER DECISION]
 
-| Asset | Canonical path | Primary use |
+The four paths below now contain validated Brand Assets v2. This records production validation, not an additional owner approval of the final vector interpretation. The v1 palette and digital typography contract remain in force. [VERIFIED IN REPOSITORY]
+
+| Asset | Canonical path | Canvas / primary use |
 | :--- | :--- | :--- |
-| WA monogram | `site/assets/brand/wa-monogram.svg` | Compact use: application headers, footers, dense toolbars |
-| Wordmark | `site/assets/brand/wa-wordmark.svg` | Two-line `WARSAW` / `ANALYTICA` wordmark, including the tagline line |
-| Horizontal lockup | `site/assets/brand/wa-lockup-horizontal.svg` | Standard application-header lockup |
-| Favicon | `site/assets/brand/favicon.svg` | Browser tab and icon use |
-
-The marks draw only in the canonical palette — Deep Teal `#0F4D4A`, Muted Lime `#C7D39B`, Charcoal `#1F2421`. Do not redraw, recolour, or re-space them in place; a change to a mark is a new owner decision. [CONFIRMED — OWNER DECISION (BRAND V1)]
+| Full monogram | `site/assets/brand/wa-monogram.svg` | 432 × 240; headers, editorial and larger applications |
+| Wordmark | `site/assets/brand/wa-wordmark.svg` | 320 × 144; two-line WARSAW / ANALYTICA, no tagline |
+| Horizontal lockup | `site/assets/brand/wa-lockup-horizontal.svg` | 516 × 132; standard application header |
+| Compact favicon | `site/assets/brand/favicon.svg` | 32 × 32; optically corrected for 16–32 px |
 
 ### 2.1 WA monogram
 
-Accepted as canonical v1: `site/assets/brand/wa-monogram.svg`. Intended primarily for light surfaces. [CONFIRMED — OWNER DECISION (BRAND V1)]
+Five intentional filled paths replace the v1 raster-derived contour fragments. Straight primary strokes meet cubic Bézier serif transitions. A charcoal W and upper central stroke overlap the deep-teal forms; the muted-lime diagonal sits above them. The full master has 49 path endpoints, including move points, plus 24 cubic control points. No masks, raster, filters or construction lines are present. Geometry occupies x=8…424 and y=8…232, leaving 8 units of internal clearance on all sides. [VERIFIED IN REPOSITORY]
 
-- Geometric, overlapping construction of the letters W and A. [CONFIRMED FROM BRANDBOARD]
-- Two-tone serif strokes — charcoal and deep teal — with pronounced thick/thin contrast. [CONFIRMED FROM BRANDBOARD]
-- Crossed by a narrow diagonal bar in muted lime. [CONFIRMED FROM BRANDBOARD]
-- On the board the mark is shown over faint construction geometry (circles, verticals, horizontals). The canonical asset contains no such geometry. Construction geometry is editorial and brand-reference material only, and is not part of normal internal-product UI. [CONFIRMED — OWNER DECISION (BRAND V1)]
-- Stroke weights, overlap order, and diagonal angle are fixed by `site/assets/brand/wa-monogram.svg`. That file, not the brandboard, governs future comparison. [CONFIRMED — OWNER DECISION (BRAND V1)]
+The construction preserves Variant D's proportions, pronounced thick/thin contrast, smooth serif terminals and overlap hierarchy. The board's texture, incidental contour noise and construction guides are not production geometry. [INFERRED FOR DIGITAL USE]
 
 ### 2.2 Warsaw Analytica wordmark
 
-Accepted as canonical v1: `site/assets/brand/wa-wordmark.svg`. [CONFIRMED — OWNER DECISION (BRAND V1)]
+Two-line uppercase serif: `WARSAW` above `ANALYTICA`, in Charcoal `#1F2421`. The v2 wordmark contains only those two lines. [CONFIRMED — OWNER DECISION]
 
-Two-line uppercase serif lockup: `WARSAW` above `ANALYTICA`. High-contrast serif, tight measure, generous cap height. [CONFIRMED FROM BRANDBOARD]
+Live text retains the approved stack: `"Bodoni MT", Didot, "Palatino Linotype", "Book Antiqua", Georgia, serif`. No font has been silently substituted or declared the canonical licensed family. Explicit `textLength` values of 245 and 294 units, with `lengthAdjust="spacingAndGlyphs"`, fix line measures; glyph shapes still depend on the locally resolved font. This modest metric normalization does not establish the original board typeface. No fonts are embedded or redistributed. [VERIFIED IN REPOSITORY]
 
-- Set in Charcoal `#1F2421`, not pure black. [CONFIRMED — OWNER DECISION (BRAND V1)]
-- The two lines are live text in the approved v1 digital display stack (section 4.3), not outlines. The exact final typeface remains a future refinement; the current approved stack is accepted for v1. [CONFIRMED — OWNER DECISION (BRAND V1); the typeface is a recorded future refinement]
-- The `PEOPLE PLACES PERSPECTIVE` tagline line is part of this asset and is excluded from the horizontal lockup. [CONFIRMED — OWNER DECISION (BRAND V1)]
+Exact brand family and outline licensing remain **TBD**. The local review render resolves Bodoni MT; fallback bounds were also checked for Palatino Linotype, Book Antiqua, Georgia and generic serif. Didot was not available for independent verification. [VERIFIED IN REPOSITORY]
 
 ### 2.3 Tagline
 
-`PEOPLE PLACES PERSPECTIVE` — uppercase, widely tracked, set beneath the wordmark at a smaller optical size. [CONFIRMED FROM BRANDBOARD]
-
-Optional brand element. It is not required in standard product headers or lockups, and its absence is not a brand violation. [CONFIRMED — OWNER DECISION (BRAND V1)]
+`PEOPLE PLACES PERSPECTIVE` remains optional brand copy. It is not included in the v2 wordmark or standard product-header lockup. [CONFIRMED — OWNER DECISION]
 
 ### 2.4 Standing descriptor
 
-`ANALYSIS / STRATEGY / A CLEARER TOMORROW` — a three-part descriptor appearing as a standing header strip. [CONFIRMED FROM BRANDBOARD]
-
-Optional brand copy, not a mandatory element. It is not part of the standard lockup: `site/assets/brand/wa-lockup-horizontal.svg` deliberately omits it. [CONFIRMED — OWNER DECISION (BRAND V1)]
+`ANALYSIS / STRATEGY / A CLEARER TOMORROW` remains optional brand copy and is excluded from the standard lockup. [CONFIRMED — OWNER DECISION (BRAND V1)]
 
 ### 2.5 Horizontal lockup
 
-Accepted as canonical v1: `site/assets/brand/wa-lockup-horizontal.svg`. [CONFIRMED — OWNER DECISION (BRAND V1)]
+The lockup embeds the full master's exact five paths at `translate(8 16) scale(0.416666667)` and the wordmark's exact text group at `translate(220 2) scale(0.9)`. A 1-unit Stone Gray divider at x=202 follows the approved board composition. It has no tagline, descriptor or construction geometry. [VERIFIED IN REPOSITORY]
 
-- Composition: the WA monogram set to the left of the two-line `WARSAW` / `ANALYTICA` wordmark, sharing one baseline grid. [CONFIRMED FROM BRANDBOARD as composition; the canonical asset fixes the proportions]
-- The descriptor is not part of the standard lockup, and the tagline is omitted as well. [CONFIRMED — OWNER DECISION (BRAND V1)]
-- Spacing and proportions are fixed by the asset rather than by measured board geometry. [CONFIRMED — OWNER DECISION (BRAND V1)]
-
-The board's full identity block — monogram, then wordmark, then tagline, beside a narrow adjacent column separated by a vertical hairline — remains brand-reference composition, not the production lockup. [CONFIRMED FROM BRANDBOARD as observed]
+The copies are standalone for runtime use; any future master edit must be propagated into the lockup, preserving identical path data and text attributes. [INFERRED FOR DIGITAL USE]
 
 ### 2.6 Compact use
 
-Below lockup scale — application headers, document footers, dense toolbars — use the monogram alone. Do not stack a reduced wordmark beneath it. [INFERRED FOR DIGITAL USE]
+Use the full master where its fine strokes remain legible. Prefer the compact favicon for 16–32 px icon contexts. Do not use the large wordmark at favicon scale. [INFERRED FOR DIGITAL USE]
 
 ### 2.7 Favicon use
 
-Canonical v1 favicon: `site/assets/brand/favicon.svg` — the WA monogram, uniformly scaled and centred on a transparent 32 x 32 canvas with no background plate. [CONFIRMED — OWNER DECISION (BRAND V1)]
+The transparent 32 × 32 favicon is a **compact optical derivative**, not the full master uniformly reduced. Its 16-unit design grid is scaled by two. The silhouette is slightly taller, the connecting stroke and lime diagonal are strengthened, serif shelves are 1 device pixel deep at 16 px, and small curved terminal details are removed. The charcoal/teal/lime relationship and recognizable overlap remain. Five paths contain 42 endpoints plus 10 cubic control points. [VERIFIED IN REPOSITORY]
 
-- Place it on a surface with enough contrast to carry the two-tone mark. [INFERRED FOR DIGITAL USE]
-- Do not use the full lockup or the tagline at favicon scale. [INFERRED FOR DIGITAL USE]
+At 16 px the icon communicates the WA silhouette and lime separator, not full editorial detail. Use the full master at larger sizes; the compact shape is not an alternate full-size identity. The v1 weak-favicon limitation is superseded by this derivative on light surfaces. [INFERRED FOR DIGITAL USE]
 
-Superseded guidance: an earlier revision of this section recommended a single-colour favicon. The accepted v1 favicon is the two-tone monogram, with the limitation recorded below. [CONFIRMED — OWNER DECISION (BRAND V1)]
-
-**Known limitation (v1).** Legibility at 16 px is weak: the muted-lime diagonal and the thin charcoal hairline fall below one device pixel at that size, so at 16 px the mark reads as its two-tone mass. This is recorded as a known limitation and is not a blocker; downstream UI work must not wait on it. A compact favicon or simplified mark may replace this asset in a future version. [CONFIRMED — OWNER DECISION (BRAND V1)]
-
-> The existing `site/assets/favicon.svg` is the DataWarsaw / domaradzki.com.pl mark (letter M, acid lime `#c6ff3e` on `#0b1514`). It is **not** a Warsaw Analytica asset and must not be reused as the Warsaw Analytica icon. The Warsaw Analytica icon is `site/assets/brand/favicon.svg`.
+`site/assets/favicon.svg` remains the separate DataWarsaw mark and is not a Warsaw Analytica asset. [VERIFIED IN REPOSITORY]
 
 ### 2.8 Clear space
 
-Working minimum: clear space equal to the monogram's internal counter height on all four sides, with nothing entering that zone. With the canonical v1 assets available, measure that zone against `site/assets/brand/wa-monogram.svg` rather than against the brandboard. This stays an inferred digital rule and is not presented as a board-derived brand fact. [INFERRED FOR DIGITAL USE]
+Working minimum: external clear space equal to the monogram's internal counter height on all four sides. The master's 8-unit canvas inset is clipping clearance, not sufficient layout clear space. [INFERRED FOR DIGITAL USE]
 
 ### 2.9 Prohibited modifications
 
-Do not redraw, retype, or re-export the canonical v1 assets in place; a change to a mark is a new owner decision. [CONFIRMED — OWNER DECISION (BRAND V1)]
-
-Do not recolour the mark outside the canonical palette; add gradients, glows, bevels, or drop shadows; rotate or skew; outline or emboss; stretch or condense; re-set the wordmark in a sans-serif or a different serif; reposition, recolour, or remove the lime diagonal; place the lockup over busy photography without a solid off-white or charcoal panel; or animate the monogram beyond a restrained opacity fade. [INFERRED FOR DIGITAL USE]
+Do not stretch the assets, substitute a new serif, reposition the lime diagonal, add gradients, effects or decorative geometry, or mix Variant A/B/C into the approved direction. Changes to the identity require a new owner decision. [CONFIRMED — OWNER DECISION]
 
 ### 2.10 Surfaces
 
-- The v1 marks are single-treatment and light-surface preferred. There is no separate dark colourway in v1. [CONFIRMED — OWNER DECISION (BRAND V1)]
-- Both the monogram and the wordmark use Charcoal `#1F2421`, so neither is legible directly on a charcoal surface. Where a mark has to sit on a dark surface, keep the standard treatment and place it on a solid Off-White panel rather than recolouring or inverting it. [INFERRED FOR DIGITAL USE, derived from the no-recolour rule in section 2.9 and the v1 light-surface preference]
+Canonical full-color assets remain light-surface oriented. They were inspected on Off-White `#F8F7F2`, White `#FFFFFF` and Charcoal `#1F2421`. Charcoal strokes and text disappear on Charcoal; teal also has poor contrast. This is a known limitation, not a passed dark-surface legibility claim. [VERIFIED IN REPOSITORY]
+
+On dark product surfaces, use an Off-White panel. A reverse treatment shown in reference material is **FUTURE VARIANT**, not a delivered canonical asset. [INFERRED FOR DIGITAL USE]
 
 ---
 
@@ -203,7 +185,7 @@ Binding consequences:
 - **Tracked uppercase label:** small, uppercase, wide letter-spacing, used for section labels and the standing descriptor. [CONFIRMED FROM BRANDBOARD]
 - **Supporting text:** quiet, smaller, secondary to the display and label roles. [CONFIRMED FROM BRANDBOARD as a role; its typeface is not established]
 
-The brandboard file does not establish exact font families, and the canonical v1 marks carry their wordmark text as live text in the approved digital stack rather than in a licensed brand family. Do not assert that the approved stack is the original brandboard typeface. For v1 the approved digital stack is the accepted implementation; identifying the original families remains a future refinement. [CONFIRMED — OWNER DECISION (BRAND V1) for the v1 stack; the original family identity is a recorded future refinement]
+The brandboard file does not establish exact font families, and the v2 marks retain their wordmark text as live text in the approved digital stack rather than in a licensed brand family. Do not assert that the approved stack is the original brandboard typeface. For v1 the approved digital stack is the accepted implementation; identifying the original families remains a future refinement. [CONFIRMED — OWNER DECISION (BRAND V1) for the v1 stack; the original family identity is a recorded future refinement]
 
 ### 4.2 Digital role mapping
 
@@ -216,7 +198,7 @@ The brandboard file does not establish exact font families, and the canonical v1
 
 The repository's display stack in `site/styles.css` is `Bodoni MT, Didot, Palatino Linotype, Book Antiqua, Georgia, serif`, a high-contrast serif consistent with the brandboard's character, alongside `Avenir Next, Avenir, Segoe UI, Helvetica, Arial, sans-serif` for functional text. These are exposed as `--wa-font-display` and `--wa-font-ui` in `site/assets/brand-tokens.css`, and they are the **approved v1 digital stack**, including the live wordmark text in `wa-wordmark.svg` and `wa-lockup-horizontal.svg`. [CONFIRMED — OWNER DECISION (BRAND V1)]
 
-They remain placeholders for the brand's original typeface: the licensed families are not identified, and confirming them is a future refinement rather than an open v1 blocker. Horizontal wordmark metrics depend on the resolved family, so the wordmark text should be converted to outlines when the licensed family is confirmed. [INFERRED FOR DIGITAL USE, future refinement]
+They remain placeholders for the brand's original typeface: the licensed families are not identified, and confirming them is a future refinement rather than an open v1 blocker. V2 fixes overall line measures through SVG text lengths, but glyph shapes and vertical metrics depend on the resolved family. Convert to outlines only when the exact family and licensing are confirmed. [INFERRED FOR DIGITAL USE, future refinement]
 
 ### 4.4 Hierarchy principles
 
@@ -269,7 +251,7 @@ They remain placeholders for the brand's original typeface: the licensed familie
 - Do not pair deep teal with charcoal, or forest green with deep teal, as text on background.
 - Do not use muted lime or stone gray as text on off-white.
 - Do not set functional UI text in the display serif.
-- Do not treat the brandboard as canonical logo art; the canonical art is the four v1 assets listed in section 8.3.
+- Do not use the raster board as runtime logo art; use the four v2 assets listed in section 8.3. The owner-selected Variant D board remains the visual authority for assessing this reconstruction.
 
 ---
 
@@ -293,25 +275,20 @@ They remain placeholders for the brand's original typeface: the licensed familie
 
 ### 8.3 Logo asset status
 
-The canonical Warsaw Analytica v1 vector marks exist and are owner-approved. They are the production art for v1:
+Brand Assets v2 replace the four canonical files listed in section 2. The approved Variant D reference is retained at `docs/brand/brand-assets-v2-approved.png`; the original board remains supporting context. V1 files remain recoverable from Git commit `8d9f85f`. [VERIFIED IN REPOSITORY]
 
-```text
-site/assets/brand/
-  wa-monogram.svg            WA monogram, 233 x 124
-  wa-wordmark.svg            WARSAW / ANALYTICA wordmark, 340 x 152
-  wa-lockup-horizontal.svg   monogram plus wordmark, 598 x 124
-  favicon.svg                WA monogram on a 32 x 32 canvas
-```
+Production review artifacts (never runtime assets):
 
-- All four are canonical v1: reviewed and accepted by the owner. [CONFIRMED — OWNER DECISION (BRAND V1)]
-- Status wording: earlier drafts in this repository labelled these files *candidate canonical asset* while owner review was pending. That language is superseded; the files are canonical v1 and are no longer pending approval. [CONFIRMED — OWNER DECISION (BRAND V1)]
-- Format: each file is a standalone SVG with no `image` element, no `data:` URI, and no base64 payload, and each draws only in Deep Teal `#0F4D4A`, Muted Lime `#C7D39B`, and Charcoal `#1F2421`. [VERIFIED IN REPOSITORY]
-- The wordmark and the lockup carry their lettering as live text in the approved v1 digital stack (section 4.3) rather than as outlines. Horizontal metrics therefore depend on the resolved font; convert to outlines once the licensed family is confirmed. [CONFIRMED — OWNER DECISION (BRAND V1) for the approved stack; outlining is a recorded follow-up]
-- Reconstruction provenance is retained: the SVG headers record the brandboard regions the paths were measured from. Reconstruction is complete, and the assets, not the brandboard, govern future comparison. [VERIFIED IN REPOSITORY]
-- `site/assets/favicon.svg` is a different asset — the DataWarsaw / domaradzki.com.pl mark from the older direction. The Warsaw Analytica favicon is `site/assets/brand/favicon.svg`. [VERIFIED IN REPOSITORY]
-- `docs/brand/brand-reference.png` remains a visual reference. It is not a substitute for the canonical marks, and it must not be cropped or traced to produce production art. [CONFIRMED — OWNER DECISION (BRAND V1)]
+- `docs/brand/brand-assets-v2-preview.html` — responsive review page referencing the final SVGs.
+- `docs/brand/brand-assets-v2-preview.png` — Chromium capture at 1440 px / device scale 1.
+- `docs/brand/brand-assets-v2-validation.md` — construction, refinement and validation record.
+
+The owner selected Variant D; no claim is made that the delivered v2 vector interpretation has already received a separate final owner review. [CONFIRMED — OWNER DECISION for the direction; VERIFIED IN REPOSITORY for production status]
 
 ### 8.4 Evidence and verification
+
+**V2 evidence:** see `brand-assets-v2-validation.md`. The records below describe the original board and historical v1 validation; they do not establish v2 geometry authority.
+
 
 - **Palette:** all six canonical hexes are present in `docs/brand/brand-reference.png` by direct pixel sampling (tolerance 14/255 per channel, every third pixel, 175,032 samples): Off-White 119,828; Stone Gray 6,296; Charcoal 5,842; Deep Teal 857; Forest Green 601; Muted Lime 595. No blue-dominant pixel was found, consistent with a six-colour palette containing no blue.
 - **Board geometry:** 1122 x 1402 px, portrait.
@@ -320,9 +297,9 @@ site/assets/brand/
 - **Limitation:** letterform-level inspection of the board was not independently re-performed in this session, and the typeface identity is not established by the file. Monogram stroke geometry and lockup proportions were therefore reconstructed, and are now fixed by the canonical v1 assets rather than by board measurement; the typeface identity remains unresolved.
 - **Asset validation (Brand v1):** all four canonical SVGs parse as well-formed XML, contain no `image` element, no `data:` URI, and no base64 payload, and use only the colour literals `#0F4D4A`, `#C7D39B`, and `#1F2421`. [VERIFIED IN REPOSITORY]
 
-### 8.5 Resolved by the Brand v1 approval
+### 8.5 Historical Brand v1 approval
 
-These items were open in the pre-approval draft and are now decided. The owner's decision is the brand fact; the reasoning above is unchanged.
+These decisions record the v1 baseline. Section 2 supersedes asset geometry, wordmark contents and favicon implementation for v2; unrelated brand decisions remain in force.
 
 - Monogram vector specification and production-ready lockup proportions — resolved: both are fixed by the canonical assets in section 8.3.
 - Whether construction geometry may appear in product surfaces — resolved: it is editorial and brand-reference material only, never internal-product UI.
@@ -337,9 +314,11 @@ These items were open in the pre-approval draft and are now decided. The owner's
 - Exact typeface families for the display serif, UI sans-serif, and monospace roles. The approved v1 digital stack is accepted for use, so this is a refinement rather than a blocker.
 - Whether a warning or critical status colour may be introduced; the palette provides no such colour (see `docs/brand/DIGITAL_UI.md`, section 11).
 
-### 8.7 Recorded v1 limitations
+### 8.7 Current asset limitations
 
-- **Favicon legibility at 16 px** is weak; at that size the mark reads only as its two-tone mass. Recorded, not a blocker, and downstream UI work must not wait on it. A compact favicon or simplified mark may replace `site/assets/brand/favicon.svg` in a future version. Detail in section 2.7.
+- Exact licensed wordmark family remains TBD; live glyph shapes vary across systems.
+- Full-master hairlines and serifs lose detail at 16–24 px; use the compact favicon.
+- Direct dark-surface use is not supported by the full-color treatment. A reverse asset is a future variant, not part of v2.
 
 ---
 
@@ -347,5 +326,5 @@ These items were open in the pre-approval draft and are now decided. The owner's
 
 - `docs/brand/DIGITAL_UI.md` — internal-tool interpretation for Cockpit and Wiki.
 - `site/assets/brand-tokens.css` — the token layer implementing section 3 and section 4.
-- `site/assets/brand/` — the four canonical v1 vector marks (section 8.3).
+- `site/assets/brand/` — the four canonical v2 vector assets (section 8.3).
 - `docs/design-system.md` — the earlier DataWarsaw dark-graphite and acid-lime direction. It remains the public-site record but is **not** the Warsaw Analytica design language.
