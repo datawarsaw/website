@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 144" width="320" height="144" role="img" aria-labelledby="title desc">
+  <title id="title">Warsaw Analytica wordmark</title>
+  <desc id="desc">WARSAW above ANALYTICA. Live text in the approved digital serif stack; the exact licensed brand typeface remains unconfirmed.</desc>
+  <g fill="#1F2421" font-family="'Bodoni MT', Didot, 'Palatino Linotype', 'Book Antiqua', Georgia, serif" font-weight="400">
+    <text x="8" y="68" font-size="60" textLength="245" lengthAdjust="spacingAndGlyphs">WARSAW</text>
+    <text x="8" y="122" font-size="58" textLength="294" lengthAdjust="spacingAndGlyphs">ANALYTICA</text>
+  </g>
+</svg>

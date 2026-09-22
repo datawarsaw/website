@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 240" width="432" height="240" role="img" aria-labelledby="title desc">
+  <title id="title">Warsaw Analytica monogram</title>
+  <desc id="desc">Variant D: overlapping charcoal and deep-teal serif strokes crossed by a muted-lime diagonal.</desc>
+    <path fill="#1F2421" d="M8 8 H120 V9 H106 C88 9 80 13 86 28 L151 188 L227 43 L229 46 L132 232 L46 29 C39 12 36 9 8 9 Z"/>
+    <path fill="#0F4D4A" d="M146 8 H258 V9 H244 C223 9 217 14 223 30 L291 211 C298 229 300 231 316 231 V232 H234 V231 C255 231 259 229 252 211 L180 29 C173 12 171 9 146 9 Z"/>
+    <path fill="#1F2421" d="M146 8 H258 V9 H244 C223 9 217 14 223 30 L229.7 47.8 L205.1 92.1 L180 29 C173 12 171 9 146 9 Z"/>
+    <path fill="#0F4D4A" d="M296 8 L383 211 C391 229 396 231 424 231 V232 H310 V231 C337 231 348 229 341 212 L277 56 Z"/>
+    <path fill="#C7D39B" d="M296 8 L300 18 L203 216 C197 228 204 231 212 231 V232 H170 V231 C185 231 189 227 194 216 Z"/>
+</svg>
