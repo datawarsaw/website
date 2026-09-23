@@ -17,6 +17,8 @@ const percySnapshot = require('@percy/playwright');
 const LIVE_APIS =
   /^https:\/\/(api\.github\.com|api\.open-meteo\.com|air-quality-api\.open-meteo\.com)\//;
 
+const MAX_REPORTED_FAILURES = 20;
+
 const KEY_HEADINGS = [
   '#hero-title',
   '#about-title',
@@ -41,8 +43,32 @@ async function scrollThroughPage(page) {
 }
 
 test('DataWarsaw homepage visual snapshot', async ({ page }, testInfo) => {
+  // Every project declares its own viewport in playwright.config.js and the
+  // Percy snapshot is bound to it, so an unexpected project shape is a hard
+  // error rather than a silent fall back to Percy's default widths.
+  const viewport = testInfo.project.use && testInfo.project.use.viewport;
+
+  if (!viewport || !viewport.width || !viewport.height) {
+    throw new Error(
+      `Project "${testInfo.project.name}" has no explicit \`use.viewport\`, so its Percy snapshot ` +
+        'cannot be bound to a viewport. Set one in playwright.config.js.'
+    );
+  }
+
   const pageErrors = [];
+  const failedRequests = [];
+
   page.on('pageerror', error => pageErrors.push(error.message));
+  page.on('requestfailed', request => {
+    // The live third-party APIs are aborted on purpose. Anything else failing —
+    // a dropped local asset such as script.js, for example — fails the test.
+    if (LIVE_APIS.test(request.url())) return;
+
+    if (failedRequests.length < MAX_REPORTED_FAILURES) {
+      const reason = (request.failure() || {}).errorText || 'unknown error';
+      failedRequests.push(`${request.url()} :: ${reason}`);
+    }
+  });
 
   await page.route(LIVE_APIS, route => route.abort());
   await page.goto('/', { waitUntil: 'load' });
@@ -73,8 +99,14 @@ test('DataWarsaw homepage visual snapshot', async ({ page }, testInfo) => {
   expect(overflow).toBeLessThanOrEqual(1);
 
   expect(pageErrors).toEqual([]);
+  expect(failedRequests, `Unexpected failed requests:\n${failedRequests.join('\n')}`).toEqual([]);
 
   await percySnapshot(page, `DataWarsaw homepage (${testInfo.project.name})`, {
+    // Binding the snapshot to the project viewport: these two options are what
+    // the CLI and renderer use, and they default to 375/1280 plus a 1024px
+    // minimum height when omitted.
+    widths: [viewport.width],
+    minHeight: viewport.height,
     percyCSS: '*, *::before, *::after { animation: none !important; transition: none !important; }'
   });
 });
