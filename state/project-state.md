@@ -48,6 +48,7 @@ Main completed recent improvements:
 - **Headless Sanity CMS Integration:** AI Experiments gallery backed by Sanity Content Lake (`oxemv355`, dataset `production`), synced deterministically at build time to `site/data/sanity-experiments.json` with static fallback to `site/experiments/experiments.json`.
 - **Weather Timeline & Analytical Radar:** 24h Warsaw weather pulse and 8-axis differentiated expertise radar.
 - **GitHub Commit Activity:** Public DataWarsaw commit ledger and responsive activity matrix.
+- **Playwright + Percy Visual Regression Harness:** `playwright-tests/` holds the browser suites — the production smoke check plus deterministic Percy snapshots of the homepage at all four mandatory viewports (1440x900, 375x667, 390x844, 430x932), each bound to its Playwright project viewport, taken against a locally served copy of `site/` under `prefers-reduced-motion` with the live GitHub and Open-Meteo APIs aborted so the Data Pulse and Work in Practice modules render their documented fallback states. The uploading run gates on a token that authenticates — `scripts/require-percy-token.js` plus `percy doctor --quick` — so a missing, expired or revoked `PERCY_TOKEN` fails before any test runs instead of producing a green build with nothing uploaded.
 
 ## Current Strategic Direction
 

@@ -1,0 +1,19 @@
+{
+  "name": "playwright-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test tests/smoke.spec.js",
+    "test:visual": "node scripts/require-percy-token.js && percy doctor --quick && percy exec -- playwright test tests/visual.spec.js",
+    "test:visual:dry-run": "percy exec --dry-run -- playwright test tests/visual.spec.js"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "devDependencies": {
+    "@percy/cli": "^1.32.10",
+    "@percy/playwright": "^1.1.2",
+    "@playwright/test": "^1.63.0"
+  }
+}

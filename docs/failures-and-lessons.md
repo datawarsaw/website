@@ -60,3 +60,14 @@ An honest-but-empty 8-16 week matrix of lvl-0 cells, shown when the public GitHu
 - If repository activity cannot be fetched, do not render day cells.
 - Keep the public repository links and known static facts.
 - State Live GitHub activity unavailable and hide the recent-commit ledger so no invented SHAs or empty activity remain on screen.
+
+---
+
+## 6. Python `http.server` Dropping Local Assets Under Playwright
+
+### Symptom & Root Cause
+The visual suite originally served `site/` with `python -m http.server`. Under Chrome's parallel request burst it intermittently reset connections (`net::ERR_CONNECTION_RESET`), observed on roughly one page load in five. When the reset hit `script.js` the page never booted: no lazy module registered, no page error was raised, and the visual snapshot failed on an unrelated assertion after a timeout.
+
+### Concrete Fix & Rule
+- Serve the local site with `playwright-tests/scripts/static-server.js` (dependency-free Node server) instead of `python -m http.server`.
+- Assert the boot signal (`.reveal.is-visible`) before waiting on lazily loaded modules, so a dropped local asset fails fast with a readable reason instead of timing out downstream.
