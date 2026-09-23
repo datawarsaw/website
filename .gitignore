@@ -46,5 +46,8 @@ dist/
 build/
 .cache/
 
+# Playwright test output
+playwright-tests/test-results/
+
 # Sanity Studio public configuration template
 !cms/.env.example
