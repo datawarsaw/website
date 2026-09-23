@@ -8,12 +8,14 @@
 // captured state is hermetic. Set PW_BASE_URL to snapshot a different origin,
 // for example PW_BASE_URL=https://datawarsaw.com.
 
-const path = require('path');
 const { defineConfig } = require('@playwright/test');
 
 const BASE_URL = process.env.PW_BASE_URL || 'http://127.0.0.1:8081';
 const SERVES_LOCAL_SITE = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?/.test(BASE_URL);
-const SITE_DIR = path.resolve(__dirname, '..', 'site');
+const LOCAL_PORT = new URL(BASE_URL).port || '80';
+// The mobile viewports required by the repository guidelines are only covered by
+// the visual suite, so the production smoke check keeps running once per run.
+const VISUAL_ONLY = /visual\.spec\.js/;
 
 module.exports = defineConfig({
   testDir: './tests',
@@ -21,11 +23,16 @@ module.exports = defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
+  // The visual suite scrolls lazy modules into view before snapshotting, so it
+  // needs more than the default 30s only when something is genuinely wrong;
+  // individual assertions stay bounded so failures still surface quickly.
+  timeout: 60 * 1000,
   reporter: [['list']],
 
   webServer: SERVES_LOCAL_SITE
     ? {
-        command: `python -m http.server 8081 --directory "${SITE_DIR}"`,
+        command: 'node scripts/static-server.js',
+        env: { PORT: LOCAL_PORT },
         url: BASE_URL,
         reuseExistingServer: true,
         timeout: 30 * 1000
@@ -47,11 +54,19 @@ module.exports = defineConfig({
       use: { viewport: { width: 1440, height: 900 } }
     },
     {
-      // Mobile coverage is scoped to the visual suite so the production smoke
-      // check keeps running once per run.
+      name: 'mobile-compact-chromium',
+      testMatch: VISUAL_ONLY,
+      use: { viewport: { width: 375, height: 667 }, isMobile: true, hasTouch: true }
+    },
+    {
       name: 'mobile-chromium',
-      testMatch: /visual\.spec\.js/,
+      testMatch: VISUAL_ONLY,
       use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }
+    },
+    {
+      name: 'mobile-large-chromium',
+      testMatch: VISUAL_ONLY,
+      use: { viewport: { width: 430, height: 932 }, isMobile: true, hasTouch: true }
     }
   ]
 });

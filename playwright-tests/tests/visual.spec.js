@@ -50,12 +50,17 @@ test('DataWarsaw homepage visual snapshot', async ({ page }, testInfo) => {
   await expect(page.locator('body')).toBeVisible();
   await expect(page).toHaveTitle(/\S/);
 
+  // script.js marks the reveal elements visible as it boots. Asserting that here
+  // turns a dropped local asset (which leaves every lazy module unregistered)
+  // into an immediate, readable failure instead of a downstream timeout.
+  await expect(page.locator('.reveal.is-visible').first()).toBeVisible({ timeout: 10000 });
+
   await scrollThroughPage(page);
 
   // Fallback states settle asynchronously; waiting for them keeps the snapshot
   // from capturing a half-populated module.
-  await expect(page.locator('[data-practice-status]')).toHaveClass(/is-fallback/, { timeout: 15000 });
-  await expect(page.locator('[data-pulse-status]')).toHaveClass(/is-fallback/, { timeout: 15000 });
+  await expect(page.locator('[data-practice-status]')).toHaveClass(/is-fallback/, { timeout: 10000 });
+  await expect(page.locator('[data-pulse-status]')).toHaveClass(/is-fallback/, { timeout: 10000 });
 
   for (const heading of KEY_HEADINGS) {
     await expect(page.locator(heading)).toBeVisible();
