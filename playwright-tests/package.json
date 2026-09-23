@@ -6,7 +6,7 @@
   "scripts": {
     "test": "playwright test",
     "test:smoke": "playwright test tests/smoke.spec.js",
-    "test:visual": "node scripts/require-percy-token.js && percy exec -- playwright test tests/visual.spec.js",
+    "test:visual": "node scripts/require-percy-token.js && percy doctor --quick && percy exec -- playwright test tests/visual.spec.js",
     "test:visual:dry-run": "percy exec --dry-run -- playwright test tests/visual.spec.js"
   },
   "keywords": [],

@@ -1,8 +1,14 @@
 // Guard for `npm run test:visual`.
 //
-// Without a token the Percy CLI only warns, still runs the wrapped Playwright
-// suite, and exits 0 — a green build with nothing uploaded. This check fails
-// before the Percy run starts instead.
+// The gate is two-stage, both stages run before any Playwright test executes:
+//
+//   1. this script — PERCY_TOKEN is present at all.
+//   2. `percy doctor --quick` — the token actually authenticates. A token that
+//      is present but expired or revoked only makes the CLI warn, after which
+//      it still runs the wrapped suite and exits 0: a green build with nothing
+//      uploaded.
+//
+// Either stage failing stops the command with a non-zero exit status.
 
 const token = (process.env.PERCY_TOKEN || '').trim();
 

@@ -48,9 +48,18 @@ The token is never committed. The first successful upload creates the build that
 becomes the baseline for the snapshot names below, and that build has to be
 approved in the Percy dashboard before later runs compare against it.
 
-`test:visual` refuses to start without `PERCY_TOKEN` (`scripts/require-percy-token.js`),
+`test:visual` gates on the token before any Playwright test runs
+(`scripts/require-percy-token.js && percy doctor --quick`). Both stages matter,
 because the Percy CLI otherwise only warns, runs the suite anyway and exits `0` —
-a green build with no snapshots uploaded.
+a green build with no snapshots uploaded:
+
+- no `PERCY_TOKEN` — `scripts/require-percy-token.js` fails with setup instructions.
+- present but expired or revoked — `percy doctor --quick` reports the token check
+  as failed and exits non-zero.
+
+`percy doctor --quick` checks API connectivity and TLS as well as the token, so a
+network problem also stops the command rather than producing a green run with no
+upload. The token value is never printed.
 
 Snapshot names cover the viewports required by `AGENTS.md`:
 
