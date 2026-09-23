@@ -204,3 +204,28 @@ Use:
 - Do not save conversation transcripts, temporary debugging chatter, speculative guesses, credentials, passwords, API keys, tokens.
 - Keep documentation concise.
 - The repository and its state files act as durable project memory for future agents and sessions. Git history remains the historical record of changes.
+
+---
+
+## Workstation Credential Loading
+
+Shared workstation secret handling is defined in:
+
+`C:\AI\agent-platform\agent-platform-skills\docs\secrets-and-credentials.md`
+
+### Percy / BrowserStack
+
+Before Percy operations in this repository, load the DataWarsaw credential set into the current PowerShell process with:
+
+`Use-Percy datawarsaw`
+
+The loader reads from the user-level `WhiteGullSecrets` vault and sets `PERCY_USERNAME`, `PERCY_ACCESS_KEY`, and the DataWarsaw-specific `PERCY_TOKEN` for the current process only.
+
+Do not persist real Percy or BrowserStack credentials in this repository, project `.env` files, documentation, state files, logs, PR text, or agent instructions.
+
+### EmailLens
+
+If DataWarsaw uses EmailLens, follow the same shared-vault policy. Keep EmailLens credentials in the `WhiteGullSecrets` namespace defined by the shared standard and load them into the current process only.
+
+Do not invent EmailLens environment-variable mappings or credential scope. Record the exact mapping here only when the DataWarsaw EmailLens integration defines it.
+
