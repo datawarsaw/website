@@ -50,6 +50,7 @@ main, .footer-grid { max-width: 1440px; margin: auto; }
 .spec-strip > div + div { border-left: 1px solid var(--wa-border); }
 .spec-strip dt { color: var(--wa-fg-muted); margin-bottom: 8px; }
 .spec-strip dd { font: .8125rem/1.5 var(--wa-font-mono); }
+.coordinates span { display: inline-block; white-space: nowrap; }
 .split-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 40px; }
 .section-aside { border-right: 1px solid var(--wa-border); padding-right: 36px; }
 .section-aside > p { color: var(--wa-fg-muted); font-size: .9375rem; }
