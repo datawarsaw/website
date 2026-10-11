@@ -42,7 +42,7 @@ async function scrollThroughPage(page) {
   await page.evaluate(() => window.scrollTo(0, 0));
 }
 
-test('DataWarsaw homepage visual snapshot', async ({ page }, testInfo) => {
+test('DataWarsaw analytics lab visual snapshot', async ({ page }, testInfo) => {
   // Every project declares its own viewport in playwright.config.js and the
   // Percy snapshot is bound to it, so an unexpected project shape is a hard
   // error rather than a silent fall back to Percy's default widths.
@@ -71,7 +71,7 @@ test('DataWarsaw homepage visual snapshot', async ({ page }, testInfo) => {
   });
 
   await page.route(LIVE_APIS, route => route.abort());
-  await page.goto('/', { waitUntil: 'load' });
+  await page.goto('/analytics/', { waitUntil: 'load' });
 
   await expect(page.locator('body')).toBeVisible();
   await expect(page).toHaveTitle(/\S/);
@@ -101,10 +101,22 @@ test('DataWarsaw homepage visual snapshot', async ({ page }, testInfo) => {
   expect(pageErrors).toEqual([]);
   expect(failedRequests, `Unexpected failed requests:\n${failedRequests.join('\n')}`).toEqual([]);
 
-  await percySnapshot(page, `DataWarsaw homepage (${testInfo.project.name})`, {
+  await page.screenshot({ path: testInfo.outputPath('analytics.png'), fullPage: true });
+  await percySnapshot(page, `DataWarsaw analytics lab (${testInfo.project.name})`, {
     // Binding the snapshot to the project viewport: these two options are what
     // the CLI and renderer use, and they default to 375/1280 plus a 1024px
     // minimum height when omitted.
+    widths: [viewport.width],
+    minHeight: viewport.height,
+    percyCSS: '*, *::before, *::after { animation: none !important; transition: none !important; }'
+  });
+});
+
+test('Warsaw Analytica redesigned homepage visual snapshot', async ({ page }, testInfo) => {
+  const viewport = testInfo.project.use.viewport;
+  await page.goto('/', { waitUntil: 'load' });
+  await page.screenshot({ path: testInfo.outputPath('homepage.png'), fullPage: true });
+  await percySnapshot(page, `Warsaw Analytica homepage (${testInfo.project.name})`, {
     widths: [viewport.width],
     minHeight: viewport.height,
     percyCSS: '*, *::before, *::after { animation: none !important; transition: none !important; }'

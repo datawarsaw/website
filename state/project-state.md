@@ -52,10 +52,17 @@ Main completed recent improvements:
 
 ## Current Strategic Direction
 
-Primary positioning:
-- **Data Analytics + AI Analytics**
+Approved implementation direction (2026-10-11; pending Human Acceptance):
+- **Warsaw Analytica: independent AI engineering and infrastructure practice.**
+- **Agent Platform:** flagship technology initiative under active development.
+- Software engineering, analytics, BI and data remain the established foundation.
+- Claude Code, Claude API and relevant Anthropic technologies are a planned integration/evaluation direction specified by the owner, not a completed integration or endorsement.
 
-Data Analytics remains the core foundation. AI is positioned as an extension of analytical work rather than replacing the analytics identity.
+Candidate: `codex/warsaw-analytica-stitch`, based on `origin/main` at `58eb358`.
+The candidate implements approved Stitch screen `projects/14440350432477519925/screens/6aa9ce9e13d14b158918751c2136c8fb` using canonical Brand Assets v2 and tokens.
+The homepage uses isolated `homepage.css` / `homepage.js`; the original interactive analytics modules remain at `/analytics/` using unchanged shared `styles.css` / `script.js`.
+Existing experiments, observability, Pages Functions, D1, CMS and Cloudflare configuration remain intact. Root `#pulse` and `#experience` deep links redirect to the lab when JavaScript is enabled.
+Production remains the existing `main` release. No push, merge or deployment is part of this implementation run. See `docs/stitch-redesign-validation.md` for scope, evidence and review limits.
 
 ## Current AI Workstation Direction
 

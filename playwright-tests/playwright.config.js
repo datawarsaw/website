@@ -2,7 +2,8 @@
 //
 // Two suites live under ./tests:
 //   - smoke.spec.js  : live availability check against production (absolute URL).
-//   - visual.spec.js : deterministic Percy visual snapshots of the homepage.
+//   - visual.spec.js : deterministic snapshots of the homepage and analytics lab.
+//   - homepage-contract.spec.js : local navigation, content, asset and route checks.
 //
 // The visual suite targets a locally served copy of `site/` by default so the
 // captured state is hermetic. Set PW_BASE_URL to snapshot a different origin,
@@ -13,9 +14,9 @@ const { defineConfig } = require('@playwright/test');
 const BASE_URL = process.env.PW_BASE_URL || 'http://127.0.0.1:8081';
 const SERVES_LOCAL_SITE = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?/.test(BASE_URL);
 const LOCAL_PORT = new URL(BASE_URL).port || '80';
-// The mobile viewports required by the repository guidelines are only covered by
-// the visual suite, so the production smoke check keeps running once per run.
-const VISUAL_ONLY = /visual\.spec\.js/;
+// Local visual and homepage contract checks cover all mandatory mobile sizes;
+// the production smoke check keeps running once per run.
+const VISUAL_ONLY = /(visual|homepage-contract)\.spec\.js/;
 
 module.exports = defineConfig({
   testDir: './tests',
