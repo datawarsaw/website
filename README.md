@@ -1,10 +1,10 @@
 # Data Warsaw
 
-> Turning complex data into clear insights, compelling visual stories, and actionable business decisions.
+> Warsaw Analytica — independent AI engineering and infrastructure.
 
-**Data Warsaw** is the personal portfolio and interactive data consultancy showcase of **Michał Domaradzki**, Senior Data Analyst and Storyteller based in Warsaw, Poland.
+**Warsaw Analytica**, led by **Michał Domaradzki** in Warsaw, presents Agent Platform as its flagship technology initiative under active development, with an established foundation in software engineering, analytics and business intelligence.
 
-The website demonstrates analytical rigor and bespoke data visualization principles through bespoke interactive modules: a mathematical Canvas 2D hero graph with subtle spatial depth, an interactive commercial radar/experience map, an analytical methodology walk-through, and a live weather data pulse powered by Open-Meteo.
+The approved Stitch redesign candidate uses canonical Brand Assets v2 and is pending Human Acceptance; this implementation run does not deploy production. Its homepage describes engineering direction, a conceptual workflow, and planned Claude Code/API evaluation. Existing interactive Canvas, radar, methodology, GitHub activity and Open-Meteo modules remain available at `/analytics/`; `/experiments/` and `/observability/` remain intact.
 
 ---
 
@@ -29,7 +29,10 @@ The website demonstrates analytical rigor and bespoke data visualization princip
 ```text
 datawarsaw/
 ├── site/                    # Public website only; future /public_html/ deploy source
-│   ├── index.html           # Main single-page application markup
+│   ├── index.html           # Warsaw Analytica editorial homepage
+│   ├── homepage.css         # Isolated homepage layout using canonical tokens
+│   ├── homepage.js          # Responsive navigation and legacy deep links
+│   ├── analytics/           # Preserved interactive analytics lab
 │   ├── styles.css           # Design system, layout, and responsive styles
 │   ├── script.js            # Core application logic and visualization engines
 │   └── assets/              # Static assets and vendor libraries
@@ -52,6 +55,15 @@ datawarsaw/
 ## Running Locally
 
 The site requires no compilation, bundling, or package installation. Serve the `site/` directory, not the repository root:
+
+The existing dependency-free test server is also suitable for local review:
+
+```powershell
+cd C:\AI\datawarsaw
+node playwright-tests/scripts/static-server.js
+```
+
+Open `http://127.0.0.1:8081/`. This serves static pages and fixtures; it does not execute the D1-backed Pages Function. Implementation and validation evidence: `docs/stitch-redesign-validation.md`.
 
 ### Using Python (Recommended)
 ```powershell

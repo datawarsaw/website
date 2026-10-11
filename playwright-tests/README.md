@@ -5,8 +5,8 @@ Browser-level verification for the public DataWarsaw site. Two suites live under
 
 - `smoke.spec.js` — live availability check against `https://datawarsaw.com`
   (absolute URL, so it always exercises production).
-- `visual.spec.js` — deterministic Percy visual snapshots of the homepage at the
-  validated desktop and mobile widths.
+- `visual.spec.js` — deterministic visual snapshots of the new homepage and preserved `/analytics/` lab at all four required viewports. PNG screenshots are saved under `test-results/` even when Percy is disabled.
+- `homepage-contract.spec.js` — positioning, canonical metadata, assets, overflow, keyboard navigation, no-JavaScript rendering, existing routes and legacy deep-link checks at all four viewports.
 
 ## Prerequisites
 
@@ -19,7 +19,7 @@ at a remote origin.
 ## Commands
 
 ```powershell
-npm test                      # both suites (desktop project; visual on all four viewports)
+npm test                      # production smoke plus local contract/visual checks at four viewports
 npm run test:smoke            # live production availability check
 npm run test:visual           # Percy visual snapshots, uploaded to Percy
 npm run test:visual:dry-run   # Percy visual snapshots created locally, no upload
@@ -40,7 +40,7 @@ the end of the run. That is expected without a token — the run itself still ex
 `npm run test:visual` uploads snapshots and therefore needs a project token:
 
 ```powershell
-$env:PERCY_TOKEN = "<token from the Percy project settings>"
+Use-Percy datawarsaw
 npm run test:visual
 ```
 
@@ -63,10 +63,10 @@ upload. The token value is never printed.
 
 Snapshot names cover the viewports required by `AGENTS.md`:
 
-- `DataWarsaw homepage (desktop-chromium)` — 1440x900
-- `DataWarsaw homepage (mobile-compact-chromium)` — 375x667
-- `DataWarsaw homepage (mobile-chromium)` — 390x844
-- `DataWarsaw homepage (mobile-large-chromium)` — 430x932
+- `Warsaw Analytica homepage (desktop-chromium)` and `DataWarsaw analytics lab (desktop-chromium)` — 1440x900
+- `Warsaw Analytica homepage (mobile-compact-chromium)` and `DataWarsaw analytics lab (mobile-compact-chromium)` — 375x667
+- `Warsaw Analytica homepage (mobile-chromium)` and `DataWarsaw analytics lab (mobile-chromium)` — 390x844
+- `Warsaw Analytica homepage (mobile-large-chromium)` and `DataWarsaw analytics lab (mobile-large-chromium)` — 430x932
 
 ## Determinism
 
