@@ -1,6 +1,6 @@
-# Engineering Lab — local implementation and validation
+# Engineering Lab — implementation, validation and release
 
-Date: 2026-10-23. Status: WAITING_FOR_USER / Human Acceptance. No push, merge, deployment, Cloudflare configuration change, credential access or telemetry publication.
+Date: 2026-10-23. Status: RELEASED. Human Acceptance was received, the accepted commit was published through PR #9, and production was verified on 2026-10-23. No Cloudflare configuration change, credential exposure or telemetry publication.
 
 ## Scope and source
 
@@ -27,7 +27,7 @@ Rendered desktop composition was visually compared with the supplied screenshot;
 ## Technical corrections
 
 - Added a real local 1200×630 PNG, full Open Graph image metadata and X/Twitter large-image metadata with alt text. `playwright-tests/scripts/render-social-image.js` reproducibly renders the asset from the canonical logo/tokens using existing Playwright; no external image service or new dependency.
-- Added `site/404.html` with working recovery links and `noindex`. A top-level 404 prevents the default Pages SPA fallback, per [Cloudflare's serving documentation](https://developers.cloudflare.com/pages/configuration/serving-pages/). Updated only the local static server to mirror custom HTML 404 responses; no Cloudflare settings were changed. Edge behavior remains to be checked after any separately authorized deployment.
+- Added `site/404.html` with working recovery links and `noindex`. A top-level 404 prevents the default Pages SPA fallback, per [Cloudflare's serving documentation](https://developers.cloudflare.com/pages/configuration/serving-pages/). Updated only the local static server to mirror custom HTML 404 responses; no Cloudflare settings were changed. Edge behavior was confirmed after the authorized release: a missing path returns 404 with the custom body and `noindex`.
 - Preserved `/analytics/`, `/experiments/`, `/experiments/scout/`, `/observability/`, public JSON, and legacy root `#pulse` / `#experience` redirection.
 - Kept initiative terminology consistently “Active development”; capability states are Existing / Experimental / Planned. No production SLA or completed Claude/Grok integration implied.
 
@@ -98,6 +98,31 @@ The initial implementation used two read-only subagents. The first audited the c
 
 No edits to existing analytics/experiments/observability source, shared CSS/JS, Functions, CMS snapshots, deployment files, credentials or other projects.
 
+## Production release
+
+The owner approved the visual direction and authorized the release stage. No redesign, new feature, route or analytics change was introduced.
+
+| Item | Evidence |
+| --- | --- |
+| Accepted commit | `aef91be` (local `HEAD` of `codex/warsaw-analytica-stitch`) |
+| Push | `e80d647..aef91be` fast-forward to `origin/codex/warsaw-analytica-stitch`; no force-push |
+| Pull request | [datawarsaw/website#9](https://github.com/datawarsaw/website/pull/9): base `main`, 2 commits, 26 files, +1045/−290, `mergeable: true`, no CI statuses configured |
+| Merge | `753a408`, PR state `merged: true`, `origin/main` advanced from `868ebfb` |
+| Platform | Existing Cloudflare Pages project `datawarsaw-site` with automatic `main` deployment; no new deployment mechanism |
+
+Pre-release scope check: the merged range touched the homepage (`site/index.html`, `homepage.css`, `homepage.js`), self-hosted WOFF2 fonts with OFL notices, the social PNG, `site/404.html`, the Playwright specs, the claim audit, this report and `state/project-state.md`. No unrelated change was published; untracked `.wrangler/`, `research/` and `site/.wrangler/` stayed local.
+
+Post-deployment checks against `https://datawarsaw.com`:
+
+- Homepage returned 200 with `Server: cloudflare` and a `CF-RAY` edge header, the accepted title `Agent Platform — Warsaw Analytica`, and the homepage font stylesheet.
+- SHA-256 matched the merged commit for `/assets/fonts/homepage-fonts.css`, `/assets/brand/og-agent-platform.png` (52,049 bytes) and `/assets/fonts/bodoni-moda-normal-latin.woff2`. `/homepage.css` differed by one byte from an end-of-line conversion only; the line-by-line comparison found 0 differing lines out of 248.
+- `/`, `/analytics/`, `/experiments/`, `/experiments/scout/`, `/observability/` and `/index.html` all returned 200.
+- Served metadata matched the accepted values: `og:title`, `og:url`, `og:image`, `og:image:alt`, `twitter:card: summary_large_image` and `twitter:image`; the PNG and font stylesheet returned 200.
+- `/does-not-exist-release-check` returned 404 with the custom branded body, `robots: noindex, follow`, and recovery links to `/` and `/experiments/`.
+- `PW_BASE_URL=https://datawarsaw.com npx playwright test tests/homepage-contract.spec.js tests/smoke.spec.js` → **37 passed (36 contract + 1 smoke)**. Without `NODE_OPTIONS=--use-system-ca`, only `apiRequestContext` calls fail TLS chain verification; browser navigation is unaffected, and `NODE_EXTRA_CA_CERTS` does not substitute for that Node option.
+
+Deployment-record limitation: GitHub returned no deployment entry and `total_count: 0` commit statuses for `753a408`, and the Cloudflare Pages deployments API was not reachable through any tool approved for this task (`wrangler` runs without an API token). Deployment is evidenced by the live edge origin serving the merged content, matching asset hashes and the passing production suite, not by a Pages deployment identifier or build timestamp.
+
 ## Local preview and remaining limits
 
 ```powershell
@@ -107,10 +132,10 @@ node playwright-tests/scripts/static-server.js
 
 Open `http://127.0.0.1:8081/`. Stop with Ctrl+C. Test server started by this task is stopped at closeout; screenshots remain available.
 
-Remaining review limits: Chromium only; no real screen-reader, Safari/Firefox, production Pages/D1, live CMS, live API behavior, email delivery or remote social scraper verification. Mailto destinations and PNG/metadata are checked locally. No production change is asserted or performed.
+Remaining review limits: Chromium only; no real screen-reader, Safari/Firefox, D1 telemetry, live CMS synchronization, live API behavior, email delivery or remote social-scraper rendering verification. Production delivery, main routes, metadata, fonts and 404 handling were verified after the release; mailto destinations are checked locally only.
 
-Human Acceptance: approve the rendered composition with the selected homepage typography, factual capability wording, artifact choices, and direct email interaction. The font-family choice itself was explicitly approved by the owner on 2026-10-23. Production delivery remains separate authorized work. No additional product feature or new external runtime service was introduced.
+Human Acceptance: granted by the owner for the rendered composition, the selected homepage typography, the factual capability wording, the artifact choices and the direct email interaction. No additional product feature or new external runtime service was introduced.
 
 PROJECT_STATE_UPDATED: YES — `state/project-state.md`.
-NOTION_UPDATED: NO — this task is restricted to this repository; no external project-management mutation requested.
-CAN_ARCHIVE: NO — awaits Human Acceptance. Local commit and final Git status are recorded in the chat closeout; no remote action is authorized.
+NOTION_UPDATED: NO — release evidence is recorded in PR #9 and this report; no Notion mutation was requested.
+CAN_ARCHIVE: YES — release published as `753a408` and production verified on 2026-10-23.

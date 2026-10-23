@@ -3,6 +3,8 @@
 Date: 2026-10-11. Candidate branch: `codex/warsaw-analytica-stitch`.
 Baseline: `origin/main`, `58eb358`. Human Acceptance remains pending; production has not changed.
 
+> Superseded: the later Engineering Lab iteration was released on 2026-10-23 (PR #9, merge `753a408`). This document records the earlier candidate only.
+
 ## Design and implementation
 
 Approved reference: https://stitch.withgoogle.com/projects/14440350432477519925

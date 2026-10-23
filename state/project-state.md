@@ -6,6 +6,8 @@ Branch: `main`
 Platform: **Cloudflare Pages** (`datawarsaw-site`)
 Canonical Domain: `https://datawarsaw.com`
 
+Last released merge: `753a408` (PR #9, accepted commit `aef91be`), verified live on 2026-10-23.
+
 ## Public Site Root
 
 `site/` (static assets) + `functions/` (Cloudflare Pages Functions)
@@ -52,19 +54,19 @@ Main completed recent improvements:
 
 ## Current Strategic Direction
 
-Approved implementation direction (Engineering Lab iteration, 2026-10-23; pending Human Acceptance):
+Approved and released implementation direction (Engineering Lab iteration, 2026-10-23):
 - **Warsaw Analytica: independent AI engineering and infrastructure practice.**
 - **Agent Platform:** flagship technology initiative under active development.
 - Software engineering, analytics, BI and data remain the established foundation.
 - Claude Code, Claude API and relevant Anthropic technologies are a planned integration/evaluation direction specified by the owner, not a completed integration or endorsement.
 
-Candidate: `codex/warsaw-analytica-stitch`, this iteration starts at `e80d647`.
-Fresh remote inspection on 2026-10-23 found `origin/main` at `868ebfb` (merge of the preceding redesign); this records Git state, not live production verification.
+Candidate: `codex/warsaw-analytica-stitch`, this iteration starts at `e80d647`; the accepted head is `aef91be`.
+Release: PR #9 (`codex/warsaw-analytica-stitch` -> `main`) merged as `753a408`; `origin/main` was `868ebfb` (merge of the preceding redesign) before this release.
 The candidate implements the latest required `stitch_warsaw_analytica_agent_platform_website_redesign(1).zip`: product-focused Agent Platform hero, readiness matrix, execution topology, real evidence register, vendor-neutral evaluations, founder profile and direct email briefing. Canonical Brand Assets v2 and colors take precedence over generated reference values. The owner's follow-up decision on 2026-10-23 approves Bodoni Moda / Inter / JetBrains Mono on the homepage only; OFL-licensed WOFF2 subsets are self-hosted and scoped to `.homepage`. Canonical token stacks, SVG logos and other routes remain unchanged.
 The homepage uses isolated `homepage.css` / `homepage.js`; the original interactive analytics modules remain at `/analytics/` using unchanged shared `styles.css` / `script.js`.
 Existing experiments, observability, Pages Functions, D1, CMS and Cloudflare configuration remain intact. Root `#pulse` and `#experience` deep links redirect to the lab when JavaScript is enabled.
 Unsupported Stitch technical/company assertions are removed; existing, experimental and planned work are explicitly separated. A local social-preview PNG and top-level custom 404 correct metadata and missing-route behavior without Cloudflare configuration changes.
-The initial implementation passed 36 local Playwright checks plus six evidence-page fallback checks, existing runtime/build-failure checks, and independent read-only review. The typography follow-up passed the expanded 48-check suite across 375/390/430/768/1024/1440, including actual font loading, local-only requests and isolation from other routes. Production remains outside this task: no push, merge, deployment or credential access. Human Acceptance of the rendered candidate is pending. See `docs/engineering-lab-validation.md` and `docs/engineering-lab-claim-audit.md`; `docs/stitch-redesign-validation.md` records the earlier iteration.
+The initial implementation passed 36 local Playwright checks plus six evidence-page fallback checks, existing runtime/build-failure checks, and independent read-only review. The typography follow-up passed the expanded 48-check suite across 375/390/430/768/1024/1440, including actual font loading, local-only requests and isolation from other routes. The owner approved the visual direction, and the release published `aef91be` through PR #9 and Cloudflare Pages on 2026-10-23. Post-deploy verification returned the merged homepage with matching asset hashes, all main routes at 200, a branded `noindex` 404, and 37 production Playwright checks. See `docs/engineering-lab-validation.md` and `docs/engineering-lab-claim-audit.md`; `docs/stitch-redesign-validation.md` records the earlier iteration.
 
 ## Current AI Workstation Direction
 
