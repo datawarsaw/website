@@ -12,6 +12,8 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..', '..', 'site');
 const PORT = Number(process.env.PORT || 8081);
 const HOST = process.env.HOST || '127.0.0.1';
+// Mirror Pages' custom HTML 404 body in the local preview and browser tests.
+const NOT_FOUND_PAGE = fs.readFileSync(path.join(ROOT, '404.html'));
 
 const CONTENT_TYPES = {
   '.css': 'text/css; charset=utf-8',
@@ -49,8 +51,8 @@ const server = http.createServer((request, response) => {
         send(
           response,
           404,
-          { 'content-type': 'text/plain; charset=utf-8' },
-          'Not found',
+          { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' },
+          NOT_FOUND_PAGE,
           request.method
         );
         return;

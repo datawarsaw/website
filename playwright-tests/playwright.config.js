@@ -51,6 +51,16 @@ module.exports = defineConfig({
 
   projects: [
     {
+      name: 'tablet-wide-chromium',
+      testMatch: VISUAL_ONLY,
+      use: { viewport: { width: 1024, height: 900 } }
+    },
+    {
+      name: 'tablet-chromium',
+      testMatch: VISUAL_ONLY,
+      use: { viewport: { width: 768, height: 1024 }, hasTouch: true }
+    },
+    {
       name: 'desktop-chromium',
       use: { viewport: { width: 1440, height: 900 } }
     },

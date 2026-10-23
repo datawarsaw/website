@@ -52,17 +52,19 @@ Main completed recent improvements:
 
 ## Current Strategic Direction
 
-Approved implementation direction (2026-10-11; pending Human Acceptance):
+Approved implementation direction (Engineering Lab iteration, 2026-10-23; pending Human Acceptance):
 - **Warsaw Analytica: independent AI engineering and infrastructure practice.**
 - **Agent Platform:** flagship technology initiative under active development.
 - Software engineering, analytics, BI and data remain the established foundation.
 - Claude Code, Claude API and relevant Anthropic technologies are a planned integration/evaluation direction specified by the owner, not a completed integration or endorsement.
 
-Candidate: `codex/warsaw-analytica-stitch`, based on `origin/main` at `58eb358`.
-The candidate implements approved Stitch screen `projects/14440350432477519925/screens/6aa9ce9e13d14b158918751c2136c8fb` using canonical Brand Assets v2 and tokens.
+Candidate: `codex/warsaw-analytica-stitch`, this iteration starts at `e80d647`.
+Fresh remote inspection on 2026-10-23 found `origin/main` at `868ebfb` (merge of the preceding redesign); this records Git state, not live production verification.
+The candidate implements the latest required `stitch_warsaw_analytica_agent_platform_website_redesign(1).zip`: product-focused Agent Platform hero, readiness matrix, execution topology, real evidence register, vendor-neutral evaluations, founder profile and direct email briefing. Canonical Brand Assets v2, colors and v1 font stacks take precedence over generated reference values.
 The homepage uses isolated `homepage.css` / `homepage.js`; the original interactive analytics modules remain at `/analytics/` using unchanged shared `styles.css` / `script.js`.
 Existing experiments, observability, Pages Functions, D1, CMS and Cloudflare configuration remain intact. Root `#pulse` and `#experience` deep links redirect to the lab when JavaScript is enabled.
-Production remains the existing `main` release. No push, merge or deployment is part of this implementation run. See `docs/stitch-redesign-validation.md` for scope, evidence and review limits.
+Unsupported Stitch technical/company assertions are removed; existing, experimental and planned work are explicitly separated. A local social-preview PNG and top-level custom 404 correct metadata and missing-route behavior without Cloudflare configuration changes.
+This iteration passed 36 local Playwright checks plus six evidence-page fallback checks across 375/390/430/768/1024/1440, existing runtime/build-failure checks, and independent read-only review. Production remains outside this task: no push, merge, deployment or credential access. Human Acceptance is pending. See `docs/engineering-lab-validation.md` and `docs/engineering-lab-claim-audit.md`; `docs/stitch-redesign-validation.md` records the earlier iteration.
 
 ## Current AI Workstation Direction
 
