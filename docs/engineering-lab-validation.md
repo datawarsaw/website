@@ -123,6 +123,8 @@ Post-deployment checks against `https://datawarsaw.com`:
 
 Deployment-record limitation: GitHub returned no deployment entry and `total_count: 0` commit statuses for `753a408`, and the Cloudflare Pages deployments API was not reachable through any tool approved for this task (`wrangler` runs without an API token). Deployment is evidenced by the live edge origin serving the merged content, matching asset hashes and the passing production suite, not by a Pages deployment identifier or build timestamp.
 
+Known edge deviation: Cloudflare's Email Obfuscation feature rewrites the four `mailto:` anchors into `/cdn-cgi/l/email-protection#...` links with `[email protected]` placeholders. Its script restores `mailto:michal@datawarsaw.com` in the browser, which is why the production contract assertion on the contact `href` passes and the briefing CTA opens a mail client. Without JavaScript the address is not shown as text and the rewritten link resolves to Cloudflare's Email Protection page instead of a `mailto:`. This is existing zone behaviour that predates the release; no Cloudflare setting was changed.
+
 ## Local preview and remaining limits
 
 ```powershell
