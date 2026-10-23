@@ -115,6 +115,7 @@ test('DataWarsaw analytics lab visual snapshot', async ({ page }, testInfo) => {
 test('Warsaw Analytica redesigned homepage visual snapshot', async ({ page }, testInfo) => {
   const viewport = testInfo.project.use.viewport;
   await page.goto('/', { waitUntil: 'load' });
+  await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: testInfo.outputPath('homepage.png'), fullPage: true });
   await percySnapshot(page, `Warsaw Analytica homepage (${testInfo.project.name})`, {
     widths: [viewport.width],

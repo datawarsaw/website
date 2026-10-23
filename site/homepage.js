@@ -2,7 +2,7 @@
   'use strict';
   const toggle = document.querySelector('.menu-toggle');
   const nav = document.querySelector('#site-nav');
-  const compact = window.matchMedia('(max-width: 800px)');
+  const compact = window.matchMedia('(max-width: 1000px)');
   document.documentElement.classList.add('js');
 
   const closeMenu = (restoreFocus = false) => {
@@ -24,7 +24,7 @@
     const link = event.target.closest('a');
     if (!link || !compact.matches) return;
     closeMenu();
-    const section = document.querySelector(link.hash);
+    const section = link.hash ? document.getElementById(link.hash.slice(1)) : null;
     if (section) {
       section.setAttribute('tabindex', '-1');
       section.focus({ preventScroll: true });
