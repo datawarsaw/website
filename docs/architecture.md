@@ -4,9 +4,9 @@ This document describes the software architecture, rendering pipelines, runtime 
 
 ---
 
-## Homepage redesign candidate — 2026-10-11
+## Homepage redesign — released 2026-10-23
 
-Pending Human Acceptance on `codex/warsaw-analytica-stitch`; production remains `main`.
+Released to production from `codex/warsaw-analytica-stitch` (accepted commit `aef91be`) via PR #9, merged as `753a408`; production tracks `main`.
 The approved Stitch homepage is semantic, buildless HTML with isolated `site/homepage.css` and `site/homepage.js`. It imports `site/assets/brand-tokens.css` and the canonical Variant D lockup/favicon directly. No Tailwind runtime, external font loading or new framework is introduced.
 
 The original homepage modules remain in `site/analytics/index.html`, with root-relative script/style/vendor paths. `site/styles.css` and `site/script.js` are unchanged and continue to serve the analytics lab and existing routes. GitHub, Open-Meteo, CMS and telemetry contracts are unchanged. The six-phase homepage schematic is explicitly illustrative rather than live telemetry. JavaScript enhances the compact navigation; all new homepage content and links remain available without it.

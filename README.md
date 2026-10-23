@@ -4,7 +4,7 @@
 
 **Warsaw Analytica**, led by **Michał Domaradzki** in Warsaw, presents Agent Platform as its flagship technology initiative under active development, with an established foundation in software engineering, analytics and business intelligence.
 
-The approved Stitch redesign candidate uses canonical Brand Assets v2 and is pending Human Acceptance; this implementation run does not deploy production. Its homepage describes engineering direction, a conceptual workflow, and planned Claude Code/API evaluation. Existing interactive Canvas, radar, methodology, GitHub activity and Open-Meteo modules remain available at `/analytics/`; `/experiments/` and `/observability/` remain intact.
+The homepage, released to production on 2026-10-23 from commit `aef91be` (PR #9, merge `753a408`), uses canonical Brand Assets v2. It describes engineering direction, a conceptual workflow, and planned Claude Code/API evaluation. Existing interactive Canvas, radar, methodology, GitHub activity and Open-Meteo modules remain available at `/analytics/`; `/experiments/` and `/observability/` remain intact.
 
 ---
 
