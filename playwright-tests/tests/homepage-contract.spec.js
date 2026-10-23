@@ -8,6 +8,19 @@ test('homepage positioning, navigation, assets and responsive contract', async (
   page.on('requestfailed', request => failed.push(request.url()));
   page.on('response', response => { if (response.status() >= 400) failed.push(`${response.status()} ${response.url()}`); });
   await page.goto('/', { waitUntil: 'networkidle' });
+  await page.evaluate(() => document.fonts.ready);
+  const fontState = await page.evaluate(() => ({
+    display: getComputedStyle(document.querySelector('h1')).fontFamily,
+    body: getComputedStyle(document.body).fontFamily,
+    mono: getComputedStyle(document.querySelector('.eyebrow')).fontFamily,
+    loaded: [...document.fonts].filter(font => font.status === 'loaded').map(font => font.family.replaceAll('"', '')),
+    external: performance.getEntriesByType('resource').filter(entry => new URL(entry.name).origin !== location.origin).map(entry => entry.name)
+  }));
+  expect(fontState.display).toMatch(/^"Bodoni Moda"/);
+  expect(fontState.body).toMatch(/^Inter/);
+  expect(fontState.mono).toMatch(/^"JetBrains Mono"/);
+  expect(fontState.loaded).toEqual(expect.arrayContaining(['Bodoni Moda', 'Inter', 'JetBrains Mono']));
+  expect(fontState.external).toEqual([]);
   await expect(page).toHaveTitle('Agent Platform — Warsaw Analytica');
   await expect(page.locator('h1')).toHaveCount(1);
   await expect(page.locator('h1')).toHaveText('Agent Platform: engineering AI agents you can inspect.');
@@ -121,6 +134,17 @@ test('social preview is a real local PNG and unknown routes return a usable 404'
   }
   await page.getByRole('link', { name: /Return to Agent Platform/ }).click();
   await expect(page.locator('#hero-title')).toBeVisible();
+});
+
+test('homepage fonts do not change typography on existing routes or the 404 page', async ({ page }) => {
+  for (const route of ['/404.html', '/analytics/', '/experiments/', '/observability/']) {
+    await page.route('**/api/telemetry', route => route.fulfill({ status: 503, body: '{}' }));
+    await page.route(/^https:\/\/(api\.github\.com|api\.open-meteo\.com|air-quality-api\.open-meteo\.com)\//, route => route.abort());
+    await page.goto(route, { waitUntil: 'load' });
+    await expect(page.locator('link[href="/assets/fonts/homepage-fonts.css"]')).toHaveCount(0);
+    expect(await page.evaluate(() => [...document.fonts].some(font => /Bodoni Moda|Inter|JetBrains Mono/.test(font.family)))).toBe(false);
+    if (route === '/404.html') expect(await page.locator('body').evaluate(el => getComputedStyle(el).fontFamily)).not.toMatch(/^Inter/);
+  }
 });
 
 test('evidence links render existing experiments and observability fallbacks', async ({ page }) => {
