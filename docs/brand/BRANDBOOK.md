@@ -2,6 +2,7 @@
 
 Canonical brand contract for **Warsaw Analytica**, the shared identity layer for internal Warsaw Analytica surfaces.
 
+- **Compact v3:** Owner-approved Inter Semibold 600 compact derivative for constrained headers, approved at 48 px desktop and 40 px mobile on 2026-10-31. This supplements the v2 masters; it does not replace them. [CONFIRMED — OWNER DECISION]
 - **Status:** Digital Brand **v1** contract retained; **Brand Assets v2** production pass validated on 2026-09-21. Variant D is owner-selected; this does not claim a separate owner sign-off on the delivered vectors.
 - Supporting visual source: `docs/brand/brand-reference.png` (the supplied Warsaw Analytica brandboard, 1122 x 1402 px)
 - Asset geometry authority: `docs/brand/brand-assets-v2-approved.png` — **Variant D, smoother transitions**. Priority: approved Variant D board, Brand v1 contract, original brandboard. [CONFIRMED — OWNER DECISION]
@@ -99,6 +100,25 @@ The copies are standalone for runtime use; any future master edit must be propag
 
 Use the full master where its fine strokes remain legible. Prefer the compact favicon for 16–32 px icon contexts. Do not use the large wordmark at favicon scale. [INFERRED FOR DIGITAL USE]
 
+#### 2.6.1 Approved Compact Wordmark v3
+
+The owner approved the supplied Inter Semibold 600 compact lockup for compact header use. The separate approved files are `site/assets/brand/wa-compact-inter-semibold-light.svg` and `site/assets/brand/wa-compact-inter-semibold-dark.svg`. Keep all four canonical v2 masters, including the favicon, unchanged. The serif master remains the editorial identity; this compact exception does not change general typography. [CONFIRMED — OWNER DECISION]
+
+Use a total SVG canvas height of **48 CSS px on desktop** and **40 CSS px on mobile**. Site A uses its existing mobile-navigation breakpoint at `max-width: 768px`. Preserve the `215.90 × 64` viewBox ratio (161.925 px wide at 48 px high; 134.9375 px at 40 px). Do not crop the canvas, stretch, recolor, reconstruct the paths or replace the lettering with live text. Prefer the existing compact favicon for icon-only contexts. [CONFIRMED — OWNER DECISION for sizes and asset preservation; VERIFIED IN REPOSITORY for viewBox and calculated widths]
+
+Keep the SVG's internal whitespace and reserve at least 8 CSS px of external clear space around its canvas at the tested sizes. In Site A the canvas occupies existing header padding; adjacent navigation, content and the header's height stay in place. This 8 px working minimum is a compact implementation rule, separate from the full-master rule in section 2.8. [INFERRED FOR DIGITAL USE]
+
+Use the light file on Off-White `#F8F7F2` or White `#FFFFFF`. Use the dark file only on a surface verified for both contrast and appearance; verification on Charcoal `#1F2421` does not approve every dark background. Its `#A1D5CF` reverse teal is specific to this derivative, not an additional general brand colour. The v2 full-colour masters remain light-surface oriented. Site A's header uses only the light file; adding the dark asset does not authorize restyling other components. [CONFIRMED — OWNER DECISION for conditional dark use; INFERRED FOR DIGITAL USE for surface restrictions]
+
+Provenance: supplied `Warsaw_Analytica_Brand_Assets_v3.zip`, compact SVGs copied byte-for-byte. The archive README and SVG title describe the earlier experimental review stage; the owner's later explicit approval in the Compact Brand Assets v3 Integration task supersedes that status for these compact derivatives only. Preserve those original bytes as provenance. This approval does not retroactively assert separate owner acceptance of the v2 vector interpretation. [CONFIRMED — OWNER DECISION]
+
+| Approved file | SHA-256 |
+| :--- | :--- |
+| `wa-compact-inter-semibold-light.svg` | `a1cd044d80db48246f3523ec4c6b389717b16b9fbe3dd7ee44c9e901a134a26a` |
+| `wa-compact-inter-semibold-dark.svg` | `27e8a92baf4b600d2d628c375878c9e4b54b9a1922fe495358cd1560f59c12ac` |
+
+The compact files use vector outlines with no live text, font embedding or external font dependency. Their monogram path data matches the full Variant D master, with compact scaling; the dark file changes colours without changing geometry. These observations concern the compact files and do not remove the v2 live-serif dependency described in section 2.2. [VERIFIED IN REPOSITORY]
+
 ### 2.7 Favicon use
 
 The transparent 32 × 32 favicon is a **compact optical derivative**, not the full master uniformly reduced. Its 16-unit design grid is scaled by two. The silhouette is slightly taller, the connecting stroke and lime diagonal are strengthened, serif shelves are 1 device pixel deep at 16 px, and small curved terminal details are removed. The charcoal/teal/lime relationship and recognizable overlap remain. Five paths contain 42 endpoints plus 10 cubic control points. [VERIFIED IN REPOSITORY]
@@ -119,13 +139,13 @@ Do not stretch the assets, substitute a new serif, reposition the lime diagonal,
 
 Canonical full-color assets remain light-surface oriented. They were inspected on Off-White `#F8F7F2`, White `#FFFFFF` and Charcoal `#1F2421`. Charcoal strokes and text disappear on Charcoal; teal also has poor contrast. This is a known limitation, not a passed dark-surface legibility claim. [VERIFIED IN REPOSITORY]
 
-On dark product surfaces, use an Off-White panel. A reverse treatment shown in reference material is **FUTURE VARIANT**, not a delivered canonical asset. [INFERRED FOR DIGITAL USE]
+On dark product surfaces, use an Off-White panel. A reverse full-master treatment shown in reference material remains **FUTURE VARIANT**, not a delivered canonical master. The separately approved compact v3 dark derivative is governed by section 2.6.1. [INFERRED FOR DIGITAL USE]
 
 ---
 
 ## 3. Color system
 
-The six canonical colours are exactly those on the brandboard. No additional canonical colour exists.
+The six canonical colours are exactly those on the brandboard. No additional general canonical colour exists; the compact v3 reverse-teal exception is limited to the supplied dark derivative (section 2.6.1).
 
 ### 3.1 Canonical palette
 
@@ -251,7 +271,7 @@ They remain placeholders for the brand's original typeface: the licensed familie
 - Do not pair deep teal with charcoal, or forest green with deep teal, as text on background.
 - Do not use muted lime or stone gray as text on off-white.
 - Do not set functional UI text in the display serif.
-- Do not use the raster board as runtime logo art; use the four v2 assets listed in section 8.3. The owner-selected Variant D board remains the visual authority for assessing this reconstruction.
+- Do not use the raster board as runtime logo art; use the four v2 masters listed in section 8.3 or the separately approved compact v3 derivatives under section 2.6.1. The owner-selected Variant D board remains the visual authority for assessing this reconstruction.
 
 ---
 
@@ -284,6 +304,8 @@ Production review artifacts (never runtime assets):
 - `docs/brand/brand-assets-v2-validation.md` — construction, refinement and validation record.
 
 The owner selected Variant D; no claim is made that the delivered v2 vector interpretation has already received a separate final owner review. [CONFIRMED — OWNER DECISION for the direction; VERIFIED IN REPOSITORY for production status]
+
+The separately named compact v3 light/dark derivatives supplement this v2 baseline. Their later owner approval, immutable file hashes and compact-use restrictions are recorded in section 2.6.1. V2 provenance and master status remain unchanged. [CONFIRMED — OWNER DECISION]
 
 ### 8.4 Evidence and verification
 
@@ -318,7 +340,7 @@ These decisions record the v1 baseline. Section 2 supersedes asset geometry, wor
 
 - Exact licensed wordmark family remains TBD; live glyph shapes vary across systems.
 - Full-master hairlines and serifs lose detail at 16–24 px; use the compact favicon.
-- Direct dark-surface use is not supported by the full-color treatment. A reverse asset is a future variant, not part of v2.
+- Direct dark-surface use is not supported by the v2 full-color treatment. A reverse full-master asset remains a future variant, not part of v2. The compact v3 dark derivative is a separate, conditional exception (section 2.6.1).
 
 ---
 
@@ -326,5 +348,5 @@ These decisions record the v1 baseline. Section 2 supersedes asset geometry, wor
 
 - `docs/brand/DIGITAL_UI.md` — internal-tool interpretation for Cockpit and Wiki.
 - `site/assets/brand-tokens.css` — the token layer implementing section 3 and section 4.
-- `site/assets/brand/` — the four canonical v2 vector assets (section 8.3).
+- `site/assets/brand/` — the four canonical v2 vector masters (section 8.3) and separately named compact v3 derivatives (section 2.6.1).
 - `docs/design-system.md` — the earlier DataWarsaw dark-graphite and acid-lime direction. It remains the public-site record but is **not** the Warsaw Analytica design language.
